@@ -1,0 +1,135 @@
+﻿<Window x:Class="courseWork_project.HelpCenter_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseWork_project"
+        mc:Ignorable="d"
+        KeyDown="Window_KeyDown" WindowStartupLocation="CenterScreen"
+        Title="Посібник користувача" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="1.5*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock
+                Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"
+                FontSize="30" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                x:Name="InfoText_header"
+                >
+            <Bold>Оберіть дію, яка вас цікавить</Bold>
+        </TextBlock>
+
+        <StackPanel
+            Grid.Row="1" Grid.Column="0"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            >
+            <TextBlock 
+                FontSize="10" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Головна сторінка'':"
+                TextWrapping="WrapWithOverflow" TextAlignment="Center">
+            </TextBlock>
+            <ComboBox
+                FontSize="12"
+                Height="20" Width="160"
+                x:Name="MainWindowCombobox" SelectionChanged="MainWindowCombobox_SelectionChanged"
+                ToolTip="Список для вибору посібників з дій на головній сторінці">
+                <ComboBoxItem Content="Створення тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Пошук запитання тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Пошук відповіді тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Групування тестів"></ComboBoxItem>
+                <ComboBoxItem Content="Групування запитань"></ComboBoxItem>
+                <ComboBoxItem Content="Сортування тестів"></ComboBoxItem>
+                <ComboBoxItem Content="Сортування запитань"></ComboBoxItem>
+                <ComboBoxItem Content="Проходження обраного тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Редагування обраного тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Перегляд результатів проходження обраного тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Видалення обраного тесту"></ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="1" Grid.Column="1"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            >
+            <TextBlock 
+                FontSize="10" FontStyle="Italic" Text="Оберіть дію, що виконується при проходженні тесту:"
+                TextWrapping="WrapWithOverflow" TextAlignment="Center">
+            </TextBlock>
+            <ComboBox
+                FontSize="12"
+                Height="20" Width="160"
+                x:Name="TestPassingCombobox" SelectionChanged="TestPassingCombobox_SelectionChanged"
+                ToolTip="Список для вибору посібників з дій при проходженні тесту">
+                <ComboBoxItem Content="Розпочати проходження тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Обрання варіанту відповіді на запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Перехід до наступного запитання тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Повернення до головної сторінки"></ComboBoxItem>
+                <ComboBoxItem Content="Завершення тесту"></ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+        
+        <StackPanel
+            Grid.Row="1" Grid.Column="2"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            >
+            <TextBlock 
+                FontSize="10" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Створення/редагування тесту'':"
+                TextWrapping="WrapWithOverflow" TextAlignment="Center">
+            </TextBlock>
+            <ComboBox
+                FontSize="12"
+                Height="20" Width="160"
+                x:Name="CreationEditingCombobox" SelectionChanged="CreationEditingCombobox_SelectionChanged"
+                ToolTip="Список для вибору посібників з дій при створенні/редагуванні тесту">
+                <ComboBoxItem Content="Ввід/редагування запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Додавання варіанту відповіді на запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Позначення доданого варіанту відповіді як правильного"></ComboBoxItem>
+                <ComboBoxItem Content="Видалення останнього варіанту відповіді на запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Додавання/видалення ілюстрації до запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Створення до наступного запитання/перехід до наступного запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Перехід до попереднього запитання тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Перехід до збереження тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Повернення до головної сторінки"></ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+        
+        <StackPanel
+            Grid.Row="1" Grid.Column="3"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            >
+            <TextBlock 
+                FontSize="10" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Збереження тесту'':"
+                TextWrapping="WrapWithOverflow" TextAlignment="Center">
+            </TextBlock>
+            <ComboBox
+                FontSize="12"
+                Height="20" Width="160"
+                x:Name="TestSavingCombobox" SelectionChanged="TestSavingCombobox_SelectionChanged"
+                ToolTip="Список для вибору посібників з дій при збереженні тесту">
+                <ComboBoxItem Content="Ввід/редагування назви тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Задання/редагування обмеження у часі проходження тесту"></ComboBoxItem>
+                <ComboBoxItem Content="Редагування обраного запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Видалення обраного запитання"></ComboBoxItem>
+                <ComboBoxItem Content="Збереження тесту та повернення до головної сторінки"></ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4">
+            <TextBlock MaxWidth="750"
+                FontSize="20" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                TextWrapping="Wrap"
+                x:Name="InfoText"
+                >
+            Клацніть на відповідне до ваших потреб випадаюче меню вибору опцій та оберіть бажану дію для отримання посібника
+            </TextBlock>
+        </ScrollViewer>
+    </Grid>
+</Window>

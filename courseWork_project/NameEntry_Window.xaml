@@ -1,0 +1,57 @@
+﻿<Window x:Class="courseWork_project.NameEntry_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseWork_project"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing" KeyDown="Window_KeyDown"
+        Title="Вікно введення імені користувача" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".3*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".3*"/>
+        </Grid.RowDefinitions>
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="0" Grid.Column="0"
+                Height="40" Width="170"
+                x:Name="BackToMain_Button"
+                Click="BackToMain_Button_Click"
+                ToolTip="Повернення до головної сторінки">
+            До головної сторінки
+        </Button>
+        <TextBlock
+                Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6"
+                TextWrapping="Wrap" TextAlignment="Center"
+                FontSize="28" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                x:Name="QuestionText"
+                >
+            Введіть Ваше ім'я:
+        </TextBlock>
+        <TextBox Style="{StaticResource TextBoxes}"
+                Grid.Row="2" Grid.ColumnSpan="4"
+                FontSize="30" FontWeight="ExtraBold"
+                MinWidth="350" MinHeight="50"
+                x:Name="UsernameTextBlock" GotFocus="UsernameTextBlock_GotFocus"  LostFocus="UsernameTextBlock_LostFocus"
+                Text="Введіть ім'я тут" ToolTip="Введіть Ваше ім'я в цьому полі"
+                >
+        </TextBox>
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="4" Grid.ColumnSpan="4"
+                FontSize="18" Foreground="AliceBlue"  Background="#000032"
+                Height="60" Width="260"
+                x:Name="BeginTest_Button"
+                Click="BeginTest_Button_Click"
+                ToolTip="Перехід до вікна проходження тесту">
+            Розпочати тест
+        </Button>
+    </Grid>
+</Window>

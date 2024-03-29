@@ -1,0 +1,133 @@
+﻿<Window x:Class="courseWork_project.TestChange_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseWork_project"
+        mc:Ignorable="d"
+        Closing="Window_Closing"
+        KeyDown="Window_KeyDown" WindowStartupLocation="CenterScreen"
+        Title="Створення/редагування тесту" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="229*"/>
+            <ColumnDefinition Width="76*"/>
+            <ColumnDefinition Width="76*"/>
+            <ColumnDefinition Width="229*"/>
+            <ColumnDefinition Width="63*"/>
+            <ColumnDefinition Width="76*"/>
+            <ColumnDefinition Width="38*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".7*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".5*"/>
+        </Grid.RowDefinitions>
+        
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="0" Grid.Column="0"
+                Height="40" Width="170"
+                x:Name="BackToMain_Button"
+                Click="BackToMain_Button_Click"
+                ToolTip="Повернення до головної сторінки">
+            До головної сторінки
+        </Button>
+        <TextBlock Grid.Column="5" Grid.ColumnSpan="2"
+                FontSize="40" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center"
+                x:Name="CurrentQuestion_Text"
+                >
+            1/10
+        </TextBlock>
+        <DockPanel
+             Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+            >
+            <Button
+                Width="200" Height="100" Background="Transparent" Foreground="Transparent"
+                x:Name="ImageChange_Button"
+                Click="ImageChange_Button_Click"
+                >
+                <Viewbox Height="100" Width="200">
+                    <Border Background="Transparent" CornerRadius="10">
+                        <Image x:Name="IllustrationImage"
+                            Source="/default-image/default-image.png"/>
+                    </Border>
+                </Viewbox>
+            </Button>
+            <Button Style="{StaticResource BasicButton}"
+                FontSize="10" Height="60" Width="100"
+                x:Name="ImageDeletion_Button"
+                Click="ImageDeletion_Button_Click"
+                ToolTip="Видалення ілюстративної картинки до поточного запитання"
+                Content="Видалити картинку"
+            />
+        </DockPanel>
+        <TextBox Style="{StaticResource TextBoxes}"
+                Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4"
+                FontSize="20" Foreground="Black" MinHeight="70" MinWidth="420"
+                x:Name="QuestionInput"
+            >
+        </TextBox>
+        <TextBlock Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" FontSize="20"
+                   TextWrapping="Wrap" HorizontalAlignment="Center" MinHeight="70" MinWidth="420" VerticalAlignment="Center" TextAlignment="Center"
+                   Foreground="DarkGray"
+                   IsHitTestVisible="False" Text="Введіть Ваше запитання"
+                   >
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=QuestionInput}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        <WrapPanel Grid.Row="2" Grid.Column="0"
+                   Grid.RowSpan="2" Grid.ColumnSpan="7"
+                   x:Name="dynamicWrapPanel"
+                   Orientation="Vertical"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="4" Grid.Column="0"
+                x:Name="PrevQuestion_Button"
+                Click="PrevQuestion_Button_Click"
+                ToolTip="Повернення до попереднього запитання">
+            Попереднє запитання
+        </Button>
+        <Button Style="{StaticResource BasicButton}"
+                VerticalAlignment="Top"
+                Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                x:Name="AddVariant_Button"
+                Click="AddVariant_Button_Click"
+                ToolTip="Перехід до сторінки збереження тесту">
+            Додати варіант відповіді
+        </Button>
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                Visibility="Visible"
+                VerticalAlignment="Bottom"
+                x:Name="RemoveLastVariant_Button"
+                Click="RemoveLastVariant_Button_Click"
+                ToolTip="Перехід до сторінки збереження тесту">
+            Видалити останній варіант
+        </Button>
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="4" Grid.Column="3" Width="180"
+                x:Name="SaveTest_Button"
+                Click="SaveTest_Button_Click"
+                ToolTip="Перехід до сторінки збереження тесту">
+            Закінчити та зберегти тест
+        </Button>
+        <Button Style="{StaticResource BasicButton}"
+                Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="3"
+                x:Name="NextQuestion_Button"
+                Click="NextQuestion_Button_Click"
+                ToolTip="Перехід до наступного запитання">
+            Наступне запитання
+        </Button>
+    </Grid>
+</Window>

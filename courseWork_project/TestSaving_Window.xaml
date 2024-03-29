@@ -1,0 +1,115 @@
+﻿<Window x:Class="courseWork_project.TestSaving_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseWork_project"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen"
+        KeyDown="Window_KeyDown"
+        Closing="Window_Closing"
+        Title="Збереження тесту" Height="450" Width="800">
+    <Window.Resources>
+        <!-- Style for saving button -->
+        <Style x:Key="SavingButton" TargetType="Button">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="AliceBlue" />
+            <Setter Property="Background" Value="#003f12" />
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="Black" BorderThickness="1"
+                            CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Hover (IsMouseOver) trigger -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Background" Value="#206255" />
+                                <Setter Property="Foreground" Value="AntiqueWhite"/>
+                            </Trigger>
+                            <!-- Click (IsPressed) trigger -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Cursor" Value="Wait"/>
+                                <Setter Property="Background" Value="DarkGreen" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width=".5*"/>
+            <ColumnDefinition Width=".45*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".7*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".5*"/>
+        </Grid.RowDefinitions>
+        <TextBox Style="{StaticResource TextBoxes}"
+                Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
+                FontSize="30" FontWeight="ExtraBold" MinWidth="350" MinHeight="50" MaxWidth="360"
+                x:Name="TestTitleBlock" GotFocus="TestTitleBlock_GotFocus" LostFocus="TestTitleBlock_LostFocus"
+                Text="Введіть назву тесту" ToolTip="Введіть/відредагуйте назву тесту"
+                >
+        </TextBox>
+        <StackPanel             
+            Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            >
+            <TextBlock 
+                FontSize="10" FontStyle="Italic" Text="Обмеження в часі (у хв)">
+            </TextBlock>
+            <TextBox Style="{StaticResource TextBoxes}"
+                Foreground="Black"
+                FontSize="24" Width="120" MinWidth="50" MaxWidth="120"
+                ToolTip="Введіть обмеження в часі проходження тесту в хвилинах (0-необмежений час)"
+                x:Name="TimerInputBox">
+            </TextBox>
+        </StackPanel>
+
+        <DataGrid x:Name="dataGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Grid.RowSpan="2" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Запитання" MinWidth="350" Binding="{Binding Question}" />
+                <DataGridTemplateColumn Header="Редагування" MinWidth="90">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource DataGridButton}"
+                            ToolTip="Клацніть, щоб відредагувати це запитання"
+                            Content="Редагувати" Click="EditButton_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Видалення" MinWidth="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource DataGridButton}"
+                            ToolTip="Клацніть, щоб видалити це запитання"
+                            Content="Видалити" Click="DeleteButton_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Style="{StaticResource SavingButton}"
+                Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"
+                x:Name="Save_Button"
+                Click="Save_Button_Click"
+                ToolTip="Збереження тесту і повернення до головної сторінки">
+            Зберегти тест та повернутись до головної сторінки
+        </Button>
+    </Grid>
+</Window>
