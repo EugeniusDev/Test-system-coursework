@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:courseWork_project"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="Головна сторінка" Height="450" Width="800"
+        Title="Головна сторінка" Height="650" Width="1000"
         KeyDown="Window_KeyDown" Closing="Window_Closing"
         >
     <Grid>
@@ -33,147 +33,121 @@
                 Click="Create_button_Click"
                 ToolTip="Створення нового тесту"
                 Content="Створити тест"/>
-        <StackPanel
-            Grid.Row="0" Grid.Column="2"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
-            <TextBlock 
-                FontSize="10" FontStyle="Italic" Text="Групування тестів">
-            </TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="2"
+            HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock FontSize="10" FontStyle="Italic" Text="Групування тестів"/>
             <ComboBox
                 FontSize="12"
                 Height="20" Width="150"
                 x:Name="TestInfoGroupOptions" SelectionChanged="TestInfoGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування інформації про тести">
-                <ComboBoxItem Content="Групування обмежених в часі проходження тестів"></ComboBoxItem>
-                <ComboBoxItem Content="Групування відредагованих сьогодні тестів"></ComboBoxItem>
-                <ComboBoxItem Content="Групування контрольних робіт"></ComboBoxItem>
+                <ComboBoxItem Content="Групування обмежених в часі проходження тестів"/>
+                <ComboBoxItem Content="Групування відредагованих сьогодні тестів"/>
+                <ComboBoxItem Content="Групування контрольних робіт"/>
             </ComboBox>
-            
-            <TextBlock 
-                FontSize="10" FontStyle="Italic" Text="Групування запитань">
-            </TextBlock>
+
+            <TextBlock FontSize="10" FontStyle="Italic" Text="Групування запитань"/>
             <ComboBox 
                 FontSize="12"
                 Height="20" Width="150"
                 x:Name="QuestionGroupOptions" SelectionChanged="QuestionGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування запитань тестів">
-                <ComboBoxItem Content="Групування ілюстрованих запитань"></ComboBoxItem>
-                <ComboBoxItem Content="Групування запитань, в яких всі варіанти правильні"></ComboBoxItem>
+                <ComboBoxItem Content="Групування ілюстрованих запитань"/>
+                <ComboBoxItem Content="Групування запитань, в яких всі варіанти правильні"/>
             </ComboBox>
         </StackPanel>
         
         <StackPanel
             Grid.Row="0" Grid.Column="3"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
-            <TextBlock 
-                FontSize="10" FontStyle="Italic" Text="Сортування тестів">
-            </TextBlock>
+            HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock FontSize="10" FontStyle="Italic" Text="Сортування тестів"/>
             <ComboBox
                 FontSize="12"
                 Height="20" Width="150"
                 x:Name="TestInfoSortOptions" SelectionChanged="TestInfoSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування інформації про тести">
-                <ComboBoxItem Content="Сортування за датою останнього редагування"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за значенням таймера"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за кількістю запитань"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за назвами в лексикографічному порядку"></ComboBoxItem>
+                <ComboBoxItem Content="Сортування за датою останнього редагування"/>
+                <ComboBoxItem Content="Сортування за значенням таймера"/>
+                <ComboBoxItem Content="Сортування за кількістю запитань"/>
+                <ComboBoxItem Content="Сортування за назвами в лексикографічному порядку"/>
             </ComboBox>
 
-            <TextBlock 
-                FontSize="10" FontStyle="Italic" Text="Сортування запитань">
-            </TextBlock>
+            <TextBlock FontSize="10" FontStyle="Italic" Text="Сортування запитань"/>
             <ComboBox
-                FontSize="12"
-                Height="20" Width="150"
+                FontSize="12" Height="20" Width="150"
                 x:Name="QuestionSortOptions" SelectionChanged="QuestionSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування запитань тестів">
-                <ComboBoxItem Content="Сортування за кількістю варіантів"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за кількістю правильних відповідей"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за довжиною запитання"></ComboBoxItem>
-                <ComboBoxItem Content="Сортування за запитаннями в лексикографічному порядку"></ComboBoxItem>
+                <ComboBoxItem Content="Сортування за кількістю варіантів"/>
+                <ComboBoxItem Content="Сортування за кількістю правильних відповідей"/>
+                <ComboBoxItem Content="Сортування за довжиною запитання"/>
+                <ComboBoxItem Content="Сортування за запитаннями в лексикографічному порядку"/>
             </ComboBox>
         </StackPanel>
 
         <DockPanel
             Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBox Style="{StaticResource TextBoxes}"
                 x:Name="QuestionSearchBox"
                 Text="Пошук запитання тесту" ToolTip="Поле пошуку запитання серед усіх тестів"
-                GotFocus="QuestionSearchBox_GotFocus"
-                >
-            </TextBox>
+                GotFocus="QuestionSearchBox_GotFocus"/>
             <Button Style="{StaticResource BasicButton}"
                 Height="36" Width="50"
-                x:Name="SearchQuestion_button"
+                x:Name="SearchQuestion_button" Content="Знайти"
                 Click="SearchQuestion_button_Click"
-                ToolTip="Здійснити пошук введеного запитання тесту">
-                Знайти
-            </Button>
+                ToolTip="Здійснити пошук введеного запитання тесту"/>
         </DockPanel>
 
         <DockPanel
             Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBox Style="{StaticResource TextBoxes}"
                 x:Name="VariantSearchBox"
                 Text="Пошук відповіді тесту" ToolTip="Поле пошуку запитання серед усіх тестів"
-            GotFocus="VariantSearchBox_GotFocus"
-            >
-            </TextBox>
+                GotFocus="VariantSearchBox_GotFocus"/>
             <Button Style="{StaticResource BasicButton}"
                 Height="36" Width="50"
-                x:Name="SearchVariant_button"
+                x:Name="SearchVariant_button" Content="Знайти"
                 Click="SearchVariant_button_Click"
-                ToolTip="Здійснити пошук введеного варіанту відповіді на запитання тесту">
-                Знайти
-            </Button>
+                ToolTip="Здійснити пошук введеного варіанту відповіді на запитання тесту"/>
         </DockPanel>
-        
-        <DataGrid x:Name="testsGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" VerticalAlignment="Center" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Назва тесту" MinWidth="350" Binding="{Binding TestTitle}" />
-                <DataGridTemplateColumn Header="Проходження" Width="90">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб пройти цей тест"
-                            Content="Пройти" Click="Taking_Button_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Редагування" Width="90">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб відредагувати це запитання"
-                            Content="Редагувати" Click="EditButton_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Результати" Width="100">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб переглянути результати проходження цього тесту"
-                            Content="Переглянути" Click="ResultsButton_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Видалення" Width="80">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб видалити цей тест"
-                            Content="Видалити" Click="DeleteButton_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- StackPanel for convenient display of text in case of lack of data -->
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="4" Margin="15" x:Name="TrainingListStackPanel">
+            <TextBlock Margin="20" TextWrapping="Wrap" TextAlignment="Center"
+                FontSize="36" FontWeight="Light" Foreground="#202020" x:Name="TestsInfoTextblock"
+                Text="Немає створених тестів"/>
+            <!-- Actual list of test -->
+            <ListView x:Name="TestsListView" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid MinWidth="900" MaxWidth="980">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding TestTitle}"
+                                   MinWidth="450" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <Button Grid.Column="1" Style="{StaticResource DataGridButton}" Margin="10 0"
+                                ToolTip="Клацніть, щоб пройти цей тест" MinWidth="100"
+                                Content="Пройти" Click="Taking_Button_Click"/>
+                            <Button Grid.Column="2" Style="{StaticResource DataGridButton}" Margin="10 0"
+                                    ToolTip="Клацніть, щоб відредагувати це запитання" MinWidth="100"
+                                    Content="Редагувати" Click="EditButton_Click"/>
+                            <Button Grid.Column="3" Style="{StaticResource DataGridButton}" Margin="10 0"
+                                    ToolTip="Клацніть, щоб переглянути результати проходження цього тесту"
+                                    MinWidth="100"
+                                    Content="Переглянути" Click="ResultsButton_Click" />
+                            <Button Grid.Column="4" Style="{StaticResource DataGridButton}" Margin="10 0"
+                                    ToolTip="Клацніть, щоб видалити цей тест" MinWidth="100"
+                                    Content="Видалити" Click="DeleteButton_Click" />
+                        </Grid>
+
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
     </Grid>
 </Window>

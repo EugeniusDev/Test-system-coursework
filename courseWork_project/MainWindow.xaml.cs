@@ -23,7 +23,7 @@ namespace courseWork_project
     /// Логіка взаємодії з MainWindow.xaml. Клас MainWindow наслідує інтерфейс IListInGUIPuttable<List<string>>
     /// </summary>
     /// <remarks>Вікно MainWindow.xaml використовується як меню</remarks>
-    public partial class MainWindow : Window, IListInGUIPuttable<List<string>>
+    public partial class MainWindow : Window
     {
         /// <summary>
         /// ObservableCollection для DataGrid
@@ -60,14 +60,9 @@ namespace courseWork_project
             existingTestsTitles = fileReader.RefreshTheListOfTests();
             // Ініціювання об'єкту класу ObservableCollection, що містить TestItemи
             testItems = new ObservableCollection<TestItem>();
-            // Присвоєння testItems як джерела об'єктів для DataGrid з ім'ям testsGrid
-            testsGrid.ItemsSource = testItems;
+            TestsInfoTextblock.Text = (existingTestsTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
+            TestsListView.ItemsSource = testItems;
             GetListAndPutItInGUI(existingTestsTitles);
-        }
-        // Деструктор
-        ~MainWindow() 
-        {
-            Debug.WriteLine("Знищено об'єкт MainWindow");
         }
         /// <summary>
         /// Обробка події, коли натиснуто клавішу на клавіатурі
@@ -108,13 +103,13 @@ namespace courseWork_project
         private void Taking_Button_Click(object sender, RoutedEventArgs e)
         {
             // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = testsGrid.SelectedItem as TestItem;
+            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
 
             if (selectedItem != null)
             {
                 // Отримання всіх потрібних даних обраного тесту для ініціації TestTaking_Window
-                List<Test.Question> questionsToTake = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
-                Test.TestInfo infoOfTestToTake = DataDecoder.GetTestInfo(selectedItem.TestTitle);
+                List<TestStructs.Question> questionsToTake = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
+                TestStructs.TestInfo infoOfTestToTake = DataDecoder.GetTestInfo(selectedItem.TestTitle);
                 // Ініціація об'єкту TestTaking_Window, відкриття цього вікна
                 NameEntry_Window nameEntry_Window = new NameEntry_Window(questionsToTake, infoOfTestToTake);
                 nameEntry_Window.Show();
@@ -129,13 +124,13 @@ namespace courseWork_project
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = testsGrid.SelectedItem as TestItem;
+            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
 
             if (selectedItem != null)
             {
                 // Отримання всіх потрібних даних обраного тесту для ініціації TestSaving_Window в режимі редагування
-                List<Test.Question> questionsToEdit = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
-                Test.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfo(selectedItem.TestTitle);
+                List<TestStructs.Question> questionsToEdit = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
+                TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfo(selectedItem.TestTitle);
                 // Видалення директорії з базою даних обраного тесту
                 DataDecoder.EraseFolder(selectedItem.TestTitle);
 
@@ -163,7 +158,7 @@ namespace courseWork_project
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
             // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = testsGrid.SelectedItem as TestItem;
+            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
             if (selectedItem != null)
             {
                 string transliteratedTestTitle = DataDecoder.TransliterateAString(selectedItem.TestTitle);
@@ -193,7 +188,7 @@ namespace courseWork_project
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = testsGrid.SelectedItem as TestItem;
+            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
             if (selectedItem != null)
             {
                 string textOfConfirmation = $"Ви видалите тест \"{selectedItem.TestTitle}\".";
@@ -316,8 +311,8 @@ namespace courseWork_project
                 // В кожному існуючому тесті шукаємо структуру із вказаним запитанням
                 foreach(string testTitle in existingTestsTitles)
                 {
-                    List<Test.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
-                    Test.Question foundQuestion = currentTestQuestions.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
+                    List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
+                    TestStructs.Question foundQuestion = currentTestQuestions.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
                     // Якщо структуру із вказаним запитанням знайдено
                     if (foundQuestion.question != null)
                     {
@@ -356,8 +351,8 @@ namespace courseWork_project
                 // В кожному існуючому тесті шукаємо запитання із вказаною відповіддю
                 foreach (string testTitle in existingTestsTitles)
                 {
-                    List<Test.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
-                    foreach(Test.Question currentQuestion in currentTestQuestions)
+                    List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
+                    foreach(TestStructs.Question currentQuestion in currentTestQuestions)
                     {
                         foreach(string variant in currentQuestion.variants)
                         {

@@ -7,7 +7,7 @@
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         KeyDown="Window_KeyDown"
         Closing="Window_Closing"
-        Title="Збереження тесту" Height="450" Width="800">
+        Title="Збереження тесту" Height="650" Width="1000">
     <Window.Resources>
         <!-- Style for saving button -->
         <Style x:Key="SavingButton" TargetType="Button">

@@ -15,7 +15,7 @@ namespace courseWork_project
         /// <param name="testTitle">Назва тесту, для якого шукати картинки</param>
         /// <param name="questionsList">Список (List) структур даних запитань тесту</param>
         /// <returns>List<ImageManager.ImageInfo> для подальшої маніпуляції</returns>
-        public List<ImageInfo> FormImageList(string testTitle, List<Test.Question> questionsList)
+        public List<ImageInfo> FormImageList(string testTitle, List<TestStructs.Question> questionsList)
         {
             List<ImageInfo> imagesToReturn = new List<ImageInfo>();
 
@@ -28,14 +28,16 @@ namespace courseWork_project
             {
                 if (currentImageTitle.Contains(transliteratedTestTitle))
                 {
-                    string[] splitTitle = currentImageTitle.Split(new char[] { '-' });
+                    string[] splitTitle = currentImageTitle.Split('-');
 
                     string relativePath = currentImageTitle;
                     string absolutePath = Path.GetFullPath(relativePath);
 
-                    ImageInfo currImageInfo = new ImageInfo();
-                    currImageInfo.imagePath = absolutePath;
-                    string betweenNameAndExtension = splitTitle[splitTitle.Length - 1].Split(new char[] { '.' })[0];
+                    ImageInfo currImageInfo = new ImageInfo
+                    {
+                        imagePath = absolutePath
+                    };
+                    string betweenNameAndExtension = splitTitle[splitTitle.Length - 1].Split('.')[0];
                     // Якщо картинка та прив'язка до неї існують
                     bool imageAndQuestionExist = int.TryParse(betweenNameAndExtension, out currImageInfo.questionIndex)
                         && questionsList.Count >= currImageInfo.questionIndex;

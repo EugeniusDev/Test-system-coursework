@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace courseWork_project
@@ -23,11 +22,6 @@ namespace courseWork_project
         /// <param name="directoryPath">Назва директорії, куди треба записати дані</param>
         /// <param name="filePath">Назва файлу, куди треба записати дані (вказуйте розширення файлу)</param>
         public FileWriter(string directoryPath, string filePath) : base(directoryPath, filePath) { }
-        // Деструктор
-        ~FileWriter()
-        {
-            Debug.WriteLine("Знищено об'єкт FileWriter");
-        }
         /// <summary>
         /// Записує заданий список у файл рядок за рядком
         /// </summary>
@@ -37,11 +31,7 @@ namespace courseWork_project
         {
             // Якщо переданий список порожній, то метод нічого не робить
             if (textToWrite.Count == 0) return;
-            // Якщо директорії із заданою назвою не існує, така створюється
-            if (!PathExists())
-            {
-                Directory.CreateDirectory(DirectoryPath);
-            }
+            Directory.CreateDirectory(DirectoryPath);
             // Об'єднання назви директорії та файлу для знаходження повного шляху до файлу
             string fullPath = Path.Combine(DirectoryPath, FilePath);
             // Запис переданого списку в файл

@@ -6,7 +6,7 @@ namespace courseWork_project
     /// <summary>
     /// Клас, методи якого закодовують інформацію з структур в рядок для запису в базу даних
     /// </summary>
-    public abstract class DataEncoder
+    public static class DataEncoder
     {
         /// <summary>
         /// Отримує структури з даними про тест, формує список рядків цих даних
@@ -15,14 +15,14 @@ namespace courseWork_project
         /// <param name="testInfo">Структура, що містить інформацію про тест</param>
         /// <param name="questionsListToDecode">Список структур, що містять інформацію про запитання</param>
         /// <returns>Список рядків даних</returns>
-        public static List<string> EncodeAndReturnLines(Test.TestInfo testInfo, List<Test.Question> questionsListToDecode)
+        public static List<string> EncodeAndReturnLines(TestStructs.TestInfo testInfo, List<TestStructs.Question> questionsListToDecode)
         {
             List<string> stringListToReturn = new List<string>
             {
                 $"{testInfo.testTitle}₴{testInfo.lastEditedTime}₴{testInfo.timerValue}"
             };
             string tempStringToForm = string.Empty;
-            foreach (Test.Question question in questionsListToDecode)
+            foreach (TestStructs.Question question in questionsListToDecode)
             {
                 // Кожен рядок проходить перевірку на символ "₴"
                 tempStringToForm = RemoveSplitCharacters(question.question);

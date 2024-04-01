@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Closing="Window_Closing"
         KeyDown="Window_KeyDown" WindowStartupLocation="CenterScreen"
-        Title="Створення/редагування тесту" Height="450" Width="800">
+        Title="Створення/редагування тесту" Height="650" Width="1000">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="229*"/>

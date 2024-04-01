@@ -6,7 +6,7 @@ namespace courseWork_project
     /// <summary>
     /// Клас для маніпуляцій над ілюстраціями
     /// </summary>
-    public abstract class ImageManager
+    public static class ImageManager
     {
         /// <summary>
         /// Структура для збереження та маніпуляції даними про додану/змінену ілюстрацію
@@ -43,7 +43,7 @@ namespace courseWork_project
             // Отримуємо всі наявні картинки
             string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
             // Залежно від наявності картинок присвоюємо булеве значення
-            bool imagesExist = allImagesPaths.Length == 0 ? false : true;
+            bool imagesExist = allImagesPaths.Length != 0;
             return (allImagesPaths, imagesExist);
         }
         /// <summary>

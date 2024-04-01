@@ -17,7 +17,7 @@ namespace courseWork_project
     /// Логіка взаємодії з TestTaking_Window.xaml. Клас TestTaking_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>
     /// </summary>
     /// <remarks> Вікно TestTaking_Window.xaml використовується для проходження тесту</remarks>
-    public partial class TestTaking_Window : Window, IListInGUIPuttable<List<Test.Question>>
+    public partial class TestTaking_Window : Window
     {
         /// <summary>
         /// Індекс поточного запитання тесту
@@ -43,13 +43,13 @@ namespace courseWork_project
         /// </summary>
         private bool buttonClicked = false;
         /// <summary>
-        /// Список з Test.Question для оперування даними запитань тесту
+        /// Список з TestStructs.Question для оперування даними запитань тесту
         /// </summary>
-        private List<Test.Question> questionsList;
+        private List<TestStructs.Question> questionsList;
         /// <summary>
         /// Структура з інформацією про тест
         /// </summary>
-        private Test.TestInfo testInfo;
+        private TestStructs.TestInfo testInfo;
         /// <summary>
         /// Змінна для визначення існування ілюстрацій
         /// </summary>
@@ -75,10 +75,10 @@ namespace courseWork_project
         /// <summary>
         /// Конструктор TestTaking_Window, приймає 3 аргументи
         /// </summary>
-        /// <param name="questionsList">Список з Test.Question для оперування даними запитань тесту</param>
+        /// <param name="questionsList">Список з TestStructs.Question для оперування даними запитань тесту</param>
         /// <param name="currTestInfo">Структура з інформацією про тест</param>
         /// <param name="userName">Ім'я користувача, що проходить тест</param>
-        public TestTaking_Window(List<Test.Question> questionsList, Test.TestInfo currTestInfo, string userName)
+        public TestTaking_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo, string userName)
         {
             this.questionsList = questionsList;
             testInfo = currTestInfo;
@@ -116,16 +116,6 @@ namespace courseWork_project
             timer.Interval = 1000;
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
-        }
-        // Додатковий конструктор
-        public TestTaking_Window()
-        {
-            MessageBox.Show("Викликано неправильний конструктор");
-        }
-        // Деструктор
-        ~TestTaking_Window()
-        {
-            Debug.WriteLine("Знищено об'єкт TestTaking_Window");
         }
         /// <summary>
         /// Викликається таймером щосекунди
@@ -292,18 +282,19 @@ namespace courseWork_project
             if (wrapPanelOfVariants.Children.Count >= 8) return;
 
             // Створення кнопки з текстом варіанту відповіді
-            Button button = new Button();
-            button.Content = variantText;
-            button.Foreground = new SolidColorBrush(Colors.Black);
-            button.Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0");
-            button.FontSize = 18;
-            button.HorizontalAlignment = HorizontalAlignment.Center;
-            button.VerticalAlignment = VerticalAlignment.Center;
-            button.ToolTip = "Клацніть, щоб обрати цей варіант";
-            button.Margin = new Thickness(3);
-            button.MinWidth = 100;
-            button.MaxWidth = 260;
-
+            Button button = new Button
+            {
+                Content = variantText,
+                Foreground = new SolidColorBrush(Colors.Black),
+                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ToolTip = "Клацніть, щоб обрати цей варіант",
+                Margin = new Thickness(3),
+                MinWidth = 100,
+                MaxWidth = 260
+            };
             button.Click += VariantButton_Click;
 
             // Додавання Button та bool правильності поточного варіанту до словника
@@ -465,9 +456,9 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Розподіляє дані з структури по списках, формує та оновлює відповідний GUI</remarks>
         /// <param name="questions">Список структур запитань тесту</param>
-        public void GetListAndPutItInGUI(List<Test.Question> questions)
+        public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
         {
-            Test.Question currentQuestion = questions[currentQuestionIndex - 1];
+            TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];
             // За наявності відображаємо ілюстрацію
             ViewboxWithImage.Visibility = Visibility.Collapsed;
             IllustrationImage.Visibility = Visibility.Collapsed;

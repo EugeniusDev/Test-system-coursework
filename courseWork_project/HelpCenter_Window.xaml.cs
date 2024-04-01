@@ -11,60 +11,6 @@ namespace courseWork_project
     public partial class HelpCenter_Window : Window
     {
         /// <summary>
-        /// Enum для організації посібників, що стосуються вікна MainWindow
-        /// </summary>
-        private enum MainWindowManuals
-        {
-            TEST_CREATING,
-            QUESTION_SEARCH,
-            ANSWER_SEARCH,
-            TEST_GROUP,
-            QUESTION_GROUP,
-            TEST_SORT,
-            QUESTION_SORT,
-            TEST_PASSING,
-            TEST_EDITING,
-            RESULTS_VIEWING,
-            TEST_DELETING
-        }
-        /// <summary>
-        /// Enum для організації посібників, що стосуються проходження тесту
-        /// </summary>
-        private enum TestPassingManuals
-        {
-            TEST_BEGIN,
-            QUESTION_CHOOSE,
-            QUESTION_NEXT,
-            BACK_TO_MAIN,
-            TEST_END
-        }
-        /// <summary>
-        /// Enum для організації посібників, що стосуються вікна TestChange
-        /// </summary>
-        private enum TestChangeManuls
-        {
-            QUESTION_ENTRY,
-            VARIANT_ADD,
-            VARIANT_MARK,
-            VARIANT_DELETE,
-            QUESTION_IMAGE,
-            QUESTION_NEXT,
-            QUESTION_PREVIOUS,
-            TO_SAVING,
-            BACK_TO_MAIN
-        }
-        /// <summary>
-        /// Enum для організації посібників, що стосуються вікна TestSaving
-        /// </summary>
-        private enum TestSavingManuals
-        {
-            TITLE_ENTRY,
-            TIMER_ENTRY,
-            QUESTION_EDITING,
-            QUESTION_DELETING,
-            TEST_SAVING
-        }
-        /// <summary>
         /// Змінна, в якій зберігається допоміжна інформація для виводу
         /// </summary>
         string infoToWrite = string.Empty;
@@ -74,16 +20,6 @@ namespace courseWork_project
         public HelpCenter_Window()
         {
             InitializeComponent();
-        }
-        // Додатковий конструктор
-        public HelpCenter_Window(string redundantInformation)
-        {
-            MessageBox.Show($"Викликано неправильний конструктор.\n{redundantInformation} - зайвий ввід");
-        }
-        // Деструктор
-        ~HelpCenter_Window()
-        {
-            Debug.WriteLine("Знищено об'єкт HelpCenter_Window");
         }
         /// <summary>
         /// Обробка події, коли натиснута клавіша клавіатури Escape

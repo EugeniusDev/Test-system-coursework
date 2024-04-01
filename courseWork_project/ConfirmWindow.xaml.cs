@@ -6,33 +6,15 @@ using System.Windows.Input;
 namespace courseWork_project
 {
     /// <summary>
-    /// Enum для визначення типу вікна підтвердження
-    /// </summary>
-    public enum ConfirmActionsWindowModes
-    {
-        /// <summary>
-        /// Повернення до MainWindow з вікна TestChange
-        /// </summary>
-        TEST_CHANGE_TO_MAIN,
-        /// <summary>
-        /// Видалення тесту зі списку в MainWindow
-        /// </summary>
-        MAIN_DELETE_TEST,
-        /// <summary>
-        /// Повернення до MainWindow з вікна TestTaking
-        /// </summary>
-        TEST_TAKING_TO_MAIN,
-    }
-    /// <summary>
     /// Логіка взаємодії з ConfirmWindow.xaml
     /// </summary>
     /// <remarks> Вікно ConfirmWindow.xaml використовується для підтвердження виконання дії</remarks>
     public partial class ConfirmWindow : Window
     {
         /// <summary>
-        /// Список з Test.Question для тимчасового збережння даних запитань тесту
+        /// Список з TestStructs.Question для тимчасового збережння даних запитань тесту
         /// </summary>
-        private List<Test.Question> questionsThatCanBeLost;
+        private List<TestStructs.Question> questionsThatCanBeLost;
         /// <summary>
         /// Масив структур для збереження даних про ілюстрації
         /// </summary>
@@ -40,7 +22,7 @@ namespace courseWork_project
         /// <summary>
         /// Структура з інформацією про тест для тимчасового збереження даних тесту
         /// </summary>
-        private Test.TestInfo testInfo;
+        private TestStructs.TestInfo testInfo;
         /// <summary>
         /// Індекс запитання, яке потрібно буде відкрити в разі відмови виконання дії
         /// </summary>
@@ -64,10 +46,10 @@ namespace courseWork_project
         /// <remarks>Приймає 5 параметрів</remarks>
         /// <param name="confirmMode">Тип вікна підтвердження</param>
         /// <param name="actionDescription">Опис дії, яку повинен підтвердити користувач (ставте . в кінці)</param>
-        /// <param name="questionsThatCanBeLost">Список структур Test.Question, що буде втрачена внаслідок підтвердження дії</param>
-        /// <param name="testInfo">Структура Test.TestInfo, що буде втрачена внаслідок підтвердження дії</param>
+        /// <param name="questionsThatCanBeLost">Список структур TestStructs.Question, що буде втрачена внаслідок підтвердження дії</param>
+        /// <param name="testInfo">Структура TestStructs.TestInfo, що буде втрачена внаслідок підтвердження дії</param>
         /// <param name="indexToResumeEditingFrom">Індекс запитання, значення від 1 до 10</param>
-        public ConfirmWindow(ConfirmActionsWindowModes confirmMode, string actionDescription, List<Test.Question> questionsThatCanBeLost, List<ImageManager.ImageInfo> imageInfos, Test.TestInfo testInfo, int indexToResumeEditingFrom)
+        public ConfirmWindow(ConfirmActionsWindowModes confirmMode, string actionDescription, List<TestStructs.Question> questionsThatCanBeLost, List<ImageManager.ImageInfo> imageInfos, TestStructs.TestInfo testInfo, int indexToResumeEditingFrom)
         {
             confirmationMode = confirmMode;
             this.questionsThatCanBeLost = questionsThatCanBeLost;
@@ -90,11 +72,6 @@ namespace courseWork_project
             this.testTitle = testTitle;
             InitializeComponent();
             Action_Text.Text = string.Concat(actionDescription, " Ви впевнені, що хочете це зробити?");
-        }
-        // Деструктор
-        ~ConfirmWindow()
-        {
-            Debug.WriteLine("Знищено об'єкт ConfirmWindow");
         }
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку Yes_Button

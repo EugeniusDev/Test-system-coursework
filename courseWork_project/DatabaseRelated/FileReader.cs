@@ -23,11 +23,6 @@ namespace courseWork_project
         /// <param name="directoryPath">Назва директорії, звідки треба зчитати дані</param>
         /// <param name="filePath">Назва файлу, звідки треба зчитати дані (вказуйте розширення файлу)</param>
         public FileReader(string directoryPath, string filePath) : base(directoryPath, filePath) { }
-        // Деструктор
-        ~FileReader()
-        {
-            Debug.WriteLine("Знищено об'єкт FileReader");
-        }
         /// <summary>
         /// Зчитує питання тесту з файлу рядок за рядком
         /// </summary>

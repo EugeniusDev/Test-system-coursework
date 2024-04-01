@@ -6,7 +6,7 @@ namespace courseWork_project
     /// <summary>
     /// Клас для визначення структур даних з інформацією про тест
     /// </summary>
-    public abstract class Test
+    public static class TestStructs
     {
         /// <summary>
         /// Структура кожного питання

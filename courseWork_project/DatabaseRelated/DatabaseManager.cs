@@ -9,18 +9,6 @@ namespace courseWork_project
     public class DatabaseManager
     {
         /// <summary>
-        /// Поле для назви директорії, в якій знаходиться файл
-        /// </summary>
-        private string _directoryPath;
-        /// <summary>
-        /// Поле для назви файлу
-        /// </summary>
-        private string _filePath;
-        /// <summary>
-        /// Поле для повного шляху до файлу
-        /// </summary>
-        private string _fullPath;
-        /// <summary>
         /// Конструктор класу з одним параметром - назва тесту
         /// </summary>
         /// <remarks>На основі цього параметра формується шлях до бази даних</remarks>
@@ -37,15 +25,15 @@ namespace courseWork_project
         /// <param name="filePath">Назва файлу, куди треба записати дані (вказуйте розширення файлу)</param>
         public DatabaseManager(string directoryPath, string filePath)
         {
-            _directoryPath = directoryPath;
-            _filePath = filePath;
-            _fullPath = System.IO.Path.Combine(DirectoryPath, FilePath);
+            DirectoryPath = directoryPath;
+            FilePath = filePath;
+            FullPath = System.IO.Path.Combine(DirectoryPath, FilePath);
         }
 
         // Відповідні до полів класу властивості
-        public string FilePath { get { return _filePath; } set { _filePath = value; } }
-        public string DirectoryPath { get { return _directoryPath; } set { _directoryPath = value; } }
-        public string FullPath { get { return _fullPath; } set { _fullPath = value; } }
+        public string FilePath { get; set; }
+        public string DirectoryPath { get; set; }
+        public string FullPath { get; set; }
 
         /// <summary>
         /// Формує поля класу, використовуючи назву тесту

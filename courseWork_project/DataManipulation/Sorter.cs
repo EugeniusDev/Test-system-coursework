@@ -3,28 +3,8 @@ using System.Windows;
 
 namespace courseWork_project
 {
-    public abstract class Sorter
+    public static class Sorter
     {
-        /// <summary>
-        /// Enum для визначення типу сортування тестів
-        /// </summary>
-        private enum TestSortTypes
-        {
-            BY_DATE,
-            BY_TIMER,
-            BY_QUESTIONS_COUNT,
-            BY_TITLE
-        }
-        /// <summary>
-        /// Enum для визначення типу сортування запитань тестів
-        /// </summary>
-        private enum QuestionSortTypes
-        {
-            BY_VARIANTS_COUNT,
-            BY_CORRECT_COUNT,
-            BY_QUESTION_LENGTH,
-            BY_QUESTION_TITLE
-        }
         /// <summary>
         /// Метод, що сортує тести за вказаним типом
         /// </summary>
@@ -32,7 +12,7 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
         public static void SortTests(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<Test.TestInfo> testsToSort = DataDecoder.GetAllTestInfos(transliteratedTitles);
+            List<TestStructs.TestInfo> testsToSort = DataDecoder.GetAllTestInfos(transliteratedTitles);
             string typeDescription = "Резулат сортування тестів за ";
             // Процес сортування
             switch ((TestSortTypes)typeOfSort)
@@ -66,7 +46,7 @@ namespace courseWork_project
 
             // Формування виводу просортованої інформації
             string resultOfSort = string.Empty;
-            foreach(Test.TestInfo currTestInfo in testsToSort)
+            foreach(TestStructs.TestInfo currTestInfo in testsToSort)
             {
                 resultOfSort = string.Concat(resultOfSort, $"\nНазва: {currTestInfo.testTitle}; " +
                     $"Дата: {currTestInfo.lastEditedTime}; " +
@@ -82,7 +62,7 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
         public static void SortQuestions(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<Test.Question> questionsToSort = DataDecoder.GetAllQuestions(transliteratedTitles);
+            List<TestStructs.Question> questionsToSort = DataDecoder.GetAllQuestions(transliteratedTitles);
             string typeDescription = "Резулат сортування запитань тестів за ";
             // Процес сортування
             switch ((QuestionSortTypes)typeOfSort)
@@ -109,7 +89,7 @@ namespace courseWork_project
             }
             // Формування виводу просортованої інформації
             string resultOfSort = string.Empty;
-            foreach (Test.Question currQuestion in questionsToSort)
+            foreach (TestStructs.Question currQuestion in questionsToSort)
             {
                 resultOfSort = string.Concat(resultOfSort, $"\nЗапитання: {currQuestion.question}; " +
                     $"Всього варіантів: {currQuestion.variants.Count}; " +

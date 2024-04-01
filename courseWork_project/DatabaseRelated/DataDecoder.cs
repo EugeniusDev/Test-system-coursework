@@ -8,7 +8,7 @@ namespace courseWork_project
     /// <summary>
     /// Клас, методи якого розкодовують інформацію з бази даних та формують потрібну структуру даних
     /// </summary>
-    public abstract class DataDecoder
+    public static class DataDecoder
     {
         /// <summary>
         /// Словник транслітерування для використання рядків в якості шляхів до баз даних
@@ -30,36 +30,37 @@ namespace courseWork_project
         /// <remarks>Використовує FileReader для зчитування даних з бази</remarks>
         /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
         /// <returns>Список структур даних з питань шуканого тесту або пустий список, якщо дані відсутні</returns>
-        public static List<Test.Question> FormQuestionsList(string testTitle)
+        public static List<TestStructs.Question> FormQuestionsList(string testTitle)
         {
-            List<Test.Question> formedQuestionsList = new List<Test.Question>();
+            List<TestStructs.Question> formedQuestionsList = new List<TestStructs.Question>();
             FileReader reader = new FileReader(testTitle);
             List<string> textInLines = reader.ReadAndReturnQuestionLines();
-            int correctAnswerIndex;
             foreach (string line in textInLines)
             {
                 // Створення нової структури, яка буде додана у список
-                Test.Question tempQuestion = new Test.Question();
-                tempQuestion.variants = new List<string>();
-                tempQuestion.correctVariantsIndexes = new List<int>();
+                TestStructs.Question tempQuestion = new TestStructs.Question
+                {
+                    variants = new List<string>(),
+                    correctVariantsIndexes = new List<int>()
+                };
                 // Розділення поточного рядка та розподілення його частин по полях структури питання
                 string[] splitLine = line.Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
                 tempQuestion.question = splitLine[0];
-                for (int i = 1; i < splitLine.Length-1; i++)
+                for (int i = 1; i < splitLine.Length - 1; i++)
                 {
                     // Якщо поточна частина рядка може бути конвертована в int додаємо її до correctVariantsIndexes
-                    if (int.TryParse(splitLine[i], out correctAnswerIndex) && splitLine[i].Length == 1)
+                    if (int.TryParse(splitLine[i], out int correctAnswerIndex) && splitLine[i].Length == 1)
                     {
                         tempQuestion.correctVariantsIndexes.Add(correctAnswerIndex);
                     }
                     // Інакше поки кількість варіантів не перевищує 8, додаємо поточну частину рядка в ролі варіанта
-                    else if(tempQuestion.variants.Count < 8)
+                    else if (tempQuestion.variants.Count < 8)
                     {
                         tempQuestion.variants.Add(splitLine[i]);
                     }
                 }
                 // Конвертування інформації про під'єднану ілюстрацію з останнього розбитого елемента
-                tempQuestion.hasLinkedImage = bool.Parse(splitLine[splitLine.Length-1]);
+                tempQuestion.hasLinkedImage = bool.Parse(splitLine[splitLine.Length - 1]);
                 formedQuestionsList.Add(tempQuestion);
             }
             return formedQuestionsList;
@@ -69,8 +70,8 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Використовує FileReader для зчитування даних з бази</remarks>
         /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
-        /// <returns>Зповнену структуру Test.TestInfo або порожню у випадку відсутності даних</returns>
-        public static Test.TestInfo GetTestInfo(string testTitle)
+        /// <returns>Зповнену структуру TestStructs.TestInfo або порожню у випадку відсутності даних</returns>
+        public static TestStructs.TestInfo GetTestInfo(string testTitle)
         {
             try
             {
@@ -78,20 +79,19 @@ namespace courseWork_project
                 string[] stringToSplit = reader.ReadAndReturnTestInfo().Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
                 // Якщо зчитаний рядок містить недостатньо інформації, кидаємо помилку
                 if (stringToSplit.Length < 3) throw new FormatException();
-                // Створення структури Test.TestInfo та її заповнення відповідними даними
-                Test.TestInfo currentTestInfo;
+                // Створення структури TestStructs.TestInfo та її заповнення відповідними даними
+                TestStructs.TestInfo currentTestInfo;
                 currentTestInfo.testTitle = stringToSplit[0];
                 currentTestInfo.lastEditedTime = DateTime.Parse(stringToSplit[1]);
-                int timerValue = 0;
-                bool timerIsSet = int.TryParse(stringToSplit[2], out timerValue);
+                int.TryParse(stringToSplit[2], out int timerValue);
                 currentTestInfo.timerValue = timerValue;
                 return currentTestInfo;
             }
             catch (FormatException)
             {
                 MessageBox.Show("Помилка! Дані з бази даних некоректні!");
-                // Створення "порожньої" структури Test.TestInfo
-                Test.TestInfo nullTestInfo;
+                // Створення "порожньої" структури TestStructs.TestInfo
+                TestStructs.TestInfo nullTestInfo;
                 nullTestInfo.testTitle = "null";
                 nullTestInfo.lastEditedTime = DateTime.Now;
                 nullTestInfo.timerValue = 0;
@@ -112,7 +112,7 @@ namespace courseWork_project
                 // Якщо символ є у словнику, замінюємо його, інакше залишаємо як є
                 transliteratedString = transliterationTable.ContainsKey(c) ? 
                     string.Concat(transliteratedString, transliterationTable[c])
-                    : transliteratedString = string.Concat(transliteratedString, c);
+                    : string.Concat(transliteratedString, c);
             }
             return transliteratedString;
         }
@@ -122,12 +122,12 @@ namespace courseWork_project
         /// <remarks>Використовується для сорту та групування запитань</remarks>
         /// <returns>Список всіх запитань</returns>
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
-        public static List<Test.Question> GetAllQuestions(List<string> transliteratedTitles)
+        public static List<TestStructs.Question> GetAllQuestions(List<string> transliteratedTitles)
         {
-            List<Test.Question> listToReturn = new List<Test.Question>();
+            List<TestStructs.Question> listToReturn = new List<TestStructs.Question>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                List<Test.Question> tempQuestionsList = FormQuestionsList(transliteratedTitle);
+                List<TestStructs.Question> tempQuestionsList = FormQuestionsList(transliteratedTitle);
                 listToReturn.AddRange(tempQuestionsList);
             }
             return listToReturn;
@@ -138,12 +138,12 @@ namespace courseWork_project
         /// <remarks>Використовується для сорту та групування тестів</remarks>
         /// <returns>Список всіх даних тестів</returns>
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
-        public static List<Test.TestInfo> GetAllTestInfos(List<string> transliteratedTitles)
+        public static List<TestStructs.TestInfo> GetAllTestInfos(List<string> transliteratedTitles)
         {
-            List<Test.TestInfo> listToReturn = new List<Test.TestInfo>();
+            List<TestStructs.TestInfo> listToReturn = new List<TestStructs.TestInfo>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                Test.TestInfo currentTestInfo = GetTestInfo(transliteratedTitle);
+                TestStructs.TestInfo currentTestInfo = GetTestInfo(transliteratedTitle);
                 listToReturn.Add(currentTestInfo);
             }
             return listToReturn;

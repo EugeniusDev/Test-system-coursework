@@ -24,20 +24,20 @@ namespace courseWork_project
     /// Логіка взаємодії з TestSaving_Window.xaml. Клас TestSaving_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>>
     /// </summary>
     /// <remarks>Вікно TestSaving_Window використовується для збереження створеного/відредагованого тесту в базу даних</remarks>
-    public partial class TestSaving_Window : Window, IListInGUIPuttable<List<Test.Question>>
+    public partial class TestSaving_Window : Window
     {
         /// <summary>
         /// Список (List) структур запитань
         /// </summary>
-        private List<Test.Question> questionsToSave;
+        private List<TestStructs.Question> questionsToSave;
         /// <summary>
         /// Масив структур для збереження даних про ілюстрації
         /// </summary>
-        private List<ImageManager.ImageInfo> imagesList = new List<ImageManager.ImageInfo>();
+        private List<ImageManager.ImageInfo> imagesList;
         /// <summary>
         /// Структура, що містить інформацію про поточний тест
         /// </summary>
-        private Test.TestInfo testInfo;
+        private TestStructs.TestInfo testInfo;
         /// <summary>
         /// Змінна для використання при оновленні назв картинок
         /// </summary>
@@ -61,7 +61,7 @@ namespace courseWork_project
         /// </summary>
         /// <param name="questionsToSave">Список (List) структур запитань</param>
         /// <param name="imagesToSave">Список (List) структур інформації про картинки</param>
-        public TestSaving_Window(List<Test.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave)
+        public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave)
         {
             creatingMode = true;
             this.questionsToSave = questionsToSave;
@@ -81,7 +81,7 @@ namespace courseWork_project
         /// </summary>
         /// <param name="questionsToSave">Список (List) структур запитань</param>
         /// <param name="currTestInfo">Структура загальної інформації про тест</param>
-        public TestSaving_Window(List<Test.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave, Test.TestInfo currTestInfo)
+        public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave, TestStructs.TestInfo currTestInfo)
         {
             creatingMode = false;
             this.questionsToSave = questionsToSave;
@@ -97,11 +97,6 @@ namespace courseWork_project
             // Присвоєння questionItems як джерела об'єктів для DataGrid з ім'ям dataGrid
             dataGrid.ItemsSource = questionItems;
             GetListAndPutItInGUI(questionsToSave);
-        }
-        // Деструктор
-        ~TestSaving_Window()
-        {
-            Debug.WriteLine("Знищено об'єкт TestSaving_Window");
         }
         /// <summary>
         /// Обробка події, коли клацнуто на поле вводу назви тесту
@@ -156,7 +151,7 @@ namespace courseWork_project
             if (selectedItem != null)
             {
                 int indexOfElementToEdit = 0;
-                // Знаходження обраного користувачем елементу в List<Test.Question>
+                // Знаходження обраного користувачем елементу в List<TestStructs.Question>
                 for (int i = 0; i < questionsToSave.Count; i++)
                 {
                     if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
@@ -193,12 +188,12 @@ namespace courseWork_project
                     ImageListFormer imageListFormer = new ImageListFormer();
                     imagesList = imageListFormer.FormImageList(testInfo.testTitle, questionsToSave);
                 }
-                // Знаходження обраного користувачем елементу в List<Test.Question>
+                // Знаходження обраного користувачем елементу в List<TestStructs.Question>
                 for (int i  = 0; i < questionsToSave.Count; i++)
                 {
                     if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
                     {
-                        // Видалення обраного запитання з List<Test.Question>
+                        // Видалення обраного запитання з List<TestStructs.Question>
                         questionsToSave.RemoveAt(i);
                         // Спроба пошуку картинки під індексом запитання (від 1 до 10)
                         ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == i+1);
@@ -273,7 +268,7 @@ namespace courseWork_project
                 // Якщо при видаленні запитання було зменшено кількість запитань
                 if (questionsToSave.Count == currentImageInfo.questionIndex) break;
                 // Якщо прив'язку не видалено та режим створення чи картинку не переміщено в директорію-базу даних
-                bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex-1].hasLinkedImage == true
+                bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex-1].hasLinkedImage
                     && (creatingMode || !ImagePathContainsTestTitle(currentImageInfo));
                 if (imageNeedsMovement)
                 // Переміщення кожної картинки до директорії-бази даних
@@ -327,7 +322,7 @@ namespace courseWork_project
             return false;
         }
         /// <summary>
-        /// Перевіряє, чи ввід в полі назви і таймера правильний та записує ці дані в структуру Test.TestInfo
+        /// Перевіряє, чи ввід в полі назви і таймера правильний та записує ці дані в структуру TestStructs.TestInfo
         /// </summary>
         /// <returns>true, якщо правильний ввід; false, якщо ні</returns>
         private bool InputIsCorrect()
@@ -363,9 +358,9 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Створює новий рядок в DataGrid для кожного елемента списку</remarks>
         /// <param name="questionsList">Список структур даних запитань тесту</param>
-        public void GetListAndPutItInGUI(List<Test.Question> questionsList)
+        public void GetListAndPutItInGUI(List<TestStructs.Question> questionsList)
         {
-            foreach (Test.Question questionFromList in questionsList)
+            foreach (TestStructs.Question questionFromList in questionsList)
             {
                 AddNewDataGridRow(questionFromList.question);
             }

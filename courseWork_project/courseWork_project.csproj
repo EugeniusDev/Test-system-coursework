@@ -59,20 +59,20 @@
     <Compile Include="ConfirmWindow.xaml.cs">
       <DependentUpon>ConfirmWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataDecoder.cs" />
-    <Compile Include="DataEncoder.cs" />
-    <Compile Include="FileReader.cs" />
-    <Compile Include="FileWriter.cs" />
-    <Compile Include="Grouper.cs" />
-    <Compile Include="DatabaseManager.cs" />
-    <Compile Include="IListInGUIPuttable.cs" />
+    <Compile Include="DatabaseRelated\DataDecoder.cs" />
+    <Compile Include="DatabaseRelated\DataEncoder.cs" />
+    <Compile Include="DatabaseRelated\FileReader.cs" />
+    <Compile Include="DatabaseRelated\FileWriter.cs" />
+    <Compile Include="DataManipulation\Grouper.cs" />
+    <Compile Include="DatabaseRelated\DatabaseManager.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="ImageListFormer.cs" />
     <Compile Include="ImageManager.cs" />
     <Compile Include="NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Sorter.cs" />
-    <Compile Include="Test.cs" />
+    <Compile Include="DataManipulation\Sorter.cs" />
+    <Compile Include="DTOs\TestStructs.cs" />
     <Compile Include="TestChange_Window.xaml.cs">
       <DependentUpon>TestChange_Window.xaml</DependentUpon>
     </Compile>

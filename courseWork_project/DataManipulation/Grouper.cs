@@ -4,26 +4,8 @@ using System.Windows;
 
 namespace courseWork_project
 {
-    public abstract class Grouper
+    public static class Grouper
     {
-
-        /// <summary>
-        /// Enum для визначення типу групування тестів
-        /// </summary>
-        private enum TestGroupTypes
-        {
-            TIMER_EXISTANCE,
-            EDITED_TODAY,
-            CONTROL_WORK
-        }
-        /// <summary>
-        /// Enum для визначення типу групування запитань тестів
-        /// </summary>
-        private enum QuestionGroupTypes
-        {
-            WITH_IMAGE,
-            ALL_VARIANTS_CORRECT
-        }
         /// <summary>
         /// Метод, що групує тести за вказаним типом
         /// </summary>
@@ -31,8 +13,8 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
         public static void GroupTests(int groupingType, List<string> transliteratedTitles)
         {
-            List<Test.TestInfo> testsToGroup = DataDecoder.GetAllTestInfos(transliteratedTitles);
-            List<Test.TestInfo> groupOfTests = new List<Test.TestInfo>();
+            List<TestStructs.TestInfo> testsToGroup = DataDecoder.GetAllTestInfos(transliteratedTitles);
+            List<TestStructs.TestInfo> groupOfTests = new List<TestStructs.TestInfo>();
             string typeDescription = "Група тестів, ";
             // Процес групування
             switch ((TestGroupTypes)groupingType)
@@ -56,7 +38,7 @@ namespace courseWork_project
 
             // Формування виводу згрупованої інформації
             string resultOfGrouping = string.Empty;
-            foreach (Test.TestInfo currTestInfo in groupOfTests)
+            foreach (TestStructs.TestInfo currTestInfo in groupOfTests)
             {
                 resultOfGrouping = string.Concat(resultOfGrouping, $"\nНазва: {currTestInfo.testTitle}; " +
                     $"Дата: {currTestInfo.lastEditedTime}; " +
@@ -71,8 +53,8 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
         public static void GroupQuestions(int groupingType, List<string> transliteratedTitles)
         {
-            List<Test.Question> questionsToGroup = DataDecoder.GetAllQuestions(transliteratedTitles);
-            List<Test.Question> groupOfQuestions = new List<Test.Question>();
+            List<TestStructs.Question> questionsToGroup = DataDecoder.GetAllQuestions(transliteratedTitles);
+            List<TestStructs.Question> groupOfQuestions = new List<TestStructs.Question>();
             string typeDescription = "Група запитань тесту, ";
             // Процес групування
             switch ((QuestionGroupTypes)groupingType)
@@ -91,7 +73,7 @@ namespace courseWork_project
             }
             // Формування виводу згрупованої інформації
             string resultOfGrouping = string.Empty;
-            foreach (Test.Question currQuestion in groupOfQuestions)
+            foreach (TestStructs.Question currQuestion in groupOfQuestions)
             {
                 resultOfGrouping = string.Concat(resultOfGrouping, $"\nЗапитання: {currQuestion.question}; " +
                     $"Всього варіантів: {currQuestion.variants.Count}; " +

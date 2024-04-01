@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:courseWork_project"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing"
-        Title="Підтвердження дії" Height="450" Width="800">
+        Title="Підтвердження дії" Height="650" Width="1000">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -20,31 +20,23 @@
             <RowDefinition Height=".5*"/>
         </Grid.RowDefinitions>
         <TextBlock
-                Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                FontSize="40" FontWeight="Bold" Foreground="Black" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="30"
+                FontSize="44" FontWeight="Bold" Foreground="Black" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
                 x:Name="Action_Text" TextWrapping="Wrap" 
-                >
-            Опис дії. Ви впевнені, що хочете це зробити?
-        </TextBlock>
+                Text="Опис дії. Ви впевнені, що хочете це зробити?"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="2" Grid.Column="0"
-                FontSize="16"
-                Height="50" Width="180"
+                FontSize="26"
+                Height="80" Width="280"
                 x:Name="Yes_Button"
-                Click="Yes_Button_Click"
-                ToolTip="Підтвердити бажання виконати дію"
-                >
-            Так
-        </Button>
+                Click="Yes_Button_Click" Content="Так"
+                ToolTip="Підтвердити бажання виконати дію"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="2" Grid.Column="2"
-                FontSize="16"
-                Height="50" Width="180"
+                FontSize="26"
+                Height="80" Width="280"
                 x:Name="No_Button"
-                Click="No_Button_Click"
-                ToolTip="Скасувати виконання дії"
-                >
-            Ні
-        </Button>
+                Click="No_Button_Click" Content="Ні"
+                ToolTip="Скасувати виконання дії"/>
     </Grid>
 </Window>

@@ -19,7 +19,7 @@ namespace courseWork_project
     /// Логіка взаємодії з TestChange_Window.xaml. Клас TestChange_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>
     /// </summary>
     /// <remarks> Вікно TestChange_Window.xaml використовується для створення/редагування запитань тесту</remarks>
-    public partial class TestChange_Window : Window, IListInGUIPuttable<List<Test.Question>>
+    public partial class TestChange_Window : Window
     {
         /// <summary>
         /// Індекс поточного запитання тесту
@@ -37,9 +37,9 @@ namespace courseWork_project
         /// <remarks>Якщо true - вікно в режимі створення, false - в режимі редагування</remarks>
         private bool creatingMode;
         /// <summary>
-        /// Список з Test.Question для оперування даними запитань тесту
+        /// Список з TestStructs.Question для оперування даними запитань тесту
         /// </summary>
-        private List<Test.Question> questionsList;
+        private List<TestStructs.Question> questionsList;
         /// <summary>
         /// Масив структур для збереження та маніпуляції даними про додану/змінену ілюстрацію
         /// </summary>
@@ -47,7 +47,7 @@ namespace courseWork_project
         /// <summary>
         /// Структура з інформацією про тест
         /// </summary>
-        private Test.TestInfo testInfo;
+        private TestStructs.TestInfo testInfo;
         /// <summary>
         /// Словник для пар TextBox-CheckBox для оперування даними варіантів відповідей
         /// </summary>
@@ -65,7 +65,7 @@ namespace courseWork_project
         public TestChange_Window()
         {
             InitializeComponent();
-            questionsList = new List<Test.Question>();
+            questionsList = new List<TestStructs.Question>();
             imagesList = new List<ImageManager.ImageInfo>();
             creatingMode = true;
             UpdateGUI();
@@ -74,12 +74,12 @@ namespace courseWork_project
         /// Конструктор для режиму редагування тесту
         /// </summary>
         /// <remarks>Приймає 4 параметри</remarks>
-        /// <param name="oldQuestionsList">Список Test.Question тесту, який редагується</param>
+        /// <param name="oldQuestionsList">Список TestStructs.Question тесту, який редагується</param>
         /// <param name="imageSources">Список (List) структур інформації про картинки (може бути порожнім: 
         /// у випадку отримання картинок з директорії-бази даних)</param>
         /// <param name="currTestInfo">Інформація про тест, який редагується</param>
         /// <param name="indexOfElementToEdit">Індекс запитання, яке редагується (1-10)</param>
-        public TestChange_Window(List<Test.Question> oldQuestionsList, List<ImageManager.ImageInfo> imageSources, Test.TestInfo currTestInfo, int indexOfElementToEdit)
+        public TestChange_Window(List<TestStructs.Question> oldQuestionsList, List<ImageManager.ImageInfo> imageSources, TestStructs.TestInfo currTestInfo, int indexOfElementToEdit)
         {
             creatingMode = false;
             questionsList = oldQuestionsList;
@@ -100,11 +100,6 @@ namespace courseWork_project
 
             ShowQuestionAtIndex(indexOfElementToEdit - 1);
             UpdateImageAppearance();
-        }
-        // Деструктор
-        ~TestChange_Window()
-        {
-            Debug.WriteLine("Знищено об'єкт TestChange_Window");
         }
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
@@ -281,7 +276,7 @@ namespace courseWork_project
                 string tempStringOfVariant = textBoxRelatedPair.Key.Text;
                 if (!Regex.IsMatch(tempStringOfVariant, pattern)) return false;
             }
-            return resultOfCheck ? true : false;
+            return resultOfCheck;
         }
         /// <summary>
         /// Додає новий варіант відповіді на запитання тесту зі значенням по замовчуванню, приймає 0 аргументів
@@ -295,19 +290,21 @@ namespace courseWork_project
             // Створення DockPanel для групування TextBox і CheckBox
             DockPanel dockPanel = new DockPanel();
             // Створення TextBox з підказкою
-            TextBox textBox = new TextBox();
-            textBox.Text = "Введіть варіант відповіді";
-            textBox.Foreground = new SolidColorBrush(Colors.Black);
-            textBox.Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0");
-            textBox.FontSize = 18;
-            textBox.HorizontalAlignment = HorizontalAlignment.Right;
-            textBox.VerticalAlignment = VerticalAlignment.Top;
-            textBox.TextAlignment = TextAlignment.Center;
-            textBox.TextWrapping = TextWrapping.NoWrap;
-            textBox.ToolTip = "Варіант відповіді";
-            textBox.Margin = new Thickness(3);
-            textBox.MinWidth = 100;
-            textBox.MaxWidth = 210;
+            TextBox textBox = new TextBox
+            {
+                Text = "Введіть варіант відповіді",
+                Foreground = new SolidColorBrush(Colors.Black),
+                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.NoWrap,
+                ToolTip = "Варіант відповіді",
+                Margin = new Thickness(3),
+                MinWidth = 100,
+                MaxWidth = 210
+            };
 
             textBox.GotFocus += TextBox_GotFocus;
             textBox.LostFocus += TextBox_LostFocus;
@@ -315,14 +312,17 @@ namespace courseWork_project
             dockPanel.Children.Add(textBox);
 
             // Створення CheckBox для позначення варіанту як правильного
-            CheckBox checkBox = new CheckBox();
-            checkBox.HorizontalAlignment = HorizontalAlignment.Center;
+            CheckBox checkBox = new CheckBox
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontStyle = FontStyles.Oblique,
+                Content = "Правильний",
+                ToolTip = "Позначити варіант як правильний",
+                Margin = new Thickness(3)
+            };
             checkBox.Unchecked += CheckBox_Updated;
             checkBox.Checked += CheckBox_Updated;
-            checkBox.FontStyle = FontStyles.Oblique;
-            checkBox.Content = "Правильний";
-            checkBox.ToolTip = "Позначити варіант як правильний";
-            checkBox.Margin = new Thickness(3);
+
             DockPanel.SetDock(checkBox, Dock.Right);
             dockPanel.Children.Add(checkBox);
 
@@ -345,19 +345,21 @@ namespace courseWork_project
             // Створення DockPanel для групування TextBox і CheckBox
             DockPanel dockPanel = new DockPanel();
             // Створення TextBox з текстом-підказкою (текстом по замовчуванню)
-            TextBox textBox = new TextBox(); 
-            textBox.Text = variantText;
-            textBox.Foreground = new SolidColorBrush(Colors.Black);
-            textBox.Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0");
-            textBox.FontSize = 18;
-            textBox.HorizontalAlignment = HorizontalAlignment.Right;
-            textBox.VerticalAlignment = VerticalAlignment.Top;
-            textBox.TextAlignment = TextAlignment.Center;
-            textBox.TextWrapping = TextWrapping.NoWrap;
-            textBox.ToolTip = "Варіант відповіді";
-            textBox.Margin = new Thickness(3);
-            textBox.MinWidth = 100;
-            textBox.MaxWidth = 210;
+            TextBox textBox = new TextBox
+            {
+                Text = variantText,
+                Foreground = new SolidColorBrush(Colors.Black),
+                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.NoWrap,
+                ToolTip = "Варіант відповіді",
+                Margin = new Thickness(3),
+                MinWidth = 100,
+                MaxWidth = 210
+            };
 
             textBox.GotFocus += TextBox_GotFocus;
             textBox.LostFocus += TextBox_LostFocus;
@@ -365,15 +367,17 @@ namespace courseWork_project
             dockPanel.Children.Add(textBox);
 
             // Створення CheckBox для позначення варіанту як правильного
-            CheckBox checkBox = new CheckBox();
-            checkBox.IsChecked = isCorrect;
-            checkBox.HorizontalAlignment = HorizontalAlignment.Center;
+            CheckBox checkBox = new CheckBox
+            {
+                IsChecked = isCorrect,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontStyle = FontStyles.Oblique,
+                Content = "Правильний",
+                ToolTip = "Позначити варіант як правильний",
+                Margin = new Thickness(3)
+            };
             checkBox.Unchecked += CheckBox_Updated;
             checkBox.Checked += CheckBox_Updated;
-            checkBox.FontStyle = FontStyles.Oblique;
-            checkBox.Content = "Правильний";
-            checkBox.ToolTip = "Позначити варіант як правильний";
-            checkBox.Margin = new Thickness(3);
             DockPanel.SetDock(checkBox, Dock.Right);
             dockPanel.Children.Add(checkBox);
 
@@ -395,7 +399,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Додає/оновлює дані про поточне запитання у списку структур Test.Question
+        /// Додає/оновлює дані про поточне запитання у списку структур TestStructs.Question
         /// </summary>
         /// <returns>true при успішному доданні/оновленні; false - якщо трапилась помилка</returns>
         private bool UpdateCurrentQuestionInfo()
@@ -405,7 +409,7 @@ namespace courseWork_project
                 // Індекс для операцій в списку
                 int indexOfCurrentQuestion = currentQuestionIndex - 1;
                 // Структура даних поточного питання
-                Test.Question currQuestion;
+                TestStructs.Question currQuestion;
 
                 if (!AllTextboxesFilled())
                 {
@@ -597,9 +601,9 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Розподіляє дані з структури по списках, формує та оновлює відповідний GUI</remarks>
         /// <param name="questions">Список структур запитань тесту</param>
-        public void GetListAndPutItInGUI(List<Test.Question> questions)
+        public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
         {
-            Test.Question currentQuestion = questions[currentQuestionIndex - 1];
+            TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];
             QuestionInput.Text = currentQuestion.question;
             int tempIndexOfCorrectVariant = 0;
             foreach(string variant in currentQuestion.variants)
@@ -644,19 +648,22 @@ namespace courseWork_project
         /// <remarks>Відкриває діалогове вікно вибору нової ілюстрації</remarks>
         private void ImageChange_Button_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image Files (*.jpg, *.jpeg, *.png, *.bmp)|*.jpg;*.jpeg;*.png;*.bmp)";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Image Files (*.jpg, *.jpeg, *.png, *.bmp)|*.jpg;*.jpeg;*.png;*.bmp)"
+            };
             // Якщо обрано якийсь файл
             if (openFileDialog.ShowDialog() == true)
             {
                 // Отримання шляху до обраного файлу
                 string selectedFilePath = openFileDialog.FileName;
-                openFileDialog = null;
 
                 // Заповнення структури з інформацією про картинку
-                ImageManager.ImageInfo currentImageInfo = new ImageManager.ImageInfo();
-                currentImageInfo.questionIndex = currentQuestionIndex;
-                currentImageInfo.imagePath = selectedFilePath;
+                ImageManager.ImageInfo currentImageInfo = new ImageManager.ImageInfo
+                {
+                    questionIndex = currentQuestionIndex,
+                    imagePath = selectedFilePath
+                };
                 // Оновлення списку структур з інформацією про картинки
                 PushImageSource(currentImageInfo);
                 // Відображення обраної картинки
@@ -686,7 +693,7 @@ namespace courseWork_project
                 {
                     if (questionsList[currentQuestionIndex - 1].hasLinkedImage)
                     {
-                        Test.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
+                        TestStructs.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
                         questionToUpdate.hasLinkedImage = false;
                         questionsList.Insert(currentQuestionIndex - 1, questionToUpdate);
                         questionsList.RemoveAt(currentQuestionIndex);

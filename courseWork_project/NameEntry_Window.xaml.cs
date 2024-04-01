@@ -14,13 +14,13 @@ namespace courseWork_project
     public partial class NameEntry_Window : Window
     {
         /// <summary>
-        /// Список з Test.Question для оперування даними запитань тесту
+        /// Список з TestStructs.Question для оперування даними запитань тесту
         /// </summary>
-        private List<Test.Question> questionsList;
+        private List<TestStructs.Question> questionsList;
         /// <summary>
         /// Структура з інформацією про тест
         /// </summary>
-        private Test.TestInfo testInfo;
+        private TestStructs.TestInfo testInfo;
         /// <summary>
         /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
         /// </summary>
@@ -30,23 +30,13 @@ namespace courseWork_project
         /// Конструктор NameEntry_Window, приймає 2 аргументи
         /// </summary>
         /// <remarks>Всі аргументи будуть передані у вікно TestTaking</remarks>
-        /// <param name="questionsList">Список з Test.Question для оперування даними запитань тесту</param>
+        /// <param name="questionsList">Список з TestStructs.Question для оперування даними запитань тесту</param>
         /// <param name="currTestInfo">Структура з інформацією про тест</param>
-        public NameEntry_Window(List<Test.Question> questionsList, Test.TestInfo currTestInfo)
+        public NameEntry_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo)
         {
             this.questionsList = questionsList;
             this.testInfo = currTestInfo;
             InitializeComponent();
-        }
-        // Додатковий конструктор
-        public NameEntry_Window()
-        {
-            MessageBox.Show("Викликано неправильний конструктор");
-        }
-        // Деструктор
-        ~NameEntry_Window()
-        {
-            Debug.WriteLine("Знищено об'єкт NameEntry_Window");
         }
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
