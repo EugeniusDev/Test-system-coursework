@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using courseWork_project.DatabaseRelated;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -26,7 +27,7 @@ namespace courseWork_project
         /// <summary>
         /// Зчитує питання тесту з файлу рядок за рядком
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою FormAndSetDatabasePath</remarks>
+        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
         /// <returns>Список зчитаних рядків, що формують дані питань тесту; або порожній список, якщо файлу не існує</returns>
         public List<string> ReadAndReturnQuestionLines()
         {
@@ -55,7 +56,7 @@ namespace courseWork_project
         /// <summary>
         /// Зчитує інформацію про тест з файлу
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою FormAndSetDatabasePath</remarks>
+        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
         /// <returns>Перший рядок файлу або пустий рядок, якщо файлу не існує чи він порожній</returns>
         public string ReadAndReturnTestInfo()
         {
@@ -78,17 +79,25 @@ namespace courseWork_project
         public List<string> ReadAndReturnLines()
         {
             List<string> lines = new List<string>();
-            if (!PathExists()) return lines;
-            using (StreamReader streamReader = new StreamReader(FullPath))
+            if (!CreatePathIfNotExists()) return lines;
+            try
             {
-                // Допоки не буде досягнуто кінця файлу
-                while (!streamReader.EndOfStream)
+                using (StreamReader streamReader = new StreamReader(FullPath))
                 {
-                    string currLine = streamReader.ReadLine();
-                    if(!string.IsNullOrEmpty(currLine))
-                        lines.Add(currLine);
+                    // Допоки не буде досягнуто кінця файлу
+                    while (!streamReader.EndOfStream)
+                    {
+                        string currLine = streamReader.ReadLine();
+                        if (!string.IsNullOrEmpty(currLine))
+                            lines.Add(currLine);
+                    }
                 }
             }
+            catch
+            {
+                // Returning empty list anyway, so catch can be ignored
+            }
+
             return lines;
         }
         /// <summary>
@@ -97,16 +106,20 @@ namespace courseWork_project
         /// <remarks>Модифікує поля об'єкта при роботі з кожним елементом списку</remarks>
         /// <param name="testTitlesList">Список назв тестів, допускаються нетранслітеровані</param>
         /// <returns>Список транслітерованих назв тестів, бази даних яких існують. Якщо таких немає, то порожній список</returns>
-        private List<string> FormListOfTestsWithExistingDatabases(List<string> testTitlesList)
+        private List<string> FormListOfExistingTests(List<string> testTitlesList)
         {
             List<string> listToForm = new List<string>();
             foreach (string testTitle in testTitlesList)
             {
                 // Зміна шляху на шлях до бази даних поточного тесту
-                FormAndSetDatabasePath(testTitle);
-                if (PathExists())
+                UpdateDatabasePath(testTitle);
+
+                if (PathExists() && !listToForm.Contains(testTitle))
+                {
                     listToForm.Add(testTitle);
+                }
             }
+
             return listToForm;
         }
         /// <summary>
@@ -115,17 +128,17 @@ namespace courseWork_project
         /// <remarks>Порядково зчитує файл та формує список використовуючи інші методи FileReader. 
         /// Записує новий список у файл, шлях до якого вказується при ініціалізації об'єкту класу</remarks>
         /// <returns>Список нетранслітерованих назв тестів, бази даних яких існують</returns>
-        public List<string> RefreshTheListOfTests()
+        public List<string> UpdateListOfExistingTestsPaths()
         {
             // Тимчасове збереження початкових значень полів
             string tempDirPath = DirectoryPath;
             string tempFilePath = FilePath;
             // Список транслітерованих назв тестів, бази даних яких існують
-            List<string> existingTestsTitles = FormListOfTestsWithExistingDatabases(ReadAndReturnLines());
-            // Повернення полям початкових значень (бо FormListOfTestsWithExistingDatabases їх змінює)
+            List<string> existingTestsTitles = FormListOfExistingTests(ReadAndReturnLines());
+            // Повернення полям початкових значень (бо FormListOfExistingTests їх змінює)
             DirectoryPath = tempDirPath;
             FilePath = tempFilePath;
-            FullPath = System.IO.Path.Combine(tempDirPath, tempFilePath);
+            FullPath = Path.Combine(tempDirPath, tempFilePath);
             // Записує оновлений список транслітерованих назв тестів у потрібний файл
             FileWriter fileWriter = new FileWriter(DirectoryPath, FilePath);
             fileWriter.WriteListInFileByLines(existingTestsTitles);
@@ -135,11 +148,31 @@ namespace courseWork_project
         /// <summary>
         /// Перевірка на наявність шляху за заданими полями
         /// </summary>
-        /// <remarks>Значення полів задаються при ініціалізації об'єкта класу або за допомогою FormAndSetDatabasePath</remarks>
+        /// <remarks>Значення полів задаються при ініціалізації об'єкта класу або за допомогою UpdateDatabasePath</remarks>
         /// <returns>true, якщо шлях існує; false, якщо ні</returns>
-        public override bool PathExists()
+        public bool PathExists()
         {
             return Directory.Exists(DirectoryPath) && File.Exists(FullPath);
+        }
+        /// <summary>
+        /// Перевірка на наявність шляху і його створення за заданими полями
+        /// </summary>
+        /// <remarks>Значення полів задаються при ініціалізації об'єкта класу або за допомогою UpdateDatabasePath</remarks>
+        /// <returns>true, якщо шлях існує; false, якщо ні</returns>
+        public override bool CreatePathIfNotExists()
+        {
+            if (!Directory.Exists(DirectoryPath))
+            {
+                Directory.CreateDirectory(DirectoryPath);
+                if (!File.Exists(FullPath))
+                {
+                    File.Create(FullPath).Close();
+                }
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

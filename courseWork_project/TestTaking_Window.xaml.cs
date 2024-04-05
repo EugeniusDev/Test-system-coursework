@@ -143,7 +143,7 @@ namespace courseWork_project
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
         /// </summary>
-        /// <remarks>Викликає GoToMainWithConfimation для підтвердження переходу до головної сторінки</remarks>
+        /// <remarks>Викликає TryOpenMainWindow для підтвердження переходу до головної сторінки</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             timer.Stop();
@@ -487,7 +487,7 @@ namespace courseWork_project
             // Якщо підтвердження закриття не потрібне, то нічого не робимо
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;

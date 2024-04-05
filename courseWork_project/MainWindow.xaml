@@ -35,10 +35,10 @@
                 Content="Створити тест"/>
         <StackPanel Grid.Row="0" Grid.Column="2"
             HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock FontSize="10" FontStyle="Italic" Text="Групування тестів"/>
+            <TextBlock FontSize="12" FontStyle="Italic" Text="Групування тестів"/>
             <ComboBox
-                FontSize="12"
-                Height="20" Width="150"
+                FontSize="14"
+                Height="28" Width="180"
                 x:Name="TestInfoGroupOptions" SelectionChanged="TestInfoGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування інформації про тести">
                 <ComboBoxItem Content="Групування обмежених в часі проходження тестів"/>
@@ -46,10 +46,10 @@
                 <ComboBoxItem Content="Групування контрольних робіт"/>
             </ComboBox>
 
-            <TextBlock FontSize="10" FontStyle="Italic" Text="Групування запитань"/>
+            <TextBlock FontSize="12" FontStyle="Italic" Text="Групування запитань"/>
             <ComboBox 
-                FontSize="12"
-                Height="20" Width="150"
+                FontSize="14"
+                Height="28" Width="180"
                 x:Name="QuestionGroupOptions" SelectionChanged="QuestionGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування запитань тестів">
                 <ComboBoxItem Content="Групування ілюстрованих запитань"/>
@@ -60,10 +60,10 @@
         <StackPanel
             Grid.Row="0" Grid.Column="3"
             HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock FontSize="10" FontStyle="Italic" Text="Сортування тестів"/>
+            <TextBlock FontSize="12" FontStyle="Italic" Text="Сортування тестів"/>
             <ComboBox
-                FontSize="12"
-                Height="20" Width="150"
+                FontSize="14"
+                Height="28" Width="180"
                 x:Name="TestInfoSortOptions" SelectionChanged="TestInfoSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування інформації про тести">
                 <ComboBoxItem Content="Сортування за датою останнього редагування"/>
@@ -72,9 +72,9 @@
                 <ComboBoxItem Content="Сортування за назвами в лексикографічному порядку"/>
             </ComboBox>
 
-            <TextBlock FontSize="10" FontStyle="Italic" Text="Сортування запитань"/>
+            <TextBlock FontSize="12" FontStyle="Italic" Text="Сортування запитань"/>
             <ComboBox
-                FontSize="12" Height="20" Width="150"
+                FontSize="14" Height="28" Width="180"
                 x:Name="QuestionSortOptions" SelectionChanged="QuestionSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування запитань тестів">
                 <ComboBoxItem Content="Сортування за кількістю варіантів"/>
@@ -92,7 +92,7 @@
                 Text="Пошук запитання тесту" ToolTip="Поле пошуку запитання серед усіх тестів"
                 GotFocus="QuestionSearchBox_GotFocus"/>
             <Button Style="{StaticResource BasicButton}"
-                Height="36" Width="50"
+                Height="36" Width="80"
                 x:Name="SearchQuestion_button" Content="Знайти"
                 Click="SearchQuestion_button_Click"
                 ToolTip="Здійснити пошук введеного запитання тесту"/>
@@ -106,7 +106,7 @@
                 Text="Пошук відповіді тесту" ToolTip="Поле пошуку запитання серед усіх тестів"
                 GotFocus="VariantSearchBox_GotFocus"/>
             <Button Style="{StaticResource BasicButton}"
-                Height="36" Width="50"
+                Height="36" Width="80"
                 x:Name="SearchVariant_button" Content="Знайти"
                 Click="SearchVariant_button_Click"
                 ToolTip="Здійснити пошук введеного варіанту відповіді на запитання тесту"/>
@@ -120,7 +120,7 @@
             <ListView x:Name="TestsListView" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid MinWidth="900" MaxWidth="980">
+                        <Grid MinWidth="900" MaxWidth="980" HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="1*"/>
@@ -128,19 +128,19 @@
                                 <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding TestTitle}"
+                            <TextBlock Text="{Binding TestTitle}" x:Name="TestTitleTextblock"
                                    MinWidth="450" HorizontalAlignment="Center" TextAlignment="Center"/>
-                            <Button Grid.Column="1" Style="{StaticResource DataGridButton}" Margin="10 0"
+                            <Button Grid.Column="1" Style="{StaticResource ListViewButton}" Margin="10 0"
                                 ToolTip="Клацніть, щоб пройти цей тест" MinWidth="100"
                                 Content="Пройти" Click="Taking_Button_Click"/>
-                            <Button Grid.Column="2" Style="{StaticResource DataGridButton}" Margin="10 0"
+                            <Button Grid.Column="2" Style="{StaticResource ListViewButton}" Margin="10 0"
                                     ToolTip="Клацніть, щоб відредагувати це запитання" MinWidth="100"
                                     Content="Редагувати" Click="EditButton_Click"/>
-                            <Button Grid.Column="3" Style="{StaticResource DataGridButton}" Margin="10 0"
+                            <Button Grid.Column="3" Style="{StaticResource ListViewButton}" Margin="10 0"
                                     ToolTip="Клацніть, щоб переглянути результати проходження цього тесту"
                                     MinWidth="100"
                                     Content="Переглянути" Click="ResultsButton_Click" />
-                            <Button Grid.Column="4" Style="{StaticResource DataGridButton}" Margin="10 0"
+                            <Button Grid.Column="4" Style="{StaticResource ListViewButton}" Margin="10 0"
                                     ToolTip="Клацніть, щоб видалити цей тест" MinWidth="100"
                                     Content="Видалити" Click="DeleteButton_Click" />
                         </Grid>

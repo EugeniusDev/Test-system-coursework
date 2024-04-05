@@ -25,7 +25,7 @@ namespace courseWork_project
         /// <summary>
         /// Записує заданий список у файл рядок за рядком
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою FormAndSetDatabasePath</remarks>
+        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
         /// <param name="textToWrite">Список рядків для запису в файл</param>
         public void WriteListInFileByLines(List<string> textToWrite)
         {

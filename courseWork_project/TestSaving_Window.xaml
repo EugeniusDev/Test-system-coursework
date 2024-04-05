@@ -11,10 +11,10 @@
     <Window.Resources>
         <!-- Style for saving button -->
         <Style x:Key="SavingButton" TargetType="Button">
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="18" />
             <Setter Property="Foreground" Value="AliceBlue" />
             <Setter Property="Background" Value="#003f12" />
-            <Setter Property="Height" Value="50"/>
+            <Setter Property="Height" Value="70"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -60,7 +60,7 @@
         </Grid.RowDefinitions>
         <TextBox Style="{StaticResource TextBoxes}"
                 Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
-                FontSize="30" FontWeight="ExtraBold" MinWidth="350" MinHeight="50" MaxWidth="360"
+                FontSize="36" FontWeight="ExtraBold" MinWidth="450" MinHeight="66" MaxWidth="360"
                 x:Name="TestTitleBlock" GotFocus="TestTitleBlock_GotFocus" LostFocus="TestTitleBlock_LostFocus"
                 Text="Введіть назву тесту" ToolTip="Введіть/відредагуйте назву тесту"
                 >
@@ -70,7 +70,7 @@
             HorizontalAlignment="Center" VerticalAlignment="Center"
             >
             <TextBlock 
-                FontSize="10" FontStyle="Italic" Text="Обмеження в часі (у хв)">
+                FontSize="14" FontStyle="Italic" Text="Обмеження в часі (у хв)">
             </TextBlock>
             <TextBox Style="{StaticResource TextBoxes}"
                 Foreground="Black"
@@ -80,36 +80,35 @@
             </TextBox>
         </StackPanel>
 
-        <DataGrid x:Name="dataGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Grid.RowSpan="2" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Запитання" MinWidth="350" Binding="{Binding Question}" />
-                <DataGridTemplateColumn Header="Редагування" MinWidth="90">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб відредагувати це запитання"
-                            Content="Редагувати" Click="EditButton_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Видалення" MinWidth="80">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource DataGridButton}"
-                            ToolTip="Клацніть, щоб видалити це запитання"
-                            Content="Видалити" Click="DeleteButton_Click" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-
+        <ListView x:Name="QuestionsListView" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Grid.RowSpan="2">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Question}"
+                                MinWidth="410" HorizontalAlignment="Center" TextAlignment="Center"/>
+                        <Button Grid.Column="1" Style="{StaticResource ListViewButton}" Margin="10, 0" Width="100"
+                                ToolTip="Клацніть, щоб відредагувати це запитання"
+                                Content="Редагувати" Click="EditButton_Click"/>
+                        <Button Grid.Column="2" Style="{StaticResource ListViewButton}" Margin="10, 0" Width="100"
+                                ToolTip="Клацніть, щоб видалити це запитання"
+                                Content="Видалити" Click="DeleteButton_Click"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
         <Button Style="{StaticResource SavingButton}"
                 Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"
                 x:Name="Save_Button"
                 Click="Save_Button_Click"
-                ToolTip="Збереження тесту і повернення до головної сторінки">
-            Зберегти тест та повернутись до головної сторінки
-        </Button>
+                ToolTip="Збереження тесту і повернення до головної сторінки"
+                Content="Зберегти тест та повернутись до головної сторінки"/>
     </Grid>
 </Window>

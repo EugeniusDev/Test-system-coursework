@@ -146,7 +146,7 @@ namespace courseWork_project
             // Якщо підтвердження закриття не потрібне, то нічого не робимо
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;

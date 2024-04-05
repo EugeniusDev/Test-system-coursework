@@ -5,13 +5,13 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
 using System.Configuration;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using static courseWork_project.ImageManager;
 using System.IO;
 using System.Linq;
+using courseWork_project.DatabaseRelated;
 
 namespace courseWork_project
 {
@@ -108,7 +108,7 @@ namespace courseWork_project
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!UpdateCurrentQuestionInfo()) return;
-            GoToMainWithConfimation();
+            TryOpenMainWindow();
         }
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку NextQuestion_Button
@@ -533,7 +533,7 @@ namespace courseWork_project
                     return;
                 }
                 // Інакше повертаємось на попереднє вікно
-                GoToMainWithConfimation();
+                TryOpenMainWindow();
             }
             if(e.Key == Key.Enter)
             {
@@ -550,8 +550,14 @@ namespace courseWork_project
         /// <summary>
         /// Викликає ConfirmWindow для підтвердженням користувачем переходу на головне вікно
         /// </summary>
-        private void GoToMainWithConfimation()
+        private void TryOpenMainWindow()
         {
+            //MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            //if (result.Equals(MessageBoxResult.Yes))
+            //{
+            //    DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
+            //    // TODO completely replace ConfirmWindow by simple MessageBox
+            //}
             string confirmationMessage = "Всі дані цього тесту втратяться, коли ви перейдете на головну сторінку.";
             ConfirmWindow confirmWindow = new ConfirmWindow(ConfirmActionsWindowModes.TEST_CHANGE_TO_MAIN,
                 confirmationMessage, questionsList, imagesList, testInfo, currentQuestionIndex);
@@ -635,11 +641,15 @@ namespace courseWork_project
         {
             // Якщо підтвердження закриття не потрібне, то нічого не робимо
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;
+            }
+            else
+            {
+                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
             }
         }
         /// <summary>
@@ -679,25 +689,23 @@ namespace courseWork_project
         private void ImageDeletion_Button_Click(object sender, RoutedEventArgs e)
         {
             // Спроба пошуку картинки під індексом запитання (від 1 до 10)
-            ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
+            ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
             // Якщо повернено не значення по замовчуванню, то запис знайдено
-            if (!foundImage.Equals(default(ImageInfo)))
+            if (!imageToDelete.Equals(default(ImageInfo)))
             {
-                int indexToRemove = imagesList.IndexOf(foundImage);
-                // Видалення старої структури
-                imagesList.RemoveAt(indexToRemove);
+                // Видалення її із старої структури
+                imagesList.RemoveAt(imagesList.IndexOf(imageToDelete));
 
                 ReturnDefaultImage();
-                // Видалення прив'язки до картинки за її наявності
-                if (!creatingMode && questionsList.Count >= currentQuestionIndex)
+                // Видалення прив'язки до картинки та її самої (за її наявності)
+                if (!creatingMode && questionsList.Count >= currentQuestionIndex
+                    && questionsList[currentQuestionIndex - 1].hasLinkedImage)
                 {
-                    if (questionsList[currentQuestionIndex - 1].hasLinkedImage)
-                    {
-                        TestStructs.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
-                        questionToUpdate.hasLinkedImage = false;
-                        questionsList.Insert(currentQuestionIndex - 1, questionToUpdate);
-                        questionsList.RemoveAt(currentQuestionIndex);
-                    }
+                    DataEraser.EraseImage(imageToDelete);
+                    TestStructs.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
+                    questionToUpdate.hasLinkedImage = false;
+                    questionsList.Insert(currentQuestionIndex - 1, questionToUpdate);
+                    questionsList.RemoveAt(currentQuestionIndex);
                 }
             }
         }
@@ -721,7 +729,7 @@ namespace courseWork_project
         {
             ReturnDefaultImage();
             // Якщо список картинок порожній, то більше нічого не робимо
-            if (imagesList.Count == 0 || imagesList == null) return;
+            if (imagesList == null || imagesList.Count == 0) return;
             // Спроба пошуку картинки під індексом запитання (від 1 до 10)
             ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
 

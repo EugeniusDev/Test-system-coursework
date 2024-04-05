@@ -25,6 +25,21 @@ namespace courseWork_project
             {'\"', "_"}, {'/', "_"}, {'\\', "_"}, {'|', "_"}, {'?', "_"}, {'*', "_"}
         };
         /// <summary>
+        /// Заповнення "порожньої" структури TestStructs.TestInfo
+        /// </summary>
+        /// <returns>"Порожню" структуру TestStructs.TestInfo</returns>
+        private static TestStructs.TestInfo NullTestInfo
+        {
+            get
+            {
+                TestStructs.TestInfo nullTestInfo;
+                nullTestInfo.testTitle = "null";
+                nullTestInfo.lastEditedTime = DateTime.Now;
+                nullTestInfo.timerValue = 0;
+                return nullTestInfo;
+            }
+        }
+        /// <summary>
         /// Отримує рядки з даними про питання, формує список структур даних цих питань
         /// </summary>
         /// <remarks>Використовує FileReader для зчитування даних з бази</remarks>
@@ -90,12 +105,7 @@ namespace courseWork_project
             catch (FormatException)
             {
                 MessageBox.Show("Помилка! Дані з бази даних некоректні!");
-                // Створення "порожньої" структури TestStructs.TestInfo
-                TestStructs.TestInfo nullTestInfo;
-                nullTestInfo.testTitle = "null";
-                nullTestInfo.lastEditedTime = DateTime.Now;
-                nullTestInfo.timerValue = 0;
-                return nullTestInfo;
+                return NullTestInfo;
             }
         }
         /// <summary>
@@ -144,22 +154,12 @@ namespace courseWork_project
             foreach (string transliteratedTitle in transliteratedTitles)
             {
                 TestStructs.TestInfo currentTestInfo = GetTestInfo(transliteratedTitle);
-                listToReturn.Add(currentTestInfo);
+                if (!currentTestInfo.Equals(NullTestInfo))
+                {
+                    listToReturn.Add(currentTestInfo);
+                }
             }
             return listToReturn;
-        }
-        /// <summary>
-        /// Видаляє директорію бази даних заданого тесту
-        /// </summary>
-        /// <remarks>Видаляє і директорію, і саму базу даних в ній</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
-        public static void EraseFolder(string testTitle)
-        {
-            FileReader reader = new FileReader(testTitle);
-            if (reader.PathExists())
-            {
-                Directory.Delete(reader.DirectoryPath, true);
-            }
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using courseWork_project.DatabaseRelated;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -26,7 +27,7 @@ namespace courseWork_project
     public partial class MainWindow : Window
     {
         /// <summary>
-        /// ObservableCollection для DataGrid
+        /// ObservableCollection для ListView
         /// </summary>
         private ObservableCollection<TestItem> testItems;
         /// <summary>
@@ -57,7 +58,7 @@ namespace courseWork_project
             InitializeComponent();
             // Ініціювання об'єкту класу FileReader для отримання списку транслітерованих назв тестів
             FileReader fileReader = new FileReader(directoryPathToTestsList, $"{filePathToTestsList}.txt");
-            existingTestsTitles = fileReader.RefreshTheListOfTests();
+            existingTestsTitles = fileReader.UpdateListOfExistingTestsPaths();
             // Ініціювання об'єкту класу ObservableCollection, що містить TestItemи
             testItems = new ObservableCollection<TestItem>();
             TestsInfoTextblock.Text = (existingTestsTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
@@ -102,10 +103,10 @@ namespace courseWork_project
         /// <remarks>Отримує дані обраного тесту з бази даних та відкриває вікно його проходження</remarks>
         private void Taking_Button_Click(object sender, RoutedEventArgs e)
         {
-            // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
-
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
                 // Отримання всіх потрібних даних обраного тесту для ініціації TestTaking_Window
                 List<TestStructs.Question> questionsToTake = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
@@ -123,22 +124,22 @@ namespace courseWork_project
         /// <remarks>Отримує дані обраного тесту з бази даних та відкриває вікно його редагування</remarks>
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
-
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
                 // Отримання всіх потрібних даних обраного тесту для ініціації TestSaving_Window в режимі редагування
                 List<TestStructs.Question> questionsToEdit = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
                 TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfo(selectedItem.TestTitle);
                 // Видалення директорії з базою даних обраного тесту
-                DataDecoder.EraseFolder(selectedItem.TestTitle);
+                DataEraser.EraseTestFolder(selectedItem.TestTitle);
 
                 // Отримання актуального списку транслітерованих назв тестів
                 string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
                 string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
                 FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
-                List<string> allTestsList = fileReader.RefreshTheListOfTests();
+                List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
                 // Запис оновленого списку транслітерованих назв існуючих тестів у їхню базу даних
                 FileWriter fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
                 fileWriter.WriteListInFileByLines(allTestsList);
@@ -157,9 +158,10 @@ namespace courseWork_project
         /// <remarks>Отримує результати проходжень обраного тесту та виводить їх у MessageBox</remarks>
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
-            // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
                 string transliteratedTestTitle = DataDecoder.TransliterateAString(selectedItem.TestTitle);
                 // Отримання актуального списку даних про проходження
@@ -187,9 +189,10 @@ namespace courseWork_project
         /// <remarks>Відкриває вікно ConfirmWindow для підтвердження видалення обраного тесту</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            // Отримання обраного користувачем елементу як класу TestItem
-            TestItem selectedItem = TestsListView.SelectedItem as TestItem;
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
                 string textOfConfirmation = $"Ви видалите тест \"{selectedItem.TestTitle}\".";
                 // Ініціація об'єкту ConfirmWindow, відкриття цього вікна в режимі підтвердження видалення тесту
@@ -214,22 +217,22 @@ namespace courseWork_project
                     .testTitle;
                 testTitles.Add(notTransliteratedTitle);
                 // Створення нового рядка у DataGrid, що містить нетраслітеровану назву тесту
-                AddNewDataGridRow(notTransliteratedTitle);
+                AddNewListViewRow(notTransliteratedTitle);
             }
         }
         /// <summary>
-        /// Додає новий рядок до DataGrid з заданою назвою тесту
+        /// Додає новий рядок до ListView з заданою назвою тесту
         /// </summary>
         /// <remarks>Кожен рядок містить назву тесту та кнопки для його проходження, редагування та видалення</remarks>
         /// <param name="testTitle">Нетранслітерована назва тесту</param>
-        private void AddNewDataGridRow(string testTitle)
+        private void AddNewListViewRow(string testTitle)
         {
             // Створення нового об'єкту класу TestItem з заданим TestTitle
             TestItem newItem = new TestItem
             {
                 TestTitle = testTitle
             };
-            // Додавання цього об'єкту до ObservableCollection для відображення у DataGrid
+            // Додавання цього об'єкту до ObservableCollection для відображення у ListView
             testItems.Add(newItem);
         }
         /// <summary>
@@ -241,7 +244,7 @@ namespace courseWork_project
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;

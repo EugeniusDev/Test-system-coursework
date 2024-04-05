@@ -5,8 +5,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Diagnostics;
 using static courseWork_project.ImageManager;
+using System.Windows.Controls;
+using courseWork_project.DatabaseRelated;
 
 namespace courseWork_project
 {
@@ -44,7 +45,7 @@ namespace courseWork_project
         /// <remarks>Містить транслітеровану стару назву тесту</remarks>
         private string transliterOldTestTitle = string.Empty;
         /// <summary>
-        /// ObservableCollection для DataGrid
+        /// ObservableCollection для QuestionsListView
         /// </summary>
         private ObservableCollection<QuestionItem> questionItems;
         /// <summary>
@@ -72,8 +73,8 @@ namespace courseWork_project
             TimerInputBox.Text = testInfo.timerValue.ToString();
             // Ініціювання об'єкту класу ObservableCollection, що містить QuestionItemи
             questionItems = new ObservableCollection<QuestionItem>();
-            // Присвоєння questionItems як джерела об'єктів для DataGrid з ім'ям dataGrid
-            dataGrid.ItemsSource = questionItems;
+            // Присвоєння questionItems як джерела об'єктів для QuestionsListView з ім'ям QuestionsListView
+            QuestionsListView.ItemsSource = questionItems;
             GetListAndPutItInGUI(questionsToSave);
         }
         /// <summary>
@@ -94,8 +95,8 @@ namespace courseWork_project
             TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
             TestTitleBlock.Text = testInfo.testTitle;
             questionItems = new ObservableCollection<QuestionItem>();
-            // Присвоєння questionItems як джерела об'єктів для DataGrid з ім'ям dataGrid
-            dataGrid.ItemsSource = questionItems;
+            // Присвоєння questionItems як джерела об'єктів для QuestionsListView з ім'ям QuestionsListView
+            QuestionsListView.ItemsSource = questionItems;
             GetListAndPutItInGUI(questionsToSave);
         }
         /// <summary>
@@ -145,10 +146,10 @@ namespace courseWork_project
             // При неправильному вводі нічого не робимо
             if (!InputIsCorrect()) return;
 
-            // Отримання обраного користувачем елементу як класу QuestionItem
-            QuestionItem selectedItem = dataGrid.SelectedItem as QuestionItem;
-            
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
             {
                 int indexOfElementToEdit = 0;
                 // Знаходження обраного користувачем елементу в List<TestStructs.Question>
@@ -174,12 +175,13 @@ namespace courseWork_project
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку типу DeleteButton
         /// </summary>
-        /// <remarks>Видаляє обране запитання з List<Test.Question> та DataGrid</remarks>
+        /// <remarks>Видаляє обране запитання з List<Test.Question> та QuestionsListView</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            // Отримання обраного користувачем елементу як класу QuestionItem
-            QuestionItem selectedItem = dataGrid.SelectedItem as QuestionItem;
-            if (selectedItem != null)
+            Button button = sender as Button;
+            // Find the parent ListViewItem of the clicked button
+            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
+            if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
             {
                 // Якщо передано порожній список
                 if (imagesList.Count == 0)
@@ -196,18 +198,21 @@ namespace courseWork_project
                         // Видалення обраного запитання з List<TestStructs.Question>
                         questionsToSave.RemoveAt(i);
                         // Спроба пошуку картинки під індексом запитання (від 1 до 10)
-                        ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == i+1);
+                        ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == i+1);
                         // Якщо повернено не значення по замовчуванню, то запис знайдено
-                        if (!foundImage.Equals(default(ImageInfo)))
+                        if (!imageToDelete.Equals(default(ImageInfo)))
                         {
                             // Видалення прив'язаної картинки з List<ImageManager.ImageInfo>
-                            imagesList.Remove(foundImage);
-
+                            imagesList.Remove(imageToDelete);
+                            if (!creatingMode)
+                            {
+                                DataEraser.EraseImage(imageToDelete);
+                            }
                         }
                         break;
                     }
                 }
-                // Видалення обраного запитання з DataGrid
+                // Видалення обраного запитання з QuestionsListView
                 questionItems.Remove(selectedItem);
             }
         }
@@ -252,10 +257,11 @@ namespace courseWork_project
             FileWriter fileWriter = new FileWriter(testInfo.testTitle);
             fileWriter.WriteListInFileByLines(listToWrite);
             // Отримання актуального списку транслітерованих назв тестів
+            // todo except of overwriting it is better to append new data to old file
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
             string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
             FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
-            List<string> allTestsList = fileReader.RefreshTheListOfTests();
+            List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
             // Додання назви щойно збереженого тесту до списку транслітерованих назв тестів
             string tranliteratedCurrTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
             allTestsList.Add(tranliteratedCurrTestTitle);
@@ -308,6 +314,8 @@ namespace courseWork_project
                         currImageInfo.imagePath.Replace(transliterOldTestTitle, transliteratedNewTestTitle);
                     }
                 }
+                // Видалення даних про проходження тесту
+                DataEraser.ErasePassingData(transliterOldTestTitle);
             }
         }
         /// <summary>
@@ -356,22 +364,22 @@ namespace courseWork_project
         /// <summary>
         /// Передає список (List) структур запитань в GUI
         /// </summary>
-        /// <remarks>Створює новий рядок в DataGrid для кожного елемента списку</remarks>
+        /// <remarks>Створює новий рядок в QuestionsListView для кожного елемента списку</remarks>
         /// <param name="questionsList">Список структур даних запитань тесту</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questionsList)
         {
             foreach (TestStructs.Question questionFromList in questionsList)
             {
-                AddNewDataGridRow(questionFromList.question);
+                AddNewQuestionsListViewRow(questionFromList.question);
             }
         }
         /// <summary>
-        /// Створює новий рядок в DataGrid, заповнюючи поле Question заданим значенням
+        /// Створює новий рядок в QuestionsListView, заповнюючи поле Question заданим значенням
         /// </summary>
         /// <param name="questionText">Текст поточного запитання</param>
-        private void AddNewDataGridRow(string questionText)
+        private void AddNewQuestionsListViewRow(string questionText)
         {
-            // Створення нового елемента (рядка у DataGrid)
+            // Створення нового елемента (рядка у QuestionsListView)
             QuestionItem newItem = new QuestionItem
             {
                 Question = questionText
@@ -386,11 +394,15 @@ namespace courseWork_project
         {
             // Якщо підтвердження закриття не потрібне, то нічого не робимо
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;
+            }
+            else
+            {
+                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
             }
         }
     }

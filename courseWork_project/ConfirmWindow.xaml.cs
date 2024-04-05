@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using courseWork_project.DatabaseRelated;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -128,7 +129,7 @@ namespace courseWork_project
                     break;
                 case ConfirmActionsWindowModes.MAIN_DELETE_TEST:
                     // Видалення обраного тесту
-                    DataDecoder.EraseFolder(testTitle);
+                    DataEraser.EraseTestFolder(testTitle);
                     // Видалення прив'язаних до обраного тесту картинок
                     ImageManager.ImagesCleanup(testTitle);
                     // Повернення до MainWindow
@@ -185,7 +186,7 @@ namespace courseWork_project
             // Якщо підтвердження закриття не потрібне, то нічого не робимо
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.No)
+            if (result.Equals(MessageBoxResult.No))
             {
                 // Скасує процес закриття вікна
                 e.Cancel = true;

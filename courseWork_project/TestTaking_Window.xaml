@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Closing="Window_Closing"
         KeyDown="Window_KeyDown" WindowStartupLocation="CenterScreen"
-        Title="Проходження тесту" Height="450" Width="800">
+        Title="Проходження тесту" Height="650" Width="1000">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -24,45 +24,34 @@
         </Grid.RowDefinitions>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="0" Grid.Column="0"
-                Height="40" Width="170"
+                Height="60" Width="210"
                 x:Name="BackToMain_Button"
                 Click="BackToMain_Button_Click"
-                ToolTip="Повернення до головної сторінки">
-            До головної сторінки
-        </Button>
+                ToolTip="Повернення до головної сторінки"
+                Content="До головної сторінки"/>
         <TextBlock
                 Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
-                FontSize="30" FontWeight="Light"  Foreground="OrangeRed"  HorizontalAlignment="Center" VerticalAlignment="Center"
-                x:Name="Timer_TextBlock"
-                >
-            4:20
-        </TextBlock>
+                FontSize="46" FontWeight="Light"  Foreground="OrangeRed"  HorizontalAlignment="Center" VerticalAlignment="Center"
+                x:Name="Timer_TextBlock" Text="4:20"/>
         <TextBlock
                 Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2"
-                FontSize="40" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
-                x:Name="CurrentQuestion_Text"
-                >
-            1/10
-        </TextBlock>
+                FontSize="46" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                x:Name="CurrentQuestion_Text" Text="1/10"/>
         <DockPanel
             Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6"
-            VerticalAlignment="Center">
-            <Viewbox Margin="40,0,0,0" Height="100" Width="200"
+            VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Viewbox Margin="40, 0" Height="120" Width="220"
                      Visibility="Visible"
                      x:Name="ViewboxWithImage">
                 <Border Background="Transparent" CornerRadius="10">
-
                     <Image x:Name="IllustrationImage"
                        Source="/default-image/default-image.png"/>
                 </Border>
             </Viewbox>
-            <TextBlock
+            <TextBlock Margin="20"
                     TextWrapping="Wrap" TextAlignment="Center"
-                    FontSize="22" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center"
-                    x:Name="QuestionText"
-                    >
-                Певне запитання
-            </TextBlock>
+                    FontSize="28" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center"
+                    x:Name="QuestionText" Text="Певне запитання"/>
         </DockPanel>
         <WrapPanel Grid.Row="2" Grid.ColumnSpan="7" Grid.RowSpan="2"
            x:Name="wrapPanelOfVariants"
@@ -70,18 +59,18 @@
            VerticalAlignment="Center" HorizontalAlignment="Center"/>
         <Button Visibility="Collapsed"
                 Style="{StaticResource BasicButton}"
-                Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Width="190"
+                Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                Width="350" Height="60" FontSize="18"
                 x:Name="EndTest_Button"
                 Click="EndTest_Button_Click"
-                ToolTip="Завершення проходження тесту з поточними результатами">
-            Завершити проходження тесту
-        </Button>
+                ToolTip="Завершення проходження тесту з поточними результатами"
+                Content="Завершити проходження тесту"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="4" Grid.Column="3"
+                Width="200" Height="60"
                 x:Name="NextQuestion_Button"
                 Click="NextQuestion_Button_Click"
-                ToolTip="Перехід до наступного запитання">
-            Наступне запитання
-        </Button>
+                ToolTip="Перехід до наступного запитання"
+                Content="Наступне запитання"/>
     </Grid>
 </Window>
