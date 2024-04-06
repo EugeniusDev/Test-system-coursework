@@ -104,7 +104,7 @@ namespace courseWork_project
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
         /// </summary>
-        /// <remarks>Відкриває вікно ConfirmWindow для підтвердження переходу до головної сторінки</remarks>
+        /// <remarks>Відкриває підтвердження переходу до головної сторінки</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!UpdateCurrentQuestionInfo()) return;
@@ -295,15 +295,15 @@ namespace courseWork_project
                 Text = "Введіть варіант відповіді",
                 Foreground = new SolidColorBrush(Colors.Black),
                 Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 18,
+                FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.NoWrap,
                 ToolTip = "Варіант відповіді",
-                Margin = new Thickness(3),
-                MinWidth = 100,
-                MaxWidth = 210
+                Margin = new Thickness(4),
+                MinWidth = 200,
+                MaxWidth = 270
             };
 
             textBox.GotFocus += TextBox_GotFocus;
@@ -318,7 +318,7 @@ namespace courseWork_project
                 FontStyle = FontStyles.Oblique,
                 Content = "Правильний",
                 ToolTip = "Позначити варіант як правильний",
-                Margin = new Thickness(3)
+                Margin = new Thickness(4)
             };
             checkBox.Unchecked += CheckBox_Updated;
             checkBox.Checked += CheckBox_Updated;
@@ -350,15 +350,15 @@ namespace courseWork_project
                 Text = variantText,
                 Foreground = new SolidColorBrush(Colors.Black),
                 Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 18,
+                FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.NoWrap,
                 ToolTip = "Варіант відповіді",
-                Margin = new Thickness(3),
-                MinWidth = 100,
-                MaxWidth = 210
+                Margin = new Thickness(4),
+                MinWidth = 200,
+                MaxWidth = 270
             };
 
             textBox.GotFocus += TextBox_GotFocus;
@@ -374,7 +374,7 @@ namespace courseWork_project
                 FontStyle = FontStyles.Oblique,
                 Content = "Правильний",
                 ToolTip = "Позначити варіант як правильний",
-                Margin = new Thickness(3)
+                Margin = new Thickness(4)
             };
             checkBox.Unchecked += CheckBox_Updated;
             checkBox.Checked += CheckBox_Updated;
@@ -525,7 +525,7 @@ namespace courseWork_project
             if (e.Key == Key.Escape)
             {
                 // Якщо поточне запитання не перше, то відображаємо попереднє
-                if(currentQuestionIndex >= 1)
+                if(currentQuestionIndex > 1)
                 {
                     if (!UpdateCurrentQuestionInfo()) return;
                     currentQuestionIndex--;
@@ -548,22 +548,22 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Викликає ConfirmWindow для підтвердженням користувачем переходу на головне вікно
+        /// Викликає підтвердженням користувачем переходу на головне вікно
         /// </summary>
         private void TryOpenMainWindow()
         {
-            //MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            //if (result.Equals(MessageBoxResult.Yes))
-            //{
-            //    DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
-            //    // TODO completely replace ConfirmWindow by simple MessageBox
-            //}
-            string confirmationMessage = "Всі дані цього тесту втратяться, коли ви перейдете на головну сторінку.";
-            ConfirmWindow confirmWindow = new ConfirmWindow(ConfirmActionsWindowModes.TEST_CHANGE_TO_MAIN,
-                confirmationMessage, questionsList, imagesList, testInfo, currentQuestionIndex);
-            confirmWindow.Show();
-            askForClosingComfirmation = false;
-            Close();
+            string confirmationString = "Всі дані цього тесту втратяться, коли ви перейдете на головну сторінку. Ви справді хочете це зробити?";
+            MessageBoxResult result = MessageBox.Show(confirmationString,
+                "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result.Equals(MessageBoxResult.Yes))
+            {
+                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
+                // Повернення до MainWindow
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                askForClosingComfirmation = false;
+                Close();
+            }
         }
         /// <summary>
         /// Зберігає поточне запитання тесту, створює/відображає наступне

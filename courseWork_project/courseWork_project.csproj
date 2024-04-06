@@ -56,9 +56,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ConfirmWindow.xaml.cs">
-      <DependentUpon>ConfirmWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="DatabaseRelated\DataDecoder.cs" />
     <Compile Include="DatabaseRelated\DataEncoder.cs" />
     <Compile Include="DatabaseRelated\DataEraser.cs" />
@@ -68,8 +65,8 @@
     <Compile Include="DatabaseRelated\DatabaseManager.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GuiHelper.cs" />
-    <Compile Include="ImageListFormer.cs" />
-    <Compile Include="ImageManager.cs" />
+    <Compile Include="ImageManipulations\ImageListFormer.cs" />
+    <Compile Include="ImageManipulations\ImageManager.cs" />
     <Compile Include="NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
@@ -84,10 +81,6 @@
     <Compile Include="TestTaking_Window.xaml.cs">
       <DependentUpon>TestTaking_Window.xaml</DependentUpon>
     </Compile>
-    <Page Include="ConfirmWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="HelpCenter_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

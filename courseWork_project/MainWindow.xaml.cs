@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.Configuration;
 using System.Windows;
 using System.Windows.Controls;
@@ -186,7 +187,7 @@ namespace courseWork_project
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку типу DeleteButton
         /// </summary>
-        /// <remarks>Відкриває вікно ConfirmWindow для підтвердження видалення обраного тесту</remarks>
+        /// <remarks>Відкриває підтвердження видалення обраного тесту</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -194,12 +195,21 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                string textOfConfirmation = $"Ви видалите тест \"{selectedItem.TestTitle}\".";
-                // Ініціація об'єкту ConfirmWindow, відкриття цього вікна в режимі підтвердження видалення тесту
-                ConfirmWindow confirmWindow = new ConfirmWindow(ConfirmActionsWindowModes.MAIN_DELETE_TEST, textOfConfirmation, selectedItem.TestTitle);
-                confirmWindow.Show();
-                askForClosingComfirmation = false;
-                Close();
+                string confirmationString = $"Ви видалите тест \"{selectedItem.TestTitle}\". Ви справді хочете це зробити?";
+                MessageBoxResult result = MessageBox.Show(confirmationString,
+                    "Підтвердження видалення тесту", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result.Equals(MessageBoxResult.Yes))
+                {
+                    // Видалення обраного тесту
+                    DataEraser.EraseTestFolder(selectedItem.TestTitle);
+                    // Видалення прив'язаних до обраного тесту картинок
+                    ImageManager.ImagesCleanup(selectedItem.TestTitle);
+                    // Перезавантаження MainWindow для оновлення списку тестів
+                    MainWindow mainWindow = new MainWindow();
+                    mainWindow.Show();
+                    askForClosingComfirmation = false;
+                    Close();
+                }
             }
         }
         /// <summary>

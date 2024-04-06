@@ -1,31 +1,5 @@
 ﻿namespace courseWork_project
 {
-    #region ConfirmWindow related
-    /// <summary>
-    /// 
-    /// 
-    /// 
-    /// 
-    /// 
-    /// для визначення типу вікна підтвердження
-    /// </summary>
-    public enum ConfirmActionsWindowModes
-    {
-        /// <summary>
-        /// Повернення до MainWindow з вікна TestChange
-        /// </summary>
-        TEST_CHANGE_TO_MAIN,
-        /// <summary>
-        /// Видалення тесту зі списку в MainWindow
-        /// </summary>
-        MAIN_DELETE_TEST,
-        /// <summary>
-        /// Повернення до MainWindow з вікна TestTaking
-        /// </summary>
-        TEST_TAKING_TO_MAIN,
-    }
-    #endregion
-
     #region Grouping related
     /// <summary>
     /// Enum для визначення типу групування тестів

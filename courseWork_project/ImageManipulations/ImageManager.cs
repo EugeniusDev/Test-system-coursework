@@ -32,7 +32,14 @@ namespace courseWork_project
 
             string absolutePathToMoveOn = Path.GetFullPath(relativePath);
 
-            File.Copy(currentImagePath, absolutePathToMoveOn, true);
+            try
+            {
+                File.Copy(currentImagePath, absolutePathToMoveOn, true);
+            }
+            catch
+            {
+                // If error appears, it means the image is already in folder-database
+            }
         }
         /// <summary>
         /// Повертає масив відносних шляхів до картинок та булеве значення на позначення існування картинок в директорії

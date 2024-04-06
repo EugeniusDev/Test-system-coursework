@@ -257,7 +257,6 @@ namespace courseWork_project
             FileWriter fileWriter = new FileWriter(testInfo.testTitle);
             fileWriter.WriteListInFileByLines(listToWrite);
             // Отримання актуального списку транслітерованих назв тестів
-            // todo except of overwriting it is better to append new data to old file
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
             string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
             FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
@@ -272,10 +271,9 @@ namespace courseWork_project
             foreach(ImageInfo currentImageInfo in imagesList)
             {
                 // Якщо при видаленні запитання було зменшено кількість запитань
-                if (questionsToSave.Count == currentImageInfo.questionIndex) break;
-                // Якщо прив'язку не видалено та режим створення чи картинку не переміщено в директорію-базу даних
-                bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex-1].hasLinkedImage
-                    && (creatingMode || !ImagePathContainsTestTitle(currentImageInfo));
+                if (questionsToSave.Count < currentImageInfo.questionIndex) break;
+                // Якщо прив'язку не видалено
+                bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex - 1].hasLinkedImage;
                 if (imageNeedsMovement)
                 // Переміщення кожної картинки до директорії-бази даних
                 {

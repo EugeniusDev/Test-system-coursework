@@ -116,6 +116,8 @@ namespace courseWork_project
         /// <returns>Оптимізований для використання як шляху до баз даних рядок</returns>
         public static string TransliterateAString(string inputString)
         {
+            if (inputString is null) return string.Empty;
+
             string transliteratedString = string.Empty;
             foreach(char c in inputString.ToLower())
             {

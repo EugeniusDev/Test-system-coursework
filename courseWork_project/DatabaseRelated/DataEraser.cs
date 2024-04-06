@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace courseWork_project.DatabaseRelated
 {
@@ -55,7 +50,7 @@ namespace courseWork_project.DatabaseRelated
         public static void ErasePassingData(string testTitle)
         {
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
-            string pathOfFile = DataDecoder.TransliterateAString(testTitle);
+            string pathOfFile = $"{DataDecoder.TransliterateAString(testTitle)}.txt";
             string fullPath = Path.Combine(pathOfTestsDirectory, pathOfFile);
             if (File.Exists(fullPath))
             {

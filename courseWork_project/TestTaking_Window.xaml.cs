@@ -1,4 +1,5 @@
-﻿using System;
+﻿using courseWork_project.DatabaseRelated;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -287,12 +288,12 @@ namespace courseWork_project
                 Content = variantText,
                 Foreground = new SolidColorBrush(Colors.Black),
                 Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 18,
+                FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 ToolTip = "Клацніть, щоб обрати цей варіант",
                 Margin = new Thickness(3),
-                MinWidth = 100,
+                MinWidth = 200,
                 MaxWidth = 260
             };
             button.Click += VariantButton_Click;
@@ -392,17 +393,23 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Викликає ConfirmWindow для підтвердженням користувачем переходу на головне вікно
+        /// Викликає підтвердженням користувачем переходу на головне вікно
         /// </summary>
         private void GoToMainWithConfimation()
         {
-            string confirmationMessage = "Натиснувши \"Ні\", ви будете проходити тест заново. Натиснувши \"Так\", ви перейдете на головну сторінку.";
-            List<ImageManager.ImageInfo> emptyImageInfos = new List<ImageManager.ImageInfo>();
-            ConfirmWindow confirmWindow = new ConfirmWindow(ConfirmActionsWindowModes.TEST_TAKING_TO_MAIN,
-                confirmationMessage, questionsList, emptyImageInfos, testInfo, currentQuestionIndex - 1);
-            confirmWindow.Show();
-            askForClosingComfirmation = false;
-            Close();
+            string confirmationString = "Натиснувши \"Так\", ви перейдете на головну сторінку, втративши дані проходження тесту. Ви справді хочете це зробити?";
+            MessageBoxResult result = MessageBox.Show(confirmationString,
+                "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result.Equals(MessageBoxResult.Yes))
+            {
+                // Повернення до MainWindow
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                askForClosingComfirmation = false;
+                Close();
+            }
+
+            timer.Start();
         }
         /// <summary>
         /// Виводить результати проходження та викликає функцію їх збереження в базу даних
