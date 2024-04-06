@@ -1,8 +1,5 @@
-﻿using courseWork_project.DatabaseRelated;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Timers;
 using System.Windows;
@@ -11,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static courseWork_project.ImageManager;
+using static courseWork_project.TestStructs;
 
 namespace courseWork_project
 {
@@ -29,7 +27,7 @@ namespace courseWork_project
         /// Загальна кількість запитань тесту
         /// </summary>
         /// <remarks>Набуває значень від 1 до 10</remarks>
-        private int totalQuestionsCount = 1;
+        private int totalQuestionsCount;
         /// <summary>
         /// Кількість правильних відповідей при проходженні тесту
         /// </summary>
@@ -72,6 +70,11 @@ namespace courseWork_project
         /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
         /// </summary>
         bool askForClosingComfirmation = true;
+        /// <summary>
+        /// Used to determine if test is not empty
+        /// </summary>
+        bool loadedSuccessfully = true;
+        public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
         /// <summary>
         /// Конструктор TestTaking_Window, приймає 3 аргументи
@@ -81,6 +84,19 @@ namespace courseWork_project
         /// <param name="userName">Ім'я користувача, що проходить тест</param>
         public TestTaking_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo, string userName)
         {
+            // If there are no questions in the test, close the window
+            if (questionsList.Count == 0)
+            {
+                MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                askForClosingComfirmation = false;
+                loadedSuccessfully = false;
+                Close();
+                return;
+            }
+
             this.questionsList = questionsList;
             testInfo = currTestInfo;
             transliteratedTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
@@ -181,16 +197,8 @@ namespace courseWork_project
         /// <param name="currentResult">Рядок з результатами проходження поточного тесту</param>
         private void EndTestAndSaveResults(string currentResult)
         {
-            string transliteratedTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
-            // Отримання актуального списку даних про проходження
-            string pathOfResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
-            FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
-            List<string> allResultsList = fileReader.ReadAndReturnLines();
-            // Додавання нових даних до цього списку
-            allResultsList.Add(currentResult);
-            // Запис оновленого списку даних про проходження
-            FileWriter fileWriter = new FileWriter(fileReader.DirectoryPath, $"{transliteratedTestTitle}.txt");
-            fileWriter.WriteListInFileByLines(allResultsList);
+            FileWriter fileWriter = new FileWriter(testInfo.testTitle);
+            fileWriter.AppendTestTakingData(testInfo, currentResult);
             // Відкриття головного меню
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
@@ -236,7 +244,10 @@ namespace courseWork_project
                     {
                         // Відображення знайденої картинки
                         string absoluteImagePath = Path.GetFullPath(currentImagePath);
-                        BitmapImage foundImageBitmap = new BitmapImage(new Uri(absoluteImagePath, UriKind.Absolute));
+                        BitmapImage foundImageBitmap = new BitmapImage();
+                        foundImageBitmap.BeginInit();
+                        foundImageBitmap.UriSource = new Uri(absoluteImagePath, UriKind.Absolute);
+                        foundImageBitmap.EndInit();
                         IllustrationImage.Source = foundImageBitmap;
                         foundImageBitmap.StreamSource = null;
 

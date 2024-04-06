@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using static courseWork_project.TestStructs;
 
 namespace courseWork_project
 {
@@ -41,6 +43,26 @@ namespace courseWork_project
                 {
                     writer.WriteLine(line);
                 }
+            }
+        }
+        /// <summary>
+        /// Appends new data to file with results of test taking
+        /// </summary>
+        /// <remarks>If such file don't exists, creates it</remarks>
+        /// <param name="testInfo">TestInfo structure of current test</param>
+        /// <param name="resultToWrite">Result to be written into a file</param>
+        public void AppendTestTakingData(TestInfo testInfo, string resultToWrite)
+        {
+            string transliterTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
+            // Отримання шляху до списку даних про проходження
+            string pathToResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
+            Directory.CreateDirectory(pathToResultsDirectory);
+            string pathToResultsFile = $"{transliterTestTitle}.txt";
+            string fullPath = Path.Combine(pathToResultsDirectory, pathToResultsFile);
+            // Допис нових даних про проходження
+            using (StreamWriter sw = File.AppendText(fullPath))
+            {
+                sw.WriteLine(resultToWrite);
             }
         }
     }

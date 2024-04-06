@@ -202,6 +202,7 @@ namespace courseWork_project
                 {
                     // Видалення обраного тесту
                     DataEraser.EraseTestFolder(selectedItem.TestTitle);
+                    DataEraser.ErasePassingData(selectedItem.TestTitle);
                     // Видалення прив'язаних до обраного тесту картинок
                     ImageManager.ImagesCleanup(selectedItem.TestTitle);
                     // Перезавантаження MainWindow для оновлення списку тестів

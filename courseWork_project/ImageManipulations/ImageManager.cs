@@ -106,12 +106,7 @@ namespace courseWork_project
             string transliteratedTestTitle = DataDecoder.TransliterateAString(testTitle);
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
-                string fullPathToImage = Path.GetFullPath(currentImageRelativePath);
-                // Отримання тільки назви директорії завдяки звертанню до неї як до крайнього файлу
-                string imageDirectory = Path.GetFileName(Path.GetDirectoryName(fullPathToImage));
-                // Якщо картинка містить назву тесту в назві та вже переміщена в потрібну папку
-                bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle)
-                    && string.Compare(imageDirectory, ImagesDirectory) == 0;
+                bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle);
                 if (containsTestTitle)
                 {
                     File.Delete(currentImageRelativePath);

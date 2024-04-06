@@ -123,13 +123,17 @@ namespace courseWork_project
         {
             try
             {
+                if (UsernameTextBlock == null) throw new ArgumentNullException();
                 string userName = UsernameTextBlock.Text;
-                bool fieldIsEmptyOrDefault = UsernameTextBlock != null && string.IsNullOrWhiteSpace(userName)
+                bool fieldIsEmptyOrDefault = string.IsNullOrWhiteSpace(userName)
                     || string.Compare(UsernameTextBlock.Text, "Введіть ім'я тут") == 0;
                 if (fieldIsEmptyOrDefault) throw new ArgumentNullException();
 
                 TestTaking_Window testTaking_Window = new TestTaking_Window(questionsList, testInfo, userName);
-                testTaking_Window.Show();
+                if (testTaking_Window.LoadedSuccessfully)
+                {
+                    testTaking_Window.Show();
+                }
                 askForClosingComfirmation = false;
                 Close();
             }

@@ -57,7 +57,10 @@ namespace courseWork_project
         /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
         /// </summary>
         bool askForClosingComfirmation = true;
-
+        /// <summary>
+        /// List of ImageInfos scheduled for deletion
+        /// </summary>
+        private List<ImageInfo> imageInfosToDelete = new List<ImageInfo>();
         /// <summary>
         /// Конструктор для режиму створення тесту
         /// </summary>
@@ -99,7 +102,6 @@ namespace courseWork_project
             InitializeComponent();
 
             ShowQuestionAtIndex(indexOfElementToEdit - 1);
-            UpdateImageAppearance();
         }
         /// <summary>
         /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
@@ -639,7 +641,10 @@ namespace courseWork_project
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Якщо підтвердження закриття не потрібне, то нічого не робимо
+            // Deleting all images scheduled for deletion
+            imageInfosToDelete.ForEach(img => DataEraser.EraseImage(img));
+            imageInfosToDelete.Clear();
+            // Якщо підтвердження закриття не потрібне, то нічого більше не робимо
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
@@ -677,7 +682,10 @@ namespace courseWork_project
                 // Оновлення списку структур з інформацією про картинки
                 PushImageSource(currentImageInfo);
                 // Відображення обраної картинки
-                BitmapImage tempImageSource = new BitmapImage(new Uri(selectedFilePath, UriKind.RelativeOrAbsolute));
+                BitmapImage tempImageSource = new BitmapImage();
+                tempImageSource.BeginInit();
+                tempImageSource.UriSource = new Uri(selectedFilePath, UriKind.RelativeOrAbsolute);
+                tempImageSource.EndInit();
                 IllustrationImage.Source = tempImageSource;
                 tempImageSource.StreamSource = null;
             }
@@ -701,7 +709,7 @@ namespace courseWork_project
                 if (!creatingMode && questionsList.Count >= currentQuestionIndex
                     && questionsList[currentQuestionIndex - 1].hasLinkedImage)
                 {
-                    DataEraser.EraseImage(imageToDelete);
+                    imageInfosToDelete.Add(imageToDelete);
                     TestStructs.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
                     questionToUpdate.hasLinkedImage = false;
                     questionsList.Insert(currentQuestionIndex - 1, questionToUpdate);
@@ -717,8 +725,10 @@ namespace courseWork_project
             string defaultImageRelativePath = ConfigurationManager.AppSettings["defaultImageSource"];
             string defaultImageAbsolutePath = Path.GetFullPath(defaultImageRelativePath);
 
-            BitmapImage defaultImage = new BitmapImage(
-            new Uri(defaultImageAbsolutePath, UriKind.Absolute));
+            BitmapImage defaultImage = new BitmapImage();
+            defaultImage.BeginInit();
+            defaultImage.UriSource = new Uri(defaultImageAbsolutePath, UriKind.Absolute);
+            defaultImage.EndInit();
             IllustrationImage.Source = defaultImage;
             defaultImage.StreamSource = null;
         }
@@ -737,7 +747,10 @@ namespace courseWork_project
             if (!foundImage.Equals(default(ImageInfo)))
             {
                 // Відображення знайденої картинки
-                BitmapImage foundImageBitmap = new BitmapImage(new Uri(foundImage.imagePath, UriKind.RelativeOrAbsolute));
+                BitmapImage foundImageBitmap = new BitmapImage();
+                foundImageBitmap.BeginInit();
+                foundImageBitmap.UriSource = new Uri(foundImage.imagePath, UriKind.RelativeOrAbsolute);
+                foundImageBitmap.EndInit();
                 IllustrationImage.Source = foundImageBitmap;
                 foundImageBitmap.StreamSource = null;
             }

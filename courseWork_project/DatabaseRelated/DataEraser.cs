@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace courseWork_project.DatabaseRelated
 {
@@ -41,7 +43,21 @@ namespace courseWork_project.DatabaseRelated
         /// <param name="imageInfo">Структура даних про картинку</param>
         public static void EraseImage(ImageManager.ImageInfo imageInfo)
         {
-            File.Delete(imageInfo.imagePath);
+            if (File.Exists(imageInfo.imagePath))
+            {
+                // Attempting to delete file after a delay of 100 milliseconds
+                Task.Delay(100).ContinueWith(_ =>
+                {
+                    try
+                    {
+                        File.Delete(imageInfo.imagePath);
+                    }
+                    catch
+                    {
+                        // Ігноруємо проблеми і живемо далі
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
         }
         /// <summary>
         /// Видаляє дані проходження тесту
