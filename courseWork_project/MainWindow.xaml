@@ -6,8 +6,7 @@
         xmlns:local="clr-namespace:courseWork_project"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Title="Головна сторінка" Height="650" Width="1000"
-        KeyDown="Window_KeyDown" Closing="Window_Closing"
-        >
+        KeyDown="Window_KeyDown" Closing="Window_Closing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.5*"/>
@@ -129,22 +128,21 @@
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{Binding TestTitle}" x:Name="TestTitleTextblock"
-                                   MinWidth="450" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                MinWidth="450" HorizontalAlignment="Center" TextAlignment="Center"/>
                             <Button Grid.Column="1" Style="{StaticResource ListViewButton}" Margin="10 0"
                                 ToolTip="Клацніть, щоб пройти цей тест" MinWidth="100"
                                 Content="Пройти" Click="Taking_Button_Click"/>
                             <Button Grid.Column="2" Style="{StaticResource ListViewButton}" Margin="10 0"
-                                    ToolTip="Клацніть, щоб відредагувати це запитання" MinWidth="100"
-                                    Content="Редагувати" Click="EditButton_Click"/>
+                                ToolTip="Клацніть, щоб відредагувати це запитання" MinWidth="100"
+                                Content="Редагувати" Click="EditButton_Click"/>
                             <Button Grid.Column="3" Style="{StaticResource ListViewButton}" Margin="10 0"
-                                    ToolTip="Клацніть, щоб переглянути результати проходження цього тесту"
-                                    MinWidth="100"
-                                    Content="Переглянути" Click="ResultsButton_Click" />
+                                ToolTip="Клацніть, щоб переглянути результати проходження цього тесту"
+                                MinWidth="100"
+                                Content="Переглянути" Click="ResultsButton_Click" />
                             <Button Grid.Column="4" Style="{StaticResource ListViewButton}" Margin="10 0"
-                                    ToolTip="Клацніть, щоб видалити цей тест" MinWidth="100"
-                                    Content="Видалити" Click="DeleteButton_Click" />
+                                ToolTip="Клацніть, щоб видалити цей тест" MinWidth="100"
+                                Content="Видалити" Click="DeleteButton_Click" />
                         </Grid>
-
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

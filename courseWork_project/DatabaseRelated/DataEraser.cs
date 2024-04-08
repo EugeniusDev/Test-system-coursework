@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace courseWork_project.DatabaseRelated
@@ -25,10 +24,10 @@ namespace courseWork_project.DatabaseRelated
         }
 
         /// <summary>
-        /// Видаляє директорію бази даних заданого тесту
+        /// Deletes a directory-database of given test
         /// </summary>
-        /// <remarks>Видаляє і директорію, і саму базу даних в ній</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <remarks>Deletes directory recursively, including all files in it</remarks>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public static void EraseTestFolder(string testTitle)
         {
             FileReader reader = new FileReader(testTitle);
@@ -38,9 +37,9 @@ namespace courseWork_project.DatabaseRelated
             }
         }
         /// <summary>
-        /// Видаляє картинку з папки-бази даних
+        /// Deletes an image from directory-database
         /// </summary>
-        /// <param name="imageInfo">Структура даних про картинку</param>
+        /// <param name="imageInfo">Structure with image's info</param>
         public static void EraseImage(ImageManager.ImageInfo imageInfo)
         {
             if (File.Exists(imageInfo.imagePath))
@@ -54,15 +53,15 @@ namespace courseWork_project.DatabaseRelated
                     }
                     catch
                     {
-                        // Ігноруємо проблеми і живемо далі
+                        // Ignoring the problems and continue on living :)
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
         /// <summary>
-        /// Видаляє дані проходження тесту
+        /// Deletes given test's passing data
         /// </summary>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public static void ErasePassingData(string testTitle)
         {
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];

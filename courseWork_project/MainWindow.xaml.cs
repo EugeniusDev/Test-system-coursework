@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Design;
 using System.Configuration;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,64 +11,61 @@ using System.Windows.Media;
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для маніпулювання об'єктами ObservableCollection для GridView.
+    /// Class for ObservableCollection objects manipulation
     /// </summary>
-    /// <remarks>
-    /// Містить Getter i Setter для string TestTitle.
-    /// </remarks>
     public class TestItem
     {
         public string TestTitle { get; set; }
     }
     /// <summary>
-    /// Логіка взаємодії з MainWindow.xaml. Клас MainWindow наслідує інтерфейс IListInGUIPuttable<List<string>>
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    /// <remarks>Вікно MainWindow.xaml використовується як меню</remarks>
+    /// <remarks>MainWindow.xaml is used as main menu</remarks>
     public partial class MainWindow : Window
     {
         /// <summary>
-        /// ObservableCollection для ListView
+        /// ObservableCollection for ListView
         /// </summary>
         private ObservableCollection<TestItem> testItems;
         /// <summary>
-        /// Список (List) транслітерованих назв тестів
+        /// List of transliterated test titles
         /// </summary>
         private List<string> existingTestsTitles;
         /// <summary>
-        /// Список (List) не транслітерованих назв тестів
+        /// List of not transliterated test titles
         /// </summary>
         private List<string> testTitles;
         /// <summary>
-        /// Назва директорії, в якій зберігається файл зі списком транслітерованих назв тестів
+        /// Path to a directory that contains a file with list of transliterated test titles
         /// </summary>
-        private string directoryPathToTestsList = ConfigurationManager.AppSettings["testTitlesDirPath"];
+        private readonly string directoryPathToTestsList = ConfigurationManager.AppSettings["testTitlesDirPath"];
         /// <summary>
-        /// Назва файлу, в якому зберігається список транслітерованих назв тестів
+        /// Path to a file with list of transliterated test titles
         /// </summary>
-        private string filePathToTestsList = ConfigurationManager.AppSettings["testTitlesFilePath"];
+        private readonly string filePathToTestsList = ConfigurationManager.AppSettings["testTitlesFilePath"];
         /// <summary>
-        /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
+        /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
         /// <summary>
-        /// Конструктор MainWindow, не приймає ніяких аргументів
+        /// Parameterless MainWindow constructor
         /// </summary>
         public MainWindow()
         {
             InitializeComponent();
-            // Ініціювання об'єкту класу FileReader для отримання списку транслітерованих назв тестів
+            // Getting list of existing tests
             FileReader fileReader = new FileReader(directoryPathToTestsList, $"{filePathToTestsList}.txt");
             existingTestsTitles = fileReader.UpdateListOfExistingTestsPaths();
-            // Ініціювання об'єкту класу ObservableCollection, що містить TestItemи
+
             testItems = new ObservableCollection<TestItem>();
             TestsInfoTextblock.Text = (existingTestsTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
             TestsListView.ItemsSource = testItems;
             GetListAndPutItInGUI(existingTestsTitles);
         }
         /// <summary>
-        /// Обробка події, коли натиснуто клавішу на клавіатурі
+        /// Handling pressed keyboard keys
         /// </summary>
-        /// <remarks>Якщо натиснуто F1, відкриває посібник користувача</remarks>
+        /// <remarks>F1 - user manual</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.F1)
@@ -79,18 +75,18 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку HelpCenter_button
+        /// Handling pressed HelpCenter_button
         /// </summary>
-        /// <remarks>Відкриває вікно HelpCenter_Window</remarks>
+        /// <remarks>Opens HelpCenter_Window</remarks>
         private void HelpCenter_button_Click(object sender, RoutedEventArgs e)
         {
             HelpCenter_Window helpCenter_Window = new HelpCenter_Window();
             helpCenter_Window.Show();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку Create_button
+        /// Handling pressed Create_button
         /// </summary>
-        /// <remarks>Відкриває вікно TestChange_Window в режимі створення тесту</remarks>
+        /// <remarks>Opens TestChange_Window in creating mode</remarks>
         private void Create_button_Click(object sender, RoutedEventArgs e)
         {
             TestChange_Window testChange_Window = new TestChange_Window();
@@ -99,9 +95,9 @@ namespace courseWork_project
             Close();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу Taking_Button
+        /// Handling pressed button of type Taking_Button
         /// </summary>
-        /// <remarks>Отримує дані обраного тесту з бази даних та відкриває вікно його проходження</remarks>
+        /// <remarks>Begins passing procedure of selected test</remarks>
         private void Taking_Button_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -109,10 +105,8 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                // Отримання всіх потрібних даних обраного тесту для ініціації TestTaking_Window
                 List<TestStructs.Question> questionsToTake = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
                 TestStructs.TestInfo infoOfTestToTake = DataDecoder.GetTestInfo(selectedItem.TestTitle);
-                // Ініціація об'єкту TestTaking_Window, відкриття цього вікна
                 NameEntry_Window nameEntry_Window = new NameEntry_Window(questionsToTake, infoOfTestToTake);
                 nameEntry_Window.Show();
                 askForClosingComfirmation = false;
@@ -120,9 +114,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу EditButton
+        /// Handling pressed button of type EditButton
         /// </summary>
-        /// <remarks>Отримує дані обраного тесту з бази даних та відкриває вікно його редагування</remarks>
+        /// <remarks>Opens TestSaving_Window in editing mode</remarks>
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -130,22 +124,19 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                // Отримання всіх потрібних даних обраного тесту для ініціації TestSaving_Window в режимі редагування
                 List<TestStructs.Question> questionsToEdit = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
                 TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfo(selectedItem.TestTitle);
-                // Видалення директорії з базою даних обраного тесту
+
                 DataEraser.EraseTestFolder(selectedItem.TestTitle);
 
-                // Отримання актуального списку транслітерованих назв тестів
+                // Updating list of transliterated test titles
                 string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
                 string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
                 FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
                 List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
-                // Запис оновленого списку транслітерованих назв існуючих тестів у їхню базу даних
                 FileWriter fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
                 fileWriter.WriteListInFileByLines(allTestsList);
 
-                // Ініціація об'єкту TestSaving_Window, відкриття цього вікна в режимі редагування
                 List<ImageManager.ImageInfo> emptyImageInfos = new List<ImageManager.ImageInfo>();
                 TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToEdit, emptyImageInfos, infoOfTestToEdit);
                 testSaving_Window.Show();
@@ -154,9 +145,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу ResultsButton
+        /// Handling pressed button of type ResultsButton
         /// </summary>
-        /// <remarks>Отримує результати проходжень обраного тесту та виводить їх у MessageBox</remarks>
+        /// <remarks>Shows results of selected test's passings in MessageBox</remarks>
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -165,17 +156,17 @@ namespace courseWork_project
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
                 string transliteratedTestTitle = DataDecoder.TransliterateAString(selectedItem.TestTitle);
-                // Отримання актуального списку даних про проходження
+                // Getting up-to-date list of data about passing selected test
                 string pathOfResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
                 FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
                 List<string> currTestResultsList = fileReader.ReadAndReturnLines();
-                // Якщо список результатів порожній, то значить тест ніхто ще не пройшов
+                // Empty list means no one tried to pass the test yet
                 if(currTestResultsList.Count == 0)
                 {
                     MessageBox.Show("Обраний тест ще ніким не було пройдено", "Історія проходжень тесту порожня");
                     return;
                 }
-                // Формування тексту для виводу
+                // Forming the output
                 string resultsToShow = $"Результати проходжень тесту:\n";
                 foreach(string result in currTestResultsList)
                 {
@@ -185,9 +176,8 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу DeleteButton
+        /// Handling pressed button of type DeleteButton
         /// </summary>
-        /// <remarks>Відкриває підтвердження видалення обраного тесту</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -200,12 +190,11 @@ namespace courseWork_project
                     "Підтвердження видалення тесту", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result.Equals(MessageBoxResult.Yes))
                 {
-                    // Видалення обраного тесту
+                    // Deleting selected test's related data
                     DataEraser.EraseTestFolder(selectedItem.TestTitle);
                     DataEraser.ErasePassingData(selectedItem.TestTitle);
-                    // Видалення прив'язаних до обраного тесту картинок
                     ImageManager.ImagesCleanup(selectedItem.TestTitle);
-                    // Перезавантаження MainWindow для оновлення списку тестів
+                    // Reloading MainWindow to update the list of tests
                     MainWindow mainWindow = new MainWindow();
                     mainWindow.Show();
                     askForClosingComfirmation = false;
@@ -214,87 +203,79 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Використовує список назв тестів для отримання їхніх даних. Передає ці дані в GUI
+        /// Puts list of test titles into GUI
         /// </summary>
-        /// <remarks>Кожна назва тесту - новий елемент GUI</remarks>
-        /// <param name="existingTestsTitles">Список транслітерованих назв тестів, слугує набором шляхів баз даних.</param>
+        /// <param name="existingTestsTitles">List of transliterated test titles (a set of paths to databases)</param>
         public void GetListAndPutItInGUI(List<string> existingTestsTitles)
         {
             testTitles = new List<string>();
-            // Отримання нетранслітерованої назви тесту для її відображення у DataGrid
             foreach (string testTitleTransliterated in existingTestsTitles)
             {
                 string notTransliteratedTitle = DataDecoder.GetTestInfo(testTitleTransliterated)
                     .testTitle;
                 testTitles.Add(notTransliteratedTitle);
-                // Створення нового рядка у DataGrid, що містить нетраслітеровану назву тесту
+
                 AddNewListViewRow(notTransliteratedTitle);
             }
         }
         /// <summary>
-        /// Додає новий рядок до ListView з заданою назвою тесту
+        /// Adds new ListView row with given test title
         /// </summary>
-        /// <remarks>Кожен рядок містить назву тесту та кнопки для його проходження, редагування та видалення</remarks>
-        /// <param name="testTitle">Нетранслітерована назва тесту</param>
+        /// <param name="testTitle">Not transliterated test title</param>
         private void AddNewListViewRow(string testTitle)
         {
-            // Створення нового об'єкту класу TestItem з заданим TestTitle
             TestItem newItem = new TestItem
             {
                 TestTitle = testTitle
             };
-            // Додавання цього об'єкту до ObservableCollection для відображення у ListView
+
             testItems.Add(newItem);
         }
         /// <summary>
-        /// Обробка події, коли вікно закривається
+        /// Handling window closing event
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Якщо підтвердження закриття не потрібне, то нічого не робимо
+            // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
             {
-                // Скасує процес закриття вікна
+                // Cancelling closing process
                 e.Cancel = true;
             }
         }
         /// <summary>
-        /// Обробка події, коли обрано якесь значення з ComboBox під назвою TestInfoSortOptions
+        /// Handling choosing anything from "TestInfoSortOptions" ComboBox
         /// </summary>
-        /// <remarks>Викликає функцію сортування даних тестів за обраним ключем</remarks>
-        private void TestInfoSortOptions_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void TestInfoSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Sorter.SortTests(TestInfoSortOptions.SelectedIndex, existingTestsTitles);
         }
         /// <summary>
-        /// Обробка події, коли обрано якесь значення з ComboBox під назвою QuestionSortOptions
+        /// Handling choosing anything from "QuestionSortOptions" ComboBox
         /// </summary>
-        /// <remarks>Викликає функцію сортування запитань тестів за обраним ключем</remarks>
-        private void QuestionSortOptions_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void QuestionSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Sorter.SortQuestions(QuestionSortOptions.SelectedIndex, existingTestsTitles);
         }
         /// <summary>
-        /// Обробка події, коли обрано якесь значення з ComboBox під назвою TestInfoGroupOptions
+        /// Handling choosing anything from "TestInfoGroupOptions" ComboBox
         /// </summary>
-        /// <remarks>Викликає функцію групування даних тестів за обраним ключем</remarks>
-        private void TestInfoGroupOptions_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void TestInfoGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Grouper.GroupTests(TestInfoGroupOptions.SelectedIndex, existingTestsTitles);
         }
         /// <summary>
-        /// Обробка події, коли обрано якесь значення з ComboBox під назвою QuestionGroupOptions
+        /// Handling choosing anything from "QuestionGroupOptions" ComboBox
         /// </summary>
-        /// <remarks>Викликає функцію групування запитань тестів за обраним ключем</remarks>
-        private void QuestionGroupOptions_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void QuestionGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Grouper.GroupQuestions(QuestionGroupOptions.SelectedIndex, existingTestsTitles);
         }
         /// <summary>
-        /// Обробка події, коли користувач клацнув на поле пошуку запитань
+        /// Handling clock in questions search field
         /// </summary>
         private void QuestionSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -302,7 +283,7 @@ namespace courseWork_project
             QuestionSearchBox.Foreground = new SolidColorBrush(Colors.Black);
         }
         /// <summary>
-        /// Обробка події, коли користувач клацнув на поле пошуку відповідей на запитання тесту
+        /// Handling clock in variants search field
         /// </summary>
         private void VariantSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -310,37 +291,37 @@ namespace courseWork_project
             VariantSearchBox.Foreground = new SolidColorBrush(Colors.Black);
         }
         /// <summary>
-        /// Обробка події, коли користувач клацнув на GUI кнопку SearchQuestion_button
+        /// Handling click on SearchQuestion_button
         /// </summary>
         private void SearchQuestion_button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 string questionToSearch = QuestionSearchBox.Text;
-                // Якщо поле порожнє або містить значення по замовчуванню
-                if(questionToSearch == string.Empty || string.Compare(questionToSearch, "Пошук запитання тесту") == 0)
+                bool fieldIsEmptyOrDefault = questionToSearch == string.Empty || string.Compare(questionToSearch, "Пошук запитання тесту") == 0;
+                if (fieldIsEmptyOrDefault)
                 {
                     throw new ArgumentNullException();
                 }
-                // В кожному існуючому тесті шукаємо структуру із вказаним запитанням
+
                 foreach(string testTitle in existingTestsTitles)
                 {
                     List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
                     TestStructs.Question foundQuestion = currentTestQuestions.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
-                    // Якщо структуру із вказаним запитанням знайдено
+                    // If a structure with required title is found
                     if (foundQuestion.question != null)
                     {
-                        // Формування виводу інформації про шукане запитання
+                        // Forming output
                         string foundQuestionTestTitle = DataDecoder.GetTestInfo(testTitle).testTitle;
                         MessageBox.Show($"Введене запитання знайдено в тесті \"{foundQuestionTestTitle}\":\n"
                         + $"Запитання: {foundQuestion.question}; "
                         + $"Всього варіантів: {foundQuestion.variants.Count}; "
-                        + $"Правильних варіантів: {foundQuestion.correctVariantsIndexes.Count}\n",
+                        + $"Правильних варіантів: {foundQuestion.correctVariantsIndeces.Count}\n",
                         "Результат пошуку запитання тесту");
                         return;
                     }
                 }
-                // Вивід інформації в разі невдачі при пошуку запитання
+
                 MessageBox.Show($"Запитання \"{questionToSearch}\" не знайдено. Перевірте правильність написання та спробуйте ще раз",
                     "Результат пошуку запитання тесту");
             }
@@ -350,19 +331,19 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли користувач клацнув на GUI кнопку SearchVariant_button
+        /// Handling click on SearchVariant_button
         /// </summary>
         private void SearchVariant_button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 string variantToSearch = VariantSearchBox.Text;
-                // Якщо поле порожнє або містить значення по замовчуванню
-                if (variantToSearch == string.Empty || string.Compare(variantToSearch, "Пошук запитання тесту") == 0)
+                bool fieldIsEmptyOrDefault = variantToSearch == string.Empty || string.Compare(variantToSearch, "Пошук запитання тесту") == 0;
+                if (fieldIsEmptyOrDefault)
                 {
                     throw new ArgumentNullException();
                 }
-                // В кожному існуючому тесті шукаємо запитання із вказаною відповіддю
+
                 foreach (string testTitle in existingTestsTitles)
                 {
                     List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
@@ -370,9 +351,8 @@ namespace courseWork_project
                     {
                         foreach(string variant in currentQuestion.variants)
                         {
-                            // Якщо шуканий варіант знайдено
-                            if(string.Compare(variant.ToLower(), variantToSearch.ToLower()) == 0){
-                                // Формування виводу інформації про шукане запитання
+                            if (string.Compare(variant.ToLower(), variantToSearch.ToLower()) == 0){
+                                // If searched variant was found, form the output
                                 string foundVariantTestTitle = DataDecoder.GetTestInfo(testTitle).testTitle;
                                 MessageBox.Show($"Введений варіант знайдено в тесті \"{foundVariantTestTitle}\",\n"
                                 + $"в запитанні \"{currentQuestion.question}\"",
@@ -382,7 +362,7 @@ namespace courseWork_project
                         }
                     }
                 }
-                // Вивід інформації в разі невдачі при пошуку варіанту
+                // If searched variant was not found
                 MessageBox.Show($"Запитання \"{variantToSearch}\" не знайдено. Перевірте правильність написання та спробуйте ще раз",
                     "Результат пошуку запитання тесту");
             }
@@ -390,7 +370,6 @@ namespace courseWork_project
             {
                 MessageBox.Show("Будь ласка, заповніть поле пошуку запитання тесту");
             }
-
         }
     }
 }

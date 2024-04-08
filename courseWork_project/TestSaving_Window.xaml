@@ -62,22 +62,18 @@
                 Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
                 FontSize="36" FontWeight="ExtraBold" MinWidth="450" MinHeight="66" MaxWidth="360"
                 x:Name="TestTitleBlock" GotFocus="TestTitleBlock_GotFocus" LostFocus="TestTitleBlock_LostFocus"
-                Text="Введіть назву тесту" ToolTip="Введіть/відредагуйте назву тесту"
-                >
-        </TextBox>
+                Text="Введіть назву тесту" ToolTip="Введіть/відредагуйте назву тесту"/>
         <StackPanel             
             Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2"
             HorizontalAlignment="Center" VerticalAlignment="Center"
             >
             <TextBlock 
-                FontSize="14" FontStyle="Italic" Text="Обмеження в часі (у хв)">
-            </TextBlock>
+                FontSize="14" FontStyle="Italic" Text="Обмеження в часі (у хв)"/>
             <TextBox Style="{StaticResource TextBoxes}"
                 Foreground="Black"
                 FontSize="24" Width="120" MinWidth="50" MaxWidth="120"
                 ToolTip="Введіть обмеження в часі проходження тесту в хвилинах (0-необмежений час)"
-                x:Name="TimerInputBox">
-            </TextBox>
+                x:Name="TimerInputBox"/>
         </StackPanel>
 
         <ListView x:Name="QuestionsListView" ScrollViewer.VerticalScrollBarVisibility="Auto"

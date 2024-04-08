@@ -25,15 +25,14 @@
             <RowDefinition Height=".5*"/>
             <RowDefinition Height=".5*"/>
         </Grid.RowDefinitions>
-        
+
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="0" Grid.Column="0"
                 Height="60" Width="210"
                 x:Name="BackToMain_Button"
                 Click="BackToMain_Button_Click"
-                ToolTip="Повернення до головної сторінки">
-            До головної сторінки
-        </Button>
+                ToolTip="Повернення до головної сторінки"
+                Content="До головної сторінки"/>
         <TextBlock Grid.Column="5" Grid.ColumnSpan="2"
                 FontSize="46" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Center"
                 x:Name="CurrentQuestion_Text" Text="1/10"/>
@@ -57,15 +56,12 @@
                 x:Name="ImageDeletion_Button"
                 Click="ImageDeletion_Button_Click"
                 ToolTip="Видалення ілюстративної картинки до поточного запитання"
-                Content="Видалити картинку"
-            />
+                Content="Видалити картинку"/>
         </DockPanel>
         <TextBox Style="{StaticResource TextBoxes}"
                 Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4"
                 FontSize="20" Foreground="Black" MinHeight="70" MinWidth="420"
-                x:Name="QuestionInput"
-            >
-        </TextBox>
+                x:Name="QuestionInput"/>
         <TextBlock Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" FontSize="24"
                    TextWrapping="Wrap" HorizontalAlignment="Center" MinHeight="80" MinWidth="450" VerticalAlignment="Center" TextAlignment="Center"
                    Foreground="DarkGray"
@@ -87,44 +83,38 @@
                    x:Name="dynamicWrapPanel"
                    Orientation="Vertical"
                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="4" Grid.Column="0" Width="240"
                 x:Name="PrevQuestion_Button"
                 Click="PrevQuestion_Button_Click"
-                ToolTip="Повернення до попереднього запитання">
-            Попереднє запитання
-        </Button>
+                ToolTip="Повернення до попереднього запитання"
+                Content="Попереднє запитання"/>
         <Button Style="{StaticResource BasicButton}"
                 VerticalAlignment="Top" Margin="0, 4, 0, 0" FontSize="14"
                 Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                 x:Name="AddVariant_Button"
                 Click="AddVariant_Button_Click"
-                ToolTip="Перехід до сторінки збереження тесту">
-            Додати варіант відповіді
-        </Button>
+                ToolTip="Перехід до сторінки збереження тесту"
+                Content="Додати варіант відповіді"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                 Visibility="Visible"
                 VerticalAlignment="Bottom" Margin="0, 0, 0, 6" FontSize="14"
                 x:Name="RemoveLastVariant_Button"
                 Click="RemoveLastVariant_Button_Click"
-                ToolTip="Перехід до сторінки збереження тесту">
-            Видалити останній варіант
-        </Button>
+                ToolTip="Перехід до сторінки збереження тесту"
+                Content="Видалити останній варіант"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="4" Grid.Column="3" Width="200"
                 x:Name="SaveTest_Button"
                 Click="SaveTest_Button_Click"
-                ToolTip="Перехід до сторінки збереження тесту">
-            Зберегти тест
-        </Button>
+                ToolTip="Перехід до сторінки збереження тесту"
+                Content="Зберегти тест"/>
         <Button Style="{StaticResource BasicButton}"
                 Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="3"
                 x:Name="NextQuestion_Button"
                 Click="NextQuestion_Button_Click"
-                ToolTip="Перехід до наступного запитання">
-            Наступне запитання
-        </Button>
+                ToolTip="Перехід до наступного запитання"
+                Content="Наступне запитання"/>
     </Grid>
 </Window>

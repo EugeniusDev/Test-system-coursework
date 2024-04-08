@@ -8,80 +8,79 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static courseWork_project.ImageManager;
-using static courseWork_project.TestStructs;
 
 namespace courseWork_project
 {
     /// <summary>
-    /// Логіка взаємодії з TestTaking_Window.xaml. Клас TestTaking_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>
+    /// Interaction logic for TestTaking_Window.xaml
     /// </summary>
-    /// <remarks> Вікно TestTaking_Window.xaml використовується для проходження тесту</remarks>
+    /// <remarks>TestTaking_Window.xaml is used for tasking tests</remarks>
     public partial class TestTaking_Window : Window
     {
         /// <summary>
-        /// Індекс поточного запитання тесту
+        /// Index of test's current question
         /// </summary>
-        /// <remarks>Набуває значень від 1 до 10</remarks>
+        /// <remarks>Values from 1 to 10</remarks>
         private int currentQuestionIndex = 1;
         /// <summary>
-        /// Загальна кількість запитань тесту
+        /// Total count of questions of a test
         /// </summary>
-        /// <remarks>Набуває значень від 1 до 10</remarks>
+        /// <remarks>Values from 1 to 10</remarks>
         private int totalQuestionsCount;
         /// <summary>
-        /// Кількість правильних відповідей при проходженні тесту
+        /// Count of correctly answered questions
         /// </summary>
-        /// <remarks>Набуває значень від 0 до 10</remarks>
+        /// <remarks>Values from 1 to 10</remarks>
         private int correctAnswersCount = 0;
         /// <summary>
-        /// Змінна, що містить ім'я користувача
+        /// Prompted name of a user who takes a test
         /// </summary>
-        private string userName;
+        private readonly string userName;
         /// <summary>
-        /// Змінна для визначення, чи було обрано який-небудь варіант
+        /// Used to determine if a variant was selected
         /// </summary>
         private bool buttonClicked = false;
         /// <summary>
-        /// Список з TestStructs.Question для оперування даними запитань тесту
+        /// List of test's questions
         /// </summary>
-        private List<TestStructs.Question> questionsList;
+        private readonly List<TestStructs.Question> questionsList;
         /// <summary>
-        /// Структура з інформацією про тест
+        /// Structure with test's info
         /// </summary>
         private TestStructs.TestInfo testInfo;
         /// <summary>
-        /// Змінна для визначення існування ілюстрацій
+        /// Used for operating with images if they exist
         /// </summary>
-        private string transliteratedTestTitle;
+        private readonly string transliteratedTestTitle;
         /// <summary>
-        /// Словник для пар Button-bool для визначення правильності варіантів
+        /// Button-bool dictionary used for determining correct variants
         /// </summary>
-        /// <remarks>Модифікується при відкритті проходження тесту, використовується при перевірці правильності варіантів</remarks>
+        /// <remarks>Changes while passing through questions</remarks>
         private Dictionary<Button, bool> variantsDict = new Dictionary<Button, bool>();
         /// <summary>
-        /// Цілочисельна змінна для керування таймером
+        /// Used for controlling a timer
         /// </summary>
         private int timeLimitInSeconds = 0;
         /// <summary>
-        /// Ініціалізація таймера
+        /// Timer object
         /// </summary>
         private Timer timer = new Timer();
         /// <summary>
-        /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
+        /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
         /// <summary>
         /// Used to determine if test is not empty
         /// </summary>
-        bool loadedSuccessfully = true;
+        readonly bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
         /// <summary>
-        /// Конструктор TestTaking_Window, приймає 3 аргументи
+        /// 3-argument TestTaking_Window constructor
         /// </summary>
-        /// <param name="questionsList">Список з TestStructs.Question для оперування даними запитань тесту</param>
-        /// <param name="currTestInfo">Структура з інформацією про тест</param>
-        /// <param name="userName">Ім'я користувача, що проходить тест</param>
+        /// <param name="questionsList">Test's question list</param>
+        /// <param name="currTestInfo">Structure with test's general info</param>
+        /// <param name="userName">Name of user that takes a test</param>
         public TestTaking_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo, string userName)
         {
             // If there are no questions in the test, close the window
@@ -105,7 +104,7 @@ namespace courseWork_project
 
             InitializeComponent();
 
-            // Перед початком проходження відображуємо загальну інформацію про тест
+            // Displaying general info about test before an attempt of passing it
             string generalInfoForMessageBox = $"Тест \"{currTestInfo.testTitle}\"" +
                 $"\nКількість запитань: {questionsList.Count}\n";
             timeLimitInSeconds = currTestInfo.timerValue * 60;
@@ -120,27 +119,27 @@ namespace courseWork_project
             MessageBox.Show(generalInfoForMessageBox, "Інформація про тест");
 
             ShowQuestionAtIndex(0);
-            // Якщо обмежень в часі немає, то текст таймера приховується і таймер не працює
+            // If there are no limitations, timer does not work
             if (noTimeLimits)
             {
                 Timer_TextBlock.Text = string.Empty;
                 Timer_TextBlock.Visibility = Visibility.Collapsed;
                 return;
             }
-            // Початкове значення таймера (сам ліміт)
+            // Initial timer value (time limit itself)
             Timer_TextBlock.Text = $"{timeLimitInSeconds / 60}:{timeLimitInSeconds % 60}";
-            // Налаштування та старт таймера
+            // Initialization and start of a timer
             timer.Interval = 1000;
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
         /// <summary>
-        /// Викликається таймером щосекунди
+        /// Called by a timer every second
         /// </summary>
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             timeLimitInSeconds--;
-            // Якщо час вичерпано, то таймер зупиняється, виводяться результати та завершується тест
+            // If time is up, stop the timer and the test taking and show the results
             if(timeLimitInSeconds == 0)
             {
                 timer.Stop();
@@ -158,91 +157,88 @@ namespace courseWork_project
             );
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
+        /// Handling pressed BackToMain_Button
         /// </summary>
-        /// <remarks>Викликає TryOpenMainWindow для підтвердження переходу до головної сторінки</remarks>
+        /// <remarks>Calls TryOpenMainWindow</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             timer.Stop();
             GoToMainWithConfimation();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку NextQuestion_Button
+        /// Handling pressed NextQuestion_Button
         /// </summary>
-        /// <remarks>Викликає GoToNextQuestion для відображення наступного запитання</remarks>
+        /// <remarks>Calls GoToNextQuestion</remarks>
         private void NextQuestion_Button_Click(object sender, RoutedEventArgs e)
         {
             GoToNextQuestion();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку EndTest_Button
+        /// Handling pressed EndTest_Button
         /// </summary>
-        /// <remarks>Викликає TryToFinishTheTest</remarks
+        /// <remarks>Calls TryToFinishTheTest</remarks
         private void EndTest_Button_Click(object sender, RoutedEventArgs e)
         {
             TryToFinishTheTest();
         }
         /// <summary>
-        /// Формує результати проходження тесту для відображення та запису
+        /// Forms results of test passing
         /// </summary>
-        /// <returns>Рядок з результатами</returns>
+        /// <returns>String with results info</returns>
         private string FormResultsOfTest()
         {
             string resultsToReturn = $"{userName}: {correctAnswersCount}/{totalQuestionsCount}";
             return resultsToReturn;
         }
         /// <summary>
-        /// Оновлює список з результатами проходження поточного тесту та відкриває MainWindow
+        /// Updates results list of current test and opens MainWindow
         /// </summary>
-        /// <param name="currentResult">Рядок з результатами проходження поточного тесту</param>
+        /// <param name="currentResult">String with current test's passing results</param>
         private void EndTestAndSaveResults(string currentResult)
         {
             FileWriter fileWriter = new FileWriter(testInfo.testTitle);
             fileWriter.AppendTestTakingData(testInfo, currentResult);
-            // Відкриття головного меню
+
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
             askForClosingComfirmation = false;
             Close();
         }
         /// <summary>
-        /// Оновлює видимість всіх змінних GUI елементів
+        /// Updates visibility of all changeable GUI elements
         /// </summary>
-        /// <remarks>Робить це на основі поточного запитання</remarks>
         private void UpdateGUI()
         {
-            // Відображення індексу поточного запитання тесту та їх кількості
             CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{totalQuestionsCount}";
-            // Оновлення видимості кнопки переходу на наступне запитання тесту
+
             if (currentQuestionIndex == totalQuestionsCount)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
             }
             else NextQuestion_Button.Visibility = Visibility.Visible;
-            // Оновлення видимості кнопки завершення тесту
+
             if (currentQuestionIndex == totalQuestionsCount)
             {
                 EndTest_Button.Visibility = Visibility.Visible;
             }
         }
         /// <summary>
-        /// Оновлює картинку для відображення у поточному запитанні
+        /// Updates image of current question (if such is linked)
         /// </summary>
         private void UpdateImageAppearance()
         {
             try
             {
-                // Отримуємо всі наявні картинки
                 string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
-                // Якщо в папці images немає картинок, сповістити про це
                 if (allImagesPaths.Length == 0) throw new ArgumentNullException();
+
                 foreach (string currentImagePath in allImagesPaths)
                 {
-                    // Знаходження бажаної картинки серед всіх наявних в папці images
+                    // Finding required image from images folder
                     if (questionsList[currentQuestionIndex-1].hasLinkedImage
                         && currentImagePath.Contains($"{transliteratedTestTitle}-{currentQuestionIndex}"))
                     {
-                        // Відображення знайденої картинки
+                        // Displaying found image
                         string absoluteImagePath = Path.GetFullPath(currentImagePath);
                         BitmapImage foundImageBitmap = new BitmapImage();
                         foundImageBitmap.BeginInit();
@@ -264,7 +260,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Стирає дані, що містились у QuestionText; списку WrapPanel; словнику пар Button-bool
+        /// Erases data from QuestionText, WrapPanel, Button-bool dictionary
         /// </summary>
         private void ClearElementsData()
         {
@@ -273,9 +269,9 @@ namespace courseWork_project
             variantsDict.Clear();
         }
         /// <summary>
-        /// Відображає запитання тесту зі списку під заданим індексом
+        /// Displays a question from a list at given index
         /// </summary>
-        /// <param name="indexOfElementToReturnTo">Індекс запитання у списку (від 0 до 9)</param>
+        /// <param name="indexOfElementToReturnTo">Index of question (values from 0 to 9)</param>
         private void ShowQuestionAtIndex(int indexOfElementToReturnTo)
         {
             currentQuestionIndex = ++indexOfElementToReturnTo;
@@ -284,16 +280,14 @@ namespace courseWork_project
             GetListAndPutItInGUI(questionsList);
         }
         /// <summary>
-        /// Додає новий варіант відповіді на запитання тесту із заданим значенням, приймає 2 аргументи
+        /// Adds answer variant with specified values
         /// </summary>
-        /// <param name="variantText">Значення (текст) цього варіанту відповіді</param>
-        /// <param name="isCorrect">Цей варіант правильний?</param>
+        /// <param name="variantText">Text of answer variant</param>
+        /// <param name="isCorrect">Is the variant correct?</param>
         private void AddNewVariant(string variantText, bool isCorrect)
         {
-            // Якщо досягнуто ліміт варіантів, нічого не робимо
             if (wrapPanelOfVariants.Children.Count >= 8) return;
 
-            // Створення кнопки з текстом варіанту відповіді
             Button button = new Button
             {
                 Content = variantText,
@@ -308,26 +302,21 @@ namespace courseWork_project
                 MaxWidth = 260
             };
             button.Click += VariantButton_Click;
-
-            // Додавання Button та bool правильності поточного варіанту до словника
             variantsDict.Add(button, isCorrect);
-
-            // Додавання створеної Button до WrapPanel
             wrapPanelOfVariants.Children.Add(button);
         }
         /// <summary>
-        /// Перевірка правильності вибору користувача; колірне позначення клікнутої кнопки та правильних відповідей
+        /// Checking and color-marking choice of user
         /// </summary>
         private void VariantButton_Click(object sender, RoutedEventArgs e)
         {
-            // Якщо вже було клікнуто на кнопку варіанту, то нічого не робимо
             if (buttonClicked) return;
 
             buttonClicked = true;
-            // Отримання даних натиснутої кнопки
+
             Button clickedButton = (Button)sender;
             string clickedButtonContent = clickedButton.Content.ToString();
-            // Зміна фокусу на інші кнопки відповідно до індексу запитання (потрібно для переходу з допогомою клавіші Enter)
+            // Changing focus on other buttons for convenient Enter usage (depends on question index)
             if(currentQuestionIndex != questionsList.Count)
             {
                 NextQuestion_Button.Focus();
@@ -340,28 +329,25 @@ namespace courseWork_project
             foreach(var buttonBoolPair in variantsDict)
             {
                 string currButtonContent = buttonBoolPair.Key.Content.ToString();
-                // Знайдено клікнуту кнопку (за її вмістом)
                 if (string.Compare(currButtonContent, clickedButtonContent) == 0)
                 {
-                    /*
-                     * Зміна кольору клікнутої кнопки на колір неправильного варіанту,
-                     * якщо варіант правильний, то колір зміниться на колір правильного завдяки ShowCorrectAnswers
-                    */
                     buttonBoolPair.Key.Background = new SolidColorBrush(Colors.DarkRed);
                     buttonBoolPair.Key.Foreground = new SolidColorBrush(Colors.White);
 
-                    // Якщо обрано правильну відповідь, то інкрементується кількість правильних відповідей
-                    if (buttonBoolPair.Value)
+                    bool isSelectedVariandCorrect = buttonBoolPair.Value;
+                    if (isSelectedVariandCorrect)
                     {
                         correctAnswersCount++;
                     }
+
                     break;
                 }
             }
+
             ShowCorrectAnswers();
         }
         /// <summary>
-        /// Змінює кольори кнопок варіантів залежно від правильності обраного варіанту
+        /// Changes colors of buttons of variants according to their correctness
         /// </summary>
         private void ShowCorrectAnswers()
         {
@@ -375,11 +361,11 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто клавішу на клавіатурі
+        /// Handling pressed keyboard keys
         /// </summary>
-        /// <remarks>F1 - посібник користувача;
-        /// Esc - попереднє вікно;
-        /// Enter - наступне запитання/завершення проходження тесту</remarks>
+        /// <remarks>F1 - user manual;
+        /// Esc - previous window;
+        /// Enter - next question/end test passing attempt</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
@@ -393,18 +379,17 @@ namespace courseWork_project
             }
             if(e.Key == Key.Enter)
             {
-                // Якщо запитання не останнє, викликає GoToNextQuestion для відображення наступного запитання
                 if (currentQuestionIndex != totalQuestionsCount)
                 {
                     GoToNextQuestion();
                     return;
                 }
-                // Інакше пробує закінчити тест
+
                 TryToFinishTheTest();
             }
         }
         /// <summary>
-        /// Викликає підтвердженням користувачем переходу на головне вікно
+        /// User must to confirm going to MainWindow
         /// </summary>
         private void GoToMainWithConfimation()
         {
@@ -413,17 +398,16 @@ namespace courseWork_project
                 "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.Yes))
             {
-                // Повернення до MainWindow
                 MainWindow mainWindow = new MainWindow();
                 mainWindow.Show();
                 askForClosingComfirmation = false;
                 Close();
             }
-
+            // If user did not confirmed the redirection, resume timer
             timer.Start();
         }
         /// <summary>
-        /// Виводить результати проходження та викликає функцію їх збереження в базу даних
+        /// Shows results of passing attempt and calls method for their saving
         /// </summary>
         private void TryToFinishTheTest()
         {
@@ -433,12 +417,12 @@ namespace courseWork_project
                 {
                     throw new ArgumentNullException();
                 }
-                // Зупинка таймера
+
                 timer.Stop();
-                // Формування та вивід результатів
+
                 string resultsOfTest = FormResultsOfTest();
                 MessageBox.Show($"Тест \"{testInfo.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
-                // Завершення тесту та збереження результатів у відповідну до тесту базу даних
+
                 EndTestAndSaveResults(resultsOfTest);
             }
             catch (ArgumentNullException)
@@ -447,7 +431,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Переходить на наступне запитання за його наявності
+        /// Displays next question if such exist
         /// </summary>
         private void GoToNextQuestion()
         {
@@ -470,14 +454,12 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Передає структуру даних поточного запитання в GUI
+        /// Puts questions structure in GUI
         /// </summary>
-        /// <remarks>Розподіляє дані з структури по списках, формує та оновлює відповідний GUI</remarks>
-        /// <param name="questions">Список структур запитань тесту</param>
+        /// <param name="questions">List of questions</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
         {
             TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];
-            // За наявності відображаємо ілюстрацію
             ViewboxWithImage.Visibility = Visibility.Collapsed;
             IllustrationImage.Visibility = Visibility.Collapsed;
             QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
@@ -486,28 +468,29 @@ namespace courseWork_project
             {
                 UpdateImageAppearance();
             }
+
             QuestionText.Text = currentQuestion.question;
             int tempIndexOfCorrectVariant = 0;
             foreach (string variant in currentQuestion.variants)
             {
-                // В списку індексів правильних варіантів міститься/не міститься поточний індекс
-                bool variantIsCorrect = currentQuestion.correctVariantsIndexes.Contains(tempIndexOfCorrectVariant);
+                bool variantIsCorrect = currentQuestion.correctVariantsIndeces.Contains(tempIndexOfCorrectVariant);
                 AddNewVariant(variant, variantIsCorrect);
                 tempIndexOfCorrectVariant++;
             }
+
             UpdateGUI();
         }
         /// <summary>
-        /// Обробка події, коли вікно закривається
+        /// Handling window closing event
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Якщо підтвердження закриття не потрібне, то нічого не робимо
+            // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
             {
-                // Скасує процес закриття вікна
+                // Cancelling closing process
                 e.Cancel = true;
             }
         }

@@ -6,15 +6,14 @@ namespace courseWork_project
     public static class Sorter
     {
         /// <summary>
-        /// Метод, що сортує тести за вказаним типом
+        /// Sorts tests in a given manner
         /// </summary>
-        /// <param name="typeOfSort">Тип сортування (відповідно до enum TestSortTypes)</param>
-        /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
+        /// <param name="typeOfSort">Type of sorting (according to enum TestSortTypes)</param>
+        /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortTests(int typeOfSort, List<string> transliteratedTitles)
         {
             List<TestStructs.TestInfo> testsToSort = DataDecoder.GetAllTestInfos(transliteratedTitles);
             string typeDescription = "Резулат сортування тестів за ";
-            // Процес сортування
             switch ((TestSortTypes)typeOfSort)
             {
                 case TestSortTypes.BY_DATE:
@@ -28,11 +27,8 @@ namespace courseWork_project
                 case TestSortTypes.BY_QUESTIONS_COUNT:
                     typeDescription = string.Concat(typeDescription, "кількістю запитань");
                     testsToSort.Sort((a, b) =>
-                        // Кількість запитань першого порівнюваного тесту
                         DataDecoder.FormQuestionsList(a.testTitle).Count
-                        .CompareTo(
-                            // Кількість запитань другого порівнюваного тесту
-                            DataDecoder.FormQuestionsList(b.testTitle).Count)
+                        .CompareTo(DataDecoder.FormQuestionsList(b.testTitle).Count)
                         );
                     break;
                 case TestSortTypes.BY_TITLE:
@@ -43,8 +39,7 @@ namespace courseWork_project
                     MessageBox.Show("Обрано некоректний тип сортування тестів");
                     break;
             }
-
-            // Формування виводу просортованої інформації
+            // Forming the output of sorted stuff
             string resultOfSort = string.Empty;
             foreach(TestStructs.TestInfo currTestInfo in testsToSort)
             {
@@ -56,15 +51,14 @@ namespace courseWork_project
             MessageBox.Show(resultOfSort, typeDescription);
         }
         /// <summary>
-        /// Метод, що сортує запитання тестів за вказаним типом
+        /// Sorts questions in a given manner
         /// </summary>
-        /// <param name="typeOfSort">Тип сортування (відповідно до enum QuestionSortTypes)</param>
-        /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
+        /// <param name="typeOfSort">Type of sorting (according to enum QuestionSortTypes)</param>
+        /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortQuestions(int typeOfSort, List<string> transliteratedTitles)
         {
             List<TestStructs.Question> questionsToSort = DataDecoder.GetAllQuestions(transliteratedTitles);
             string typeDescription = "Резулат сортування запитань тестів за ";
-            // Процес сортування
             switch ((QuestionSortTypes)typeOfSort)
             {
                 case QuestionSortTypes.BY_VARIANTS_COUNT:
@@ -73,7 +67,7 @@ namespace courseWork_project
                     break;
                 case QuestionSortTypes.BY_CORRECT_COUNT:
                     typeDescription = string.Concat(typeDescription, "кількістю правильних відповідей");
-                    questionsToSort.Sort((a, b) => a.correctVariantsIndexes.Count.CompareTo(b.correctVariantsIndexes.Count));
+                    questionsToSort.Sort((a, b) => a.correctVariantsIndeces.Count.CompareTo(b.correctVariantsIndeces.Count));
                     break;
                 case QuestionSortTypes.BY_QUESTION_LENGTH:
                     typeDescription = string.Concat(typeDescription, "довжиною запитання");
@@ -87,13 +81,13 @@ namespace courseWork_project
                     MessageBox.Show("Обрано некоректний тип сортування запитань тестів");
                     break;
             }
-            // Формування виводу просортованої інформації
+            // Forming the output of sorted stuff
             string resultOfSort = string.Empty;
             foreach (TestStructs.Question currQuestion in questionsToSort)
             {
                 resultOfSort = string.Concat(resultOfSort, $"\nЗапитання: {currQuestion.question}; " +
                     $"Всього варіантів: {currQuestion.variants.Count}; " +
-                    $"Правильних варіантів: {currQuestion.correctVariantsIndexes.Count}\n");
+                    $"Правильних варіантів: {currQuestion.correctVariantsIndeces.Count}\n");
             }
             MessageBox.Show(resultOfSort, typeDescription);
         }

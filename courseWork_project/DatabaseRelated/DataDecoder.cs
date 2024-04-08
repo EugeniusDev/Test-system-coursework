@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 
 namespace courseWork_project
@@ -14,7 +13,7 @@ namespace courseWork_project
         /// Словник транслітерування для використання рядків в якості шляхів до баз даних
         /// </summary>
         /// <remarks>Містить символи, що потребують заміни та самі символи заміни</remarks>
-        private static Dictionary<char, string> transliterationTable = new Dictionary<char, string>
+        private static readonly Dictionary<char, string> transliterationTable = new Dictionary<char, string>
         {
             {'а', "a"}, {'б', "b"}, {'в', "v"}, {'г', "g"}, {'д', "d"}, {'е', "e"},
             {'є', "ye"}, {'ж', "zh"}, {'з', "z"}, {'и', "y"}, {'і', "i"}, {'ї', "yi"},
@@ -25,9 +24,8 @@ namespace courseWork_project
             {'\"', "_"}, {'/', "_"}, {'\\', "_"}, {'|', "_"}, {'?', "_"}, {'*', "_"}
         };
         /// <summary>
-        /// Заповнення "порожньої" структури TestStructs.TestInfo
+        /// TestInfo with sample data
         /// </summary>
-        /// <returns>"Порожню" структуру TestStructs.TestInfo</returns>
         private static TestStructs.TestInfo NullTestInfo
         {
             get
@@ -40,61 +38,58 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Отримує рядки з даними про питання, формує список структур даних цих питань
+        /// Gets question info strings and forms Question structures from them
         /// </summary>
-        /// <remarks>Використовує FileReader для зчитування даних з бази</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
-        /// <returns>Список структур даних з питань шуканого тесту або пустий список, якщо дані відсутні</returns>
+        /// <remarks>Uses FileReader under the hood</remarks>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
+        /// <returns>List of questions, populated or empty</returns>
         public static List<TestStructs.Question> FormQuestionsList(string testTitle)
         {
             List<TestStructs.Question> formedQuestionsList = new List<TestStructs.Question>();
             FileReader reader = new FileReader(testTitle);
-            List<string> textInLines = reader.ReadAndReturnQuestionLines();
+            List<string> textInLines = reader.GetQuestionLines();
             foreach (string line in textInLines)
             {
-                // Створення нової структури, яка буде додана у список
                 TestStructs.Question tempQuestion = new TestStructs.Question
                 {
                     variants = new List<string>(),
-                    correctVariantsIndexes = new List<int>()
+                    correctVariantsIndeces = new List<int>()
                 };
-                // Розділення поточного рядка та розподілення його частин по полях структури питання
                 string[] splitLine = line.Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
                 tempQuestion.question = splitLine[0];
                 for (int i = 1; i < splitLine.Length - 1; i++)
                 {
-                    // Якщо поточна частина рядка може бути конвертована в int додаємо її до correctVariantsIndexes
+                    // If current part can be parsed to int, add it to correctVariantsIndeces list
                     if (int.TryParse(splitLine[i], out int correctAnswerIndex) && splitLine[i].Length == 1)
                     {
-                        tempQuestion.correctVariantsIndexes.Add(correctAnswerIndex);
+                        tempQuestion.correctVariantsIndeces.Add(correctAnswerIndex);
                     }
-                    // Інакше поки кількість варіантів не перевищує 8, додаємо поточну частину рядка в ролі варіанта
+                    // Else add current part to a variants list
                     else if (tempQuestion.variants.Count < 8)
                     {
                         tempQuestion.variants.Add(splitLine[i]);
                     }
                 }
-                // Конвертування інформації про під'єднану ілюстрацію з останнього розбитого елемента
+                // Last part is converted into info about illustration
                 tempQuestion.hasLinkedImage = bool.Parse(splitLine[splitLine.Length - 1]);
                 formedQuestionsList.Add(tempQuestion);
             }
             return formedQuestionsList;
         }
         /// <summary>
-        /// Отримує перший рядок з бази даних тесту, формує структуру інформації про тест
+        /// Gets first line from test's file-database and populates corresponding TestInfo structure
         /// </summary>
-        /// <remarks>Використовує FileReader для зчитування даних з бази</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
-        /// <returns>Зповнену структуру TestStructs.TestInfo або порожню у випадку відсутності даних</returns>
+        /// <remarks>Uses FileReader under the hood</remarks>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
+        /// <returns>Populated or empty TestStructs.TestInfo</returns>
         public static TestStructs.TestInfo GetTestInfo(string testTitle)
         {
             try
             {
                 FileReader reader = new FileReader(testTitle);
-                string[] stringToSplit = reader.ReadAndReturnTestInfo().Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
-                // Якщо зчитаний рядок містить недостатньо інформації, кидаємо помилку
+                string[] stringToSplit = reader.GetTestInfo().Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
                 if (stringToSplit.Length < 3) throw new FormatException();
-                // Створення структури TestStructs.TestInfo та її заповнення відповідними даними
+
                 TestStructs.TestInfo currentTestInfo;
                 currentTestInfo.testTitle = stringToSplit[0];
                 currentTestInfo.lastEditedTime = DateTime.Parse(stringToSplit[1]);
@@ -109,11 +104,10 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Транслітерує кириличні символи та замінює інші символи для оптимізації шляхів до баз даних
+        /// Transliterates some symbols for optimal usage as database paths
         /// </summary>
-        /// <remarks>Використовує transliterationTable для заміни символів</remarks>
-        /// <param name="inputString">Рядок, який потрібно транслітерувати</param>
-        /// <returns>Оптимізований для використання як шляху до баз даних рядок</returns>
+        /// <param name="inputString">String to transliterate</param>
+        /// <returns>Optimized for use as database path string</returns>
         public static string TransliterateAString(string inputString)
         {
             if (inputString is null) return string.Empty;
@@ -121,19 +115,18 @@ namespace courseWork_project
             string transliteratedString = string.Empty;
             foreach(char c in inputString.ToLower())
             {
-                // Якщо символ є у словнику, замінюємо його, інакше залишаємо як є
                 transliteratedString = transliterationTable.ContainsKey(c) ? 
                     string.Concat(transliteratedString, transliterationTable[c])
                     : string.Concat(transliteratedString, c);
             }
+
             return transliteratedString;
         }
         /// <summary>
-        /// Метод, що повертає всі запитання всіх існуючих тестів
+        /// Gets list of all questions of all tests
         /// </summary>
-        /// <remarks>Використовується для сорту та групування запитань</remarks>
-        /// <returns>Список всіх запитань</returns>
-        /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
+        /// <param name="transliteratedTitles">List of transliterated test titles</param>
+        /// <returns>List of all questions available</returns>
         public static List<TestStructs.Question> GetAllQuestions(List<string> transliteratedTitles)
         {
             List<TestStructs.Question> listToReturn = new List<TestStructs.Question>();
@@ -145,11 +138,10 @@ namespace courseWork_project
             return listToReturn;
         }
         /// <summary>
-        /// Метод, що повертає всі загальні дані тестів
+        /// Gets list of all TestInfos of all tests
         /// </summary>
-        /// <remarks>Використовується для сорту та групування тестів</remarks>
-        /// <returns>Список всіх даних тестів</returns>
-        /// <param name="transliteratedTitles">Список всіх назв тестів (транслітерованих)</param>
+        /// <param name="transliteratedTitles">List of transliterated test titles</param>
+        /// <returns>List of all TestInfos available</returns>
         public static List<TestStructs.TestInfo> GetAllTestInfos(List<string> transliteratedTitles)
         {
             List<TestStructs.TestInfo> listToReturn = new List<TestStructs.TestInfo>();

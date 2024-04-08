@@ -2,7 +2,7 @@
 {
     #region Grouping related
     /// <summary>
-    /// Enum для визначення типу групування тестів
+    /// Enum for types of tests grouping
     /// </summary>
     public enum TestGroupTypes
     {
@@ -11,7 +11,7 @@
         CONTROL_WORK
     }
     /// <summary>
-    /// Enum для визначення типу групування запитань тестів
+    /// Enum for types of questions grouping
     /// </summary>
     public enum QuestionGroupTypes
     {
@@ -20,9 +20,32 @@
     }
     #endregion
 
+    #region Sorting related
+    /// <summary>
+    /// Enum for types of tests sorting
+    /// </summary>
+    public enum TestSortTypes
+    {
+        BY_DATE,
+        BY_TIMER,
+        BY_QUESTIONS_COUNT,
+        BY_TITLE
+    }
+    /// <summary>
+    /// Enum for types of questions sorting
+    /// </summary>
+    public enum QuestionSortTypes
+    {
+        BY_VARIANTS_COUNT,
+        BY_CORRECT_COUNT,
+        BY_QUESTION_LENGTH,
+        BY_QUESTION_TITLE
+    }
+    #endregion
+
     #region HelpCenter_Window related
     /// <summary>
-    /// Enum для організації посібників, що стосуються вікна MainWindow
+    /// Enum for MainWindow related manuals
     /// </summary>
     public enum MainWindowManuals
     {
@@ -39,7 +62,7 @@
         TEST_DELETING
     }
     /// <summary>
-    /// Enum для організації посібників, що стосуються проходження тесту
+    /// Enum for test passing related manuals
     /// </summary>
     public enum TestPassingManuals
     {
@@ -50,7 +73,7 @@
         TEST_END
     }
     /// <summary>
-    /// Enum для організації посібників, що стосуються вікна TestChange
+    /// Enum for TestChange_Window related manuals
     /// </summary>
     public enum TestChangeManuls
     {
@@ -65,7 +88,7 @@
         BACK_TO_MAIN
     }
     /// <summary>
-    /// Enum для організації посібників, що стосуються вікна TestSaving
+    /// Enum for TestSaving_Window related manuals
     /// </summary>
     public enum TestSavingManuals
     {
@@ -76,28 +99,4 @@
         TEST_SAVING
     }
     #endregion
-
-    #region Sorting related
-    /// <summary>
-    /// Enum для визначення типу сортування тестів
-    /// </summary>
-    public enum TestSortTypes
-    {
-        BY_DATE,
-        BY_TIMER,
-        BY_QUESTIONS_COUNT,
-        BY_TITLE
-    }
-    /// <summary>
-    /// Enum для визначення типу сортування запитань тестів
-    /// </summary>
-    public enum QuestionSortTypes
-    {
-        BY_VARIANTS_COUNT,
-        BY_CORRECT_COUNT,
-        BY_QUESTION_LENGTH,
-        BY_QUESTION_TITLE
-    }
-    #endregion
-
 }

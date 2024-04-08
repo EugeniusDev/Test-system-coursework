@@ -16,45 +16,45 @@ using courseWork_project.DatabaseRelated;
 namespace courseWork_project
 {
     /// <summary>
-    /// Логіка взаємодії з TestChange_Window.xaml. Клас TestChange_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>
+    /// Interaction logic for TestChange_Window.xaml
     /// </summary>
-    /// <remarks> Вікно TestChange_Window.xaml використовується для створення/редагування запитань тесту</remarks>
+    /// <remarks> TestChange_Window.xaml is used for creating/editing test's questions</remarks>
     public partial class TestChange_Window : Window
     {
         /// <summary>
-        /// Індекс поточного запитання тесту
+        /// Current question's index
         /// </summary>
-        /// <remarks>Набуває значень від 1 до 10</remarks>
+        /// <remarks>Values from 1 to 10</remarks>
         private int currentQuestionIndex = 1;
         /// <summary>
-        /// Загальна кількість запитань тесту
+        /// Count of test's questions
         /// </summary>
-        /// <remarks>Набуває значень від 1 до 10</remarks>
+        /// <remarks>Values from 1 to 10</remarks>
         private int totalQuestionsCount = 1;
         /// <summary>
-        /// Булева змінна для визначення режиму вікна
+        /// Used to determine the type of current window
         /// </summary>
-        /// <remarks>Якщо true - вікно в режимі створення, false - в режимі редагування</remarks>
+        /// <remarks>If true - creation mode, false if not</remarks>
         private bool creatingMode;
         /// <summary>
-        /// Список з TestStructs.Question для оперування даними запитань тесту
+        /// Test's question list
         /// </summary>
         private List<TestStructs.Question> questionsList;
         /// <summary>
-        /// Масив структур для збереження та маніпуляції даними про додану/змінену ілюстрацію
+        /// List of ImageInfo for manipulations with images
         /// </summary>
         private List<ImageManager.ImageInfo> imagesList;
         /// <summary>
-        /// Структура з інформацією про тест
+        /// Structure with test's general info
         /// </summary>
         private TestStructs.TestInfo testInfo;
         /// <summary>
-        /// Словник для пар TextBox-CheckBox для оперування даними варіантів відповідей
+        /// TextBox-CheckBox dictionary for variants data manipulation
         /// </summary>
-        /// <remarks>Модифікується при додаванні та видаленні варіантів відповідей</remarks>
+        /// <remarks>Changes on adding and removing variants</remarks>
         private Dictionary<TextBox, CheckBox> variantsDict = new Dictionary<TextBox, CheckBox>();
         /// <summary>
-        /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
+        /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
         /// <summary>
@@ -62,9 +62,9 @@ namespace courseWork_project
         /// </summary>
         private List<ImageInfo> imageInfosToDelete = new List<ImageInfo>();
         /// <summary>
-        /// Конструктор для режиму створення тесту
+        /// Creation mode constructor
         /// </summary>
-        /// <remarks>0 параметрів</remarks>
+        /// <remarks>Parameterless</remarks>
         public TestChange_Window()
         {
             InitializeComponent();
@@ -74,25 +74,23 @@ namespace courseWork_project
             UpdateGUI();
         }
         /// <summary>
-        /// Конструктор для режиму редагування тесту
+        /// Editing mode constructor
         /// </summary>
-        /// <remarks>Приймає 4 параметри</remarks>
-        /// <param name="oldQuestionsList">Список TestStructs.Question тесту, який редагується</param>
-        /// <param name="imageSources">Список (List) структур інформації про картинки (може бути порожнім: 
-        /// у випадку отримання картинок з директорії-бази даних)</param>
-        /// <param name="currTestInfo">Інформація про тест, який редагується</param>
-        /// <param name="indexOfElementToEdit">Індекс запитання, яке редагується (1-10)</param>
+        /// <remarks>Takes 4 parameters</remarks>
+        /// <param name="oldQuestionsList">List of questions</param>
+        /// <param name="imageSources">List of images (could be empty)</param>
+        /// <param name="currTestInfo">General test info</param>
+        /// <param name="indexOfElementToEdit">Index of question to edit (1-10)</param>
         public TestChange_Window(List<TestStructs.Question> oldQuestionsList, List<ImageManager.ImageInfo> imageSources, TestStructs.TestInfo currTestInfo, int indexOfElementToEdit)
         {
             creatingMode = false;
             questionsList = oldQuestionsList;
             testInfo = currTestInfo;
-            // Якщо передано порожній список
             if (imageSources.Count == 0)
             {
-                // Формування списку з директорії-бази даних
+                // If images list is empty, try to get them from the database
                 ImageListFormer imageListFormer = new ImageListFormer();
-                imagesList = imageListFormer.FormImageList(testInfo.testTitle, questionsList);
+                imagesList = imageListFormer.GetImageList(testInfo.testTitle, questionsList);
             }
             else
             {
@@ -104,26 +102,26 @@ namespace courseWork_project
             ShowQuestionAtIndex(indexOfElementToEdit - 1);
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
+        /// Handling pressed BackToMain_Button
         /// </summary>
-        /// <remarks>Відкриває підтвердження переходу до головної сторінки</remarks>
+        /// <remarks>Opens confirmation of going to main page</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!UpdateCurrentQuestionInfo()) return;
             TryOpenMainWindow();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку NextQuestion_Button
+        /// Handling pressed NextQuestion_Button
         /// </summary>
-        /// <remarks>Викликає GoToNextQuestion</remarks>
+        /// <remarks>Calls GoToNextQuestion</remarks>
         private void NextQuestion_Button_Click(object sender, RoutedEventArgs e)
         {
             GoToNextQuestion();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку PrevQuestion_Button
+        /// Handling pressed PrevQuestion_Button
         /// </summary>
-        /// <remarks>Зберігає поточне запитання тесту, відображає попереднє</remarks>
+        /// <remarks>Saves current question and displays previous one</remarks>
         private void PrevQuestion_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!UpdateCurrentQuestionInfo()) return;
@@ -131,20 +129,19 @@ namespace courseWork_project
             ShowQuestionAtIndex(currentQuestionIndex-1);
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку SaveTest_Button
+        /// Handling pressed SaveTest_Button
         /// </summary>
-        /// <remarks>Викликає GoToSavingWindow</remarks>
+        /// <remarks>Calls GoToSavingWindow</remarks>
         private void SaveTest_Button_Click(object sender, RoutedEventArgs e)
         {
             GoToSavingWindow();
         }
         /// <summary>
-        /// Обробка події, коли клацнуто на поле варіанту відповіді
+        /// Handling click on variant's field
         /// </summary>
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox textBox = sender as TextBox;
-            // Якщо поле містить текст по замовчуванню, то стираємо текст поля
             bool fieldContainsDefaultText = textBox != null
                 && string.Compare(textBox.Text, "Введіть варіант відповіді") == 0;
             if (fieldContainsDefaultText)
@@ -153,13 +150,12 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли поле варіанту відповіді втратило фокус
+        /// Handling event when variant field loses focus
         /// </summary>
-        /// <remarks>Тобто коли після фокусу на полі клацнуто на будь-що інше</remarks>
+        /// <remarks>Refilling it default data is required</remarks>
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             TextBox textBox = sender as TextBox;
-            // Якщо поле порожнє, то повертаємо значення по замовчуванню
             bool fieldIsEmpty = textBox != null && string.IsNullOrWhiteSpace(textBox.Text);
             if (fieldIsEmpty)
             {
@@ -167,40 +163,38 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли будь-який CheckBox змінив своє значення
+        /// Handling change of a value of any CheckBox
         /// </summary>
-        /// <remarks>Тобто коли користувач клацнув на один з них</remarks>
         private void CheckBox_Updated(object sender, RoutedEventArgs e)
         {
             UpdateVariantsCheckedConditions();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку AddVariant_Button
+        /// Handling pressed AddVariant_Button
         /// </summary>
-        /// <remarks>Додає новий варіант відповіді та оновлює відображення GUI</remarks>
+        /// <remarks>Adds new variant and updates GUI</remarks>
         private void AddVariant_Button_Click(object sender, RoutedEventArgs e)
         {
             AddNewVariant();
             UpdateGUI();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку RemoveLastVariant_Button
+        /// Handling pressed RemoveLastVariant_Button
         /// </summary>
-        /// <remarks>Видаляє останній в списку варіант відповіді та оновлює відображення GUI</remarks>
+        /// <remarks>Deletes last variant and updates GUI</remarks>
         private void RemoveLastVariant_Button_Click(object sender, RoutedEventArgs e)
         {
             RemoveLastVariant();
             UpdateGUI();
         }
         /// <summary>
-        /// Оновлює видимість всіх змінних GUI елементів
+        /// Updates visibility of changeable GUI elements
         /// </summary>
-        /// <remarks>Робить це на основі поточного запитання та кількості варіантів відповіді</remarks>
         private void UpdateGUI()
         {
-            // Відображення індексу поточного запитання тесту та їх кількості
+            // Displaying index of current question and total amount of them
             CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{totalQuestionsCount}";
-            // Оновлення видимості кнопок переходу на попереднє та наступне запитання тесту
+            // Updating visibility of prev/next buttons
             if (currentQuestionIndex == 1)
             {
                 PrevQuestion_Button.Visibility = Visibility.Collapsed;
@@ -212,23 +206,19 @@ namespace courseWork_project
             }
             else NextQuestion_Button.Visibility = Visibility.Visible;
 
-            // Оновлення видимості кнопок додавання нового та видалення останнього варіантів відповіді
+            // Updating visibility of add/remove variant buttons
             switch (dynamicWrapPanel.Children.Count)
             {
-                // Якщо елементів 0, то кнопка видалення останнього варіанту невидима
                 case 0:
                     RemoveLastVariant_Button.Visibility = Visibility.Collapsed;
                     AddVariant_Button.Visibility = Visibility.Visible;
                     break;
-                // Якщо 1 елемент, кнопка видалення останнього варіанту видима
                 case 1:
                     RemoveLastVariant_Button.Visibility = Visibility.Visible;
                     break;
-                // Якщо елементів 8, то кнопка додавання нового елемента невидима
                 case 8:
                     AddVariant_Button.Visibility = Visibility.Collapsed;
                     break;
-                // У інших випадказ кнопки додавання/видалення варіантів видимі
                 default:
                     RemoveLastVariant_Button.Visibility = Visibility.Visible;
                     AddVariant_Button.Visibility = Visibility.Visible;
@@ -237,7 +227,7 @@ namespace courseWork_project
             UpdateImageAppearance();
         }
         /// <summary>
-        /// Стирає дані, що містились у QuestionInput; списку WrapPanel; словнику пар TextBox-CheckBox
+        /// Erases data from QuestionInput; WrapPanel list; TextBox-CheckBox dictionary
         /// </summary>
         private void EraseElementsData()
         {
@@ -246,10 +236,9 @@ namespace courseWork_project
             variantsDict.Clear();
         }
         /// <summary>
-        /// Перевірка, чи всі поля заповнені та чи існують варіанти відповідей
+        /// Checking if all required textboxes filled
         /// </summary>
-        /// <returns>true, якщо всі поля заповнені; false, якщо ні</returns>
-        private bool AllTextboxesFilled()
+        private bool AreAllTextboxesFilled()
         {
             string questionString = QuestionInput.Text;
             bool questionInputIsNull = string.IsNullOrWhiteSpace(questionString);
@@ -265,10 +254,9 @@ namespace courseWork_project
             return true;
         }
         /// <summary>
-        /// Перевірка, чи всі поля заповнені належним чином
+        /// Checking the proper filling of required fields
         /// </summary>
-        /// <remarks>Поля повинні містити не тільки цифри</remarks>
-        /// <returns>true, якщо всі поля заповнені правильно; false, якщо ні</returns>
+        /// <remarks>Fields must contain not only digits</remarks>
         private bool AllTextboxesContainProperInfo()
         {
             string pattern = @"[^0-9]";
@@ -281,17 +269,15 @@ namespace courseWork_project
             return resultOfCheck;
         }
         /// <summary>
-        /// Додає новий варіант відповіді на запитання тесту зі значенням по замовчуванню, приймає 0 аргументів
+        /// Adds new answer variant with default data in it
         /// </summary>
-        /// <remarks>Варіант міститиме значення по замовчуванню</remarks>
         private void AddNewVariant()
         {
-            // Якщо досягнуто ліміт варіантів, нічого не робимо
+            // Limit of variants according to coursework task equals 8
             bool variantsLimitReached = dynamicWrapPanel.Children.Count >= 8;
             if (variantsLimitReached) return;
-            // Створення DockPanel для групування TextBox і CheckBox
+
             DockPanel dockPanel = new DockPanel();
-            // Створення TextBox з підказкою
             TextBox textBox = new TextBox
             {
                 Text = "Введіть варіант відповіді",
@@ -307,13 +293,11 @@ namespace courseWork_project
                 MinWidth = 200,
                 MaxWidth = 270
             };
-
             textBox.GotFocus += TextBox_GotFocus;
             textBox.LostFocus += TextBox_LostFocus;
             DockPanel.SetDock(textBox, Dock.Left);
             dockPanel.Children.Add(textBox);
 
-            // Створення CheckBox для позначення варіанту як правильного
             CheckBox checkBox = new CheckBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -328,25 +312,20 @@ namespace courseWork_project
             DockPanel.SetDock(checkBox, Dock.Right);
             dockPanel.Children.Add(checkBox);
 
-            // Додавання нових TextBox і CheckBox до словника їхніх пар
             variantsDict.Add(textBox, checkBox);
 
-            // Додавання створеної StackPanel до WrapPanel
             dynamicWrapPanel.Children.Add(dockPanel);
         }
         /// <summary>
-        /// Додає новий варіант відповіді на запитання тесту із заданим значенням, приймає 2 аргументи
+        /// Adds new answer variant with given data
         /// </summary>
-        /// <param name="variantText">Значення (текст) цього варіанту відповіді</param>
-        /// <param name="isCorrect">Цей варіант правильний?</param>
+        /// <param name="variantText">Text of answer variant</param>
+        /// <param name="isCorrect">This variant is correct?</param>
         private void AddNewVariant(string variantText, bool isCorrect)
         {
-            // Якщо досягнуто ліміт варіантів, нічого не робимо
             bool variantsLimitReached = dynamicWrapPanel.Children.Count >= 8;
             if (variantsLimitReached) return;
-            // Створення DockPanel для групування TextBox і CheckBox
             DockPanel dockPanel = new DockPanel();
-            // Створення TextBox з текстом-підказкою (текстом по замовчуванню)
             TextBox textBox = new TextBox
             {
                 Text = variantText,
@@ -362,13 +341,11 @@ namespace courseWork_project
                 MinWidth = 200,
                 MaxWidth = 270
             };
-
             textBox.GotFocus += TextBox_GotFocus;
             textBox.LostFocus += TextBox_LostFocus;
             DockPanel.SetDock(textBox, Dock.Left);
             dockPanel.Children.Add(textBox);
 
-            // Створення CheckBox для позначення варіанту як правильного
             CheckBox checkBox = new CheckBox
             {
                 IsChecked = isCorrect,
@@ -383,14 +360,12 @@ namespace courseWork_project
             DockPanel.SetDock(checkBox, Dock.Right);
             dockPanel.Children.Add(checkBox);
 
-            // Додавання нових TextBox і CheckBox до словника їхніх пар
             variantsDict.Add(textBox, checkBox);
 
-            // Додавання створеної StackPanel до WrapPanel
             dynamicWrapPanel.Children.Add(dockPanel);
         }
         /// <summary>
-        /// Видаляє останній варіант відповіді
+        /// Deletes last answer variant
         /// </summary>
         private void RemoveLastVariant()
         {
@@ -401,19 +376,17 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Додає/оновлює дані про поточне запитання у списку структур TestStructs.Question
+        /// Updates data about current question
         /// </summary>
-        /// <returns>true при успішному доданні/оновленні; false - якщо трапилась помилка</returns>
+        /// <returns>true, if updates successful; false if not</returns>
         private bool UpdateCurrentQuestionInfo()
         {
             try
             {
-                // Індекс для операцій в списку
                 int indexOfCurrentQuestion = currentQuestionIndex - 1;
-                // Структура даних поточного питання
                 TestStructs.Question currQuestion;
 
-                if (!AllTextboxesFilled())
+                if (!AreAllTextboxesFilled())
                 {
                     throw new ArgumentException();
                 }
@@ -421,52 +394,41 @@ namespace courseWork_project
                 {
                     throw new FormatException();
                 }
-                // Заповнення структури всіма потрібними даними
+
                 currQuestion.question = QuestionInput.Text.Trim();
-                // Спроба пошуку картинки під індексом запитання (від 1 до 10)
                 ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
-                // По замовчуванню hasLinkedImage = false
                 currQuestion.hasLinkedImage = false;
-                // Якщо повернено не значення по замовчуванню, то запис знайдено
                 if (!foundImage.Equals(default(ImageInfo)))
                 {
                     currQuestion.hasLinkedImage = true;
                 }
-                // Заповнення даними про варіанти
                 currQuestion.variants = new List<string>();
-                currQuestion.correctVariantsIndexes = new List<int>();
+                currQuestion.correctVariantsIndeces = new List<int>();
                 int tempIndexForCorrectVariants = 0;
                 foreach (var pairOfTextBoxAndCheckBox in variantsDict)
                 {
-                    // Якщо варіант позначено правильним, додаємо його індекс до списку індексів правильних варіантів
                     if ((bool)pairOfTextBoxAndCheckBox.Value.IsChecked)
                     {
-                        currQuestion.correctVariantsIndexes.Add(tempIndexForCorrectVariants);
+                        currQuestion.correctVariantsIndeces.Add(tempIndexForCorrectVariants);
                     }
                     currQuestion.variants.Add(pairOfTextBoxAndCheckBox.Key.Text.Trim());
                     tempIndexForCorrectVariants++;
                 }
-                /* Якщо не позначено жодного правильного варіанту
-                 * або загалом є лиш 1 варіант
-                */
-                if (currQuestion.correctVariantsIndexes.Count == 0 || currQuestion.variants.Count == 1)
+
+                if (currQuestion.correctVariantsIndeces.Count == 0 || currQuestion.variants.Count == 1)
                 {
                     throw new ArgumentNullException();
                 }
-                // Якщо даний індекс вже містить дані, перезаписуємо їх на щойно сформовані
                 if (questionsList.Count >= indexOfCurrentQuestion+1)
                 {
-                    // Вставка нової структури за даним індексом
                     questionsList.Insert(indexOfCurrentQuestion, currQuestion);
-                    // Видалення старої структури
                     questionsList.RemoveAt(indexOfCurrentQuestion+1);
                 }
                 else
                 {
-                    // Інакше просто додаємо структуру як нове значення
                     questionsList.Add(currQuestion);
                 }
-                // Якщо в процесі не виникло жодної помилки
+
                 return true;
             }
             catch (ArgumentNullException)
@@ -486,7 +448,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Оновлює кольори полів варіантів відповідей залежно від значень TextBoxів
+        /// Updates variants textboxes color according to corrresponding checkboxes state
         /// </summary>
         private void UpdateVariantsCheckedConditions()
         {
@@ -512,11 +474,11 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто клавішу на клавіатурі
+        /// Handling pressed keyboard keys
         /// </summary>
-        /// <remarks>F1 - посібник користувача;
-        /// Esc - попереднє запитання/вікно;
-        /// Enter - наступне запитання/вікно збереження тесту</remarks>
+        /// <remarks>F1 - user manual;
+        /// Esc - previous question/window;
+        /// Enter - next question/test saving window</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
@@ -526,7 +488,6 @@ namespace courseWork_project
             }
             if (e.Key == Key.Escape)
             {
-                // Якщо поточне запитання не перше, то відображаємо попереднє
                 if(currentQuestionIndex > 1)
                 {
                     if (!UpdateCurrentQuestionInfo()) return;
@@ -534,23 +495,22 @@ namespace courseWork_project
                     ShowQuestionAtIndex(currentQuestionIndex - 1);
                     return;
                 }
-                // Інакше повертаємось на попереднє вікно
+
                 TryOpenMainWindow();
             }
             if(e.Key == Key.Enter)
             {
-                // Якщо поточне запитання не останнє, то відображаємо наступне
                 if(currentQuestionIndex != 10)
                 {
                     GoToNextQuestion();
                     return;
                 }
-                // Інакше відкриваємо вікно збереження тесту
+
                 GoToSavingWindow();
             }
         }
         /// <summary>
-        /// Викликає підтвердженням користувачем переходу на головне вікно
+        /// Opens confirmation of going to main page
         /// </summary>
         private void TryOpenMainWindow()
         {
@@ -560,7 +520,6 @@ namespace courseWork_project
             if (result.Equals(MessageBoxResult.Yes))
             {
                 DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
-                // Повернення до MainWindow
                 MainWindow mainWindow = new MainWindow();
                 mainWindow.Show();
                 askForClosingComfirmation = false;
@@ -568,7 +527,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Зберігає поточне запитання тесту, створює/відображає наступне
+        /// Saves current test question, creates/displays the next
         /// </summary>
         private void GoToNextQuestion()
         {
@@ -588,14 +547,11 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Зберігає поточне запитання тесту, відкриває TestSaving_Window
+        /// Saves current question and opens TestSaving_Window
         /// </summary>
         private void GoToSavingWindow()
         {
             if (!UpdateCurrentQuestionInfo()) return;
-            /* Якщо режим створення, то ініціалізуємо TestSaving_Window в режимі створення тесту
-             * Якщо не режим створення, то ініціалізуємо TestSaving_Window в режимі редагування тесту
-             */
             ReturnDefaultImage();
             TestSaving_Window testSaving_Window = creatingMode ?
                 new TestSaving_Window(questionsList, imagesList) :
@@ -605,9 +561,8 @@ namespace courseWork_project
             Close();
         }
         /// <summary>
-        /// Передає структуру даних поточного запитання в GUI
+        /// Puts current test's question list in GUI
         /// </summary>
-        /// <remarks>Розподіляє дані з структури по списках, формує та оновлює відповідний GUI</remarks>
         /// <param name="questions">Список структур запитань тесту</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
         {
@@ -616,8 +571,7 @@ namespace courseWork_project
             int tempIndexOfCorrectVariant = 0;
             foreach(string variant in currentQuestion.variants)
             {
-                // В списку індексів правильних варіантів міститься/не міститься поточний індекс
-                bool variantIsCorrect = currentQuestion.correctVariantsIndexes.Contains(tempIndexOfCorrectVariant);
+                bool variantIsCorrect = currentQuestion.correctVariantsIndeces.Contains(tempIndexOfCorrectVariant);
                 AddNewVariant(variant, variantIsCorrect);
                 tempIndexOfCorrectVariant++;
             }
@@ -625,9 +579,9 @@ namespace courseWork_project
             UpdateGUI();
         }
         /// <summary>
-        /// Відображає запитання тесту під заданим індексом
+        /// Shows test's question under given index
         /// </summary>
-        /// <param name="indexOfElementToEdit">Індекс елемента для відображення (значення від 0 до 9)</param>
+        /// <param name="indexOfElementToEdit">Index of element to show (values from 0 to 9)</param>
         private void ShowQuestionAtIndex(int indexOfElementToEdit)
         {
             currentQuestionIndex = ++indexOfElementToEdit;
@@ -637,19 +591,19 @@ namespace courseWork_project
             UpdateGUI();
         }
         /// <summary>
-        /// Обробка події, коли вікно закривається
+        /// Handling window closing event
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Deleting all images scheduled for deletion
             imageInfosToDelete.ForEach(img => DataEraser.EraseImage(img));
             imageInfosToDelete.Clear();
-            // Якщо підтвердження закриття не потрібне, то нічого більше не робимо
+
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
             {
-                // Скасує процес закриття вікна
+                // Cancelling closing process
                 e.Cancel = true;
             }
             else
@@ -658,30 +612,27 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку ImageChange_Button
+        /// Handling pressed ImageChange_Button
         /// </summary>
-        /// <remarks>Відкриває діалогове вікно вибору нової ілюстрації</remarks>
+        /// <remarks>Opens dialog window to choose new image</remarks>
         private void ImageChange_Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "Image Files (*.jpg, *.jpeg, *.png, *.bmp)|*.jpg;*.jpeg;*.png;*.bmp)"
             };
-            // Якщо обрано якийсь файл
+            // If any file is chosen
             if (openFileDialog.ShowDialog() == true)
             {
-                // Отримання шляху до обраного файлу
                 string selectedFilePath = openFileDialog.FileName;
 
-                // Заповнення структури з інформацією про картинку
                 ImageManager.ImageInfo currentImageInfo = new ImageManager.ImageInfo
                 {
                     questionIndex = currentQuestionIndex,
                     imagePath = selectedFilePath
                 };
-                // Оновлення списку структур з інформацією про картинки
                 PushImageSource(currentImageInfo);
-                // Відображення обраної картинки
+                // Displaying chosen image
                 BitmapImage tempImageSource = new BitmapImage();
                 tempImageSource.BeginInit();
                 tempImageSource.UriSource = new Uri(selectedFilePath, UriKind.RelativeOrAbsolute);
@@ -691,21 +642,17 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку ImageDeletion_Button
+        /// Handling pressed ImageDeletion_Button
         /// </summary>
-        /// <remarks>Видаляє прив'язку до ілюстрації</remarks>
+        /// <remarks>Deletes link to correspoding ImageInfo</remarks>
         private void ImageDeletion_Button_Click(object sender, RoutedEventArgs e)
         {
-            // Спроба пошуку картинки під індексом запитання (від 1 до 10)
             ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
-            // Якщо повернено не значення по замовчуванню, то запис знайдено
             if (!imageToDelete.Equals(default(ImageInfo)))
             {
-                // Видалення її із старої структури
                 imagesList.RemoveAt(imagesList.IndexOf(imageToDelete));
 
                 ReturnDefaultImage();
-                // Видалення прив'язки до картинки та її самої (за її наявності)
                 if (!creatingMode && questionsList.Count >= currentQuestionIndex
                     && questionsList[currentQuestionIndex - 1].hasLinkedImage)
                 {
@@ -718,7 +665,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Повернення картинки для відображення по замовчуванню
+        /// Showing default image
         /// </summary>
         private void ReturnDefaultImage()
         {
@@ -733,20 +680,16 @@ namespace courseWork_project
             defaultImage.StreamSource = null;
         }
         /// <summary>
-        /// Оновлює картинку, що відображається на поточному запитанні
+        /// Updates what image to display at current question
         /// </summary>
         private void UpdateImageAppearance()
         {
             ReturnDefaultImage();
-            // Якщо список картинок порожній, то більше нічого не робимо
             if (imagesList == null || imagesList.Count == 0) return;
-            // Спроба пошуку картинки під індексом запитання (від 1 до 10)
             ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
 
-            // Якщо повернено не значення по замовчуванню, то запис знайдено
             if (!foundImage.Equals(default(ImageInfo)))
             {
-                // Відображення знайденої картинки
                 BitmapImage foundImageBitmap = new BitmapImage();
                 foundImageBitmap.BeginInit();
                 foundImageBitmap.UriSource = new Uri(foundImage.imagePath, UriKind.RelativeOrAbsolute);
@@ -756,35 +699,28 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Оновлює список інформації про ілюстрації
+        /// Updates images list
         /// </summary>
-        /// <remarks>Додає або оновлює інформацію</remarks>
-        /// <param name="imageInfoToPush">Структура інформації про картинку</param>
+        /// <param name="imageInfoToPush">Image to push into list</param>
         private void PushImageSource(ImageManager.ImageInfo imageInfoToPush)
         {
-            // Якщо список порожній, тільки додаємо поточну інформацію про картинку
             if (imagesList.Count == 0)
             {
                 imagesList.Add(imageInfoToPush);
                 return;
             }
-            // Спроба пошуку картинки під індексом запитання (від 1 до 10)
+
             ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
-            // Якщо повернено не значення по замовчуванню, то запис знайдено
             if (!foundImage.Equals(default(ImageInfo)))
             {
                 int indexToUpdate = imagesList.IndexOf(foundImage);
-                // Вставка нової структури в список за потрібним індексом
                 imagesList.Insert(indexToUpdate, imageInfoToPush);
-                // Видалення старої структури
                 imagesList.RemoveAt(indexToUpdate + 1);
             }
             else
             {
-                // Інакше просто додаємо структуру в список
                 imagesList.Add(imageInfoToPush);
             }
-            // Сортування для покращення читабельності при подальшій розробці
             imagesList.Sort((a, b) => a.questionIndex.CompareTo(b.questionIndex));
         }
     }

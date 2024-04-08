@@ -3,7 +3,7 @@
 namespace courseWork_project
 {
     /// <summary>
-    /// Логіка взаємодії з App.xaml
+    /// Application-level resource dictionary
     /// </summary>
     public partial class App : Application
     {

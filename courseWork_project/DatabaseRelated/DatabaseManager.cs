@@ -3,42 +3,37 @@
 namespace courseWork_project
 {
     /// <summary>
-    /// Інтерфейс для всіх класів проекту, які мають доступ до баз даних
+    /// Superclass for all classes which have access to databases
     /// </summary>
-    /// <remarks>Містить методи UpdateDatabasePath та CreatePathIfNotExists</remarks>
     public class DatabaseManager
     {
+        public string FilePath { get; set; }
+        public string DirectoryPath { get; set; }
+        public string FullPath { get; set; }
+
         /// <summary>
-        /// Конструктор класу з одним параметром - назва тесту
+        /// Autofill-database-path constructor for operating with test's database
         /// </summary>
-        /// <remarks>На основі цього параметра формується шлях до бази даних</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public DatabaseManager(string testTitle)
         {
             UpdateDatabasePath(testTitle);
         }
         /// <summary>
-        /// Конструктор класу з 2-ма параметрами
+        /// Constructor for working with specified paths
         /// </summary>
-        /// <remarks>Використовується, коли відбувається запис інших даних, а не тесту</remarks>
-        /// <param name="directoryPath">Назва директорії, куди треба записати дані</param>
-        /// <param name="filePath">Назва файлу, куди треба записати дані (вказуйте розширення файлу)</param>
+        /// <param name="directoryPath">Path to directory that holds wanted file</param>
+        /// <param name="filePath">Name of wanted file (specify extension as well)</param>
         public DatabaseManager(string directoryPath, string filePath)
         {
             DirectoryPath = directoryPath;
             FilePath = filePath;
             FullPath = Path.Combine(DirectoryPath, FilePath);
         }
-
-        // Відповідні до полів класу властивості
-        public string FilePath { get; set; }
-        public string DirectoryPath { get; set; }
-        public string FullPath { get; set; }
-
         /// <summary>
-        /// Формує поля класу, використовуючи назву тесту
+        /// Populates class object's properties based on test title
         /// </summary>
-        /// <param name="newTestTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <param name="newTestTitle">Test title, not transliterated is also allowed</param>
         public void UpdateDatabasePath(string newTestTitle)
         {
             string transliteratedTitle = DataDecoder.TransliterateAString(newTestTitle);
@@ -47,10 +42,9 @@ namespace courseWork_project
             FullPath = Path.Combine(DirectoryPath, FilePath);
         }
         /// <summary>
-        /// Перевірка на наявність директорії із заданою назвою
+        /// Check of existance of directory with specified name. Creating it if needed
         /// </summary>
-        /// <remarks>Назва директорії задається при ініціалізації об'єкта класу або за допомогою UpdateDatabasePath</remarks>
-        /// <returns>true, якщо директорія існує; false, якщо ні</returns>
+        /// <returns>true, if directory already exists; false if not</returns>
         public virtual bool CreatePathIfNotExists()
         {
             if (!Directory.Exists(DirectoryPath))

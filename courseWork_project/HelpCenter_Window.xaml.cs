@@ -1,28 +1,27 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 
 namespace courseWork_project
 {
     /// <summary>
-    /// Логіка взаємодії з HelpCenter_Window.xaml. Це вікно використовується як посібник користувача
+    /// Interaction logic for HelpCenter_Window.xaml. This window plays a role of user manual
     /// </summary>
-    /// <remarks>Вікно HelpCenter_Window (посібник користувача) викликається з будь-якого іншого вікна</remarks>
+    /// <remarks>HelpCenter_Window (user manual) is called from any other window</remarks>
     public partial class HelpCenter_Window : Window
     {
         /// <summary>
-        /// Змінна, в якій зберігається допоміжна інформація для виводу
+        /// Current instructions stored in this variable
         /// </summary>
         string infoToWrite = string.Empty;
         /// <summary>
-        /// Конструктор HelpCenter_Window, не приймає аргументів
+        /// Parameterless constructor for HelpCenter_Window
         /// </summary>
         public HelpCenter_Window()
         {
             InitializeComponent();
         }
         /// <summary>
-        /// Обробка події, коли натиснута клавіша клавіатури Escape
+        /// Handling pressed Escape key
         /// </summary>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -32,7 +31,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли обрано якусь опцію в MainWindowCombobox
+        /// Handling choosing option from MainWindowCombobox
         /// </summary>
         private void MainWindowCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -88,7 +87,7 @@ namespace courseWork_project
             InfoText.Text = infoToWrite;
         }
         /// <summary>
-        /// Обробка події, коли обрано якусь опцію в TestPassingCombobox
+        /// Handling choosing option from TestPassingCombobox
         /// </summary>
         private void TestPassingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -123,7 +122,7 @@ namespace courseWork_project
             InfoText.Text = infoToWrite;
         }
         /// <summary>
-        /// Обробка події, коли обрано якусь опцію в CreationEditingCombobox
+        /// Handling choosing option from CreationEditingCombobox
         /// </summary>
         private void CreationEditingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -171,7 +170,7 @@ namespace courseWork_project
             InfoText.Text = infoToWrite;
         }
         /// <summary>
-        /// Обробка події, коли обрано якусь опцію в TestSavingCombobox
+        /// Handling choosing option from TestSavingCombobox
         /// </summary>
         private void TestSavingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {

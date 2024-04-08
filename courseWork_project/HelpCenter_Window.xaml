@@ -26,8 +26,7 @@
                 x:Name="InfoText_header" Text="Оберіть дію, яка вас цікавить"/>
         <StackPanel
             Grid.Row="1" Grid.Column="0"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock 
                 FontSize="12" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Головна сторінка'':"
                 TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
@@ -52,8 +51,7 @@
 
         <StackPanel
             Grid.Row="1" Grid.Column="1"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock 
                 FontSize="12" FontStyle="Italic" Text="Оберіть дію, що виконується при проходженні тесту:"
                 TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
@@ -72,8 +70,7 @@
         
         <StackPanel
             Grid.Row="1" Grid.Column="2"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock 
                 FontSize="12" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Створення/редагування тесту'':"
                 TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
@@ -96,8 +93,7 @@
         
         <StackPanel
             Grid.Row="1" Grid.Column="3"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            >
+            HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock 
                 FontSize="12" FontStyle="Italic" Text="Оберіть дію, що виконується у вікні ''Збереження тесту'':"
                 TextWrapping="WrapWithOverflow" TextAlignment="Center"/>

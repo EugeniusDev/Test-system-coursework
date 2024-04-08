@@ -4,27 +4,25 @@ using System.IO;
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для маніпуляцій над ілюстраціями
+    /// class for manipulation with images
     /// </summary>
     public static class ImageManager
     {
         /// <summary>
-        /// Структура для збереження та маніпуляції даними про додану/змінену ілюстрацію
+        /// Structure for managing info about an image
         /// </summary>
         public struct ImageInfo
         {
-            // Шлях до картинки
             public string imagePath;
-            // Індекс запитання, до якого додано ілюстрацію
+            // Index of question to which image is linked to
             public int questionIndex;
         }
-        // Містить шлях до папки з картинками
         public static string ImagesDirectory { get { return ConfigurationManager.AppSettings["imagesDirPath"]; } }
         /// <summary>
-        /// Переміщує картинку з наданого шляху в бажаний з її перейменуванням
+        /// Moves an image from old path to a new one
         /// </summary>
-        /// <param name="currentImagePath">Наданий шлях до картинки</param>
-        /// <param name="wantedImageTitle">Нове ім'я картинки</param>
+        /// <param name="currentImagePath">Current path of an image</param>
+        /// <param name="wantedImageTitle">New filename (path) of an image</param>
         public static void CopyImageToFolder(string currentImagePath, string wantedImageTitle)
         {
             string fileExtension = Path.GetExtension(currentImagePath);
@@ -38,78 +36,85 @@ namespace courseWork_project
             }
             catch
             {
-                // If error appears, it means the image is already in folder-database
+                // If error appears, ignoring it and moving on :)
             }
         }
         /// <summary>
-        /// Повертає масив відносних шляхів до картинок та булеве значення на позначення існування картинок в директорії
+        /// Provides all data about all images in database-directory
         /// </summary>
-        /// <returns>Кортеж з масиву відносних шляхів та булевого значення</returns>
+        /// <returns>Tuple from array of relative paths and bool value that shows if array is empty</returns>
         public static (string[] imagePaths, bool imagesExist) GetAllImages()
         {
-            // Отримуємо всі наявні картинки
+            Directory.CreateDirectory(ImagesDirectory);
             string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
-            // Залежно від наявності картинок присвоюємо булеве значення
+
             bool imagesExist = allImagesPaths.Length != 0;
             return (allImagesPaths, imagesExist);
         }
         /// <summary>
-        /// Перейменовує всі картинки при оновленні назви тесту
+        /// Renames (moves) all images according to a new test title value
         /// </summary>
-        /// <param name="oldTestTitle">Стара назва тесту (допускається нетранслітерована)</param>
-        /// <param name="newTestTitle">Нова назва тесту (допускається нетранслітерована)</param>
+        /// <param name="oldTestTitle">Old test title (not transliterated is also allowed)</param>
+        /// <param name="newTestTitle">New test title (not transliterated is also allowed)</param>
         public static void RenameAll(string oldTestTitle, string newTestTitle)
         {
-            // Транслітеруємо надані назви тесту
             string oldTestTitleTransliterated = DataDecoder.TransliterateAString(oldTestTitle);
             string newTestTitleTransliterated = DataDecoder.TransliterateAString(newTestTitle);
 
             (string[], bool) allImagesTuple = GetAllImages();
-            // Зупинка функції в разі відсутності картинок
             if (!allImagesTuple.Item2) return;
 
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
                 string fullPathToImage = Path.GetFullPath(currentImageRelativePath);
-                // Отримання тільки назви директорії завдяки звертанню до неї як до крайнього файлу
                 string imageDirectory = Path.GetFileName(Path.GetDirectoryName(fullPathToImage));
-                // Якщо картинка містить стару назву тесту в назві та вже переміщена в потрібну папку
                 bool containsOldTestTitle = currentImageRelativePath.Contains(oldTestTitleTransliterated)
                     && string.Compare(imageDirectory, ImagesDirectory) == 0;
                 if (containsOldTestTitle)
                 {
                     string newImageRelativePath = currentImageRelativePath.Replace(oldTestTitleTransliterated, newTestTitleTransliterated);
                     string newImageAbsolutePath = Path.GetFullPath(newImageRelativePath);
-                    // Копіювання чи переміщення картинки залежно від її наявності на заданому шляху
-                    if (File.Exists(newImageAbsolutePath))
+                    try
                     {
-                        File.Copy(fullPathToImage, newImageAbsolutePath, true);
+                        if (File.Exists(newImageAbsolutePath))
+                        {
+                            File.Copy(fullPathToImage, newImageAbsolutePath, true);
+                        }
+                        else
+                        {
+                            File.Move(fullPathToImage, newImageAbsolutePath);
+                        }
                     }
-                    else
+                    catch
                     {
-                        File.Move(fullPathToImage, newImageAbsolutePath);
+                        // If error appears, ignoring it and moving on :)
                     }
                 }
             }
         }
         /// <summary>
-        /// Видаляє всі картинки тесту з вказаною назвою
+        /// Deletes all images of specified test (deprecated)
         /// </summary>
-        /// <remarks>Працює лише з директорією-базою даних</remarks>
-        /// <param name="testTitle">Назва тесту, що видаляється (допускається нетранслітерована)</param>
+        /// <param name="testTitle">Title of test to delete related to images (not transliterated is also allowed)</param>
         public static void ImagesCleanup(string testTitle)
         {
             (string[], bool) allImagesTuple = GetAllImages();
-            // Зупинка функції в разі відсутності картинок
             if (!allImagesTuple.Item2) return;
 
             string transliteratedTestTitle = DataDecoder.TransliterateAString(testTitle);
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
                 bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle);
-                if (containsTestTitle)
+                try
                 {
-                    File.Delete(currentImageRelativePath);
+                    if (containsTestTitle)
+                    {
+                        File.Delete(currentImageRelativePath);
+                    }
+                }
+                catch
+                {
+                    // If error appears, ignoring it and moving on :)
                 }
             }
         }

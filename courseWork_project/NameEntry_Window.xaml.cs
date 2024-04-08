@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -8,30 +7,30 @@ using System.Windows.Media;
 namespace courseWork_project
 {
     /// <summary>
-    /// Логіка взаємодії з NameEntry_Window.xaml
+    /// Interaction logic for NameEntry_Window.xaml
     /// </summary>
-    /// <remarks> Вікно NameEntry_Window.xaml використовується для введення імені користувача і відкриття TestTaking_Window</remarks>
+    /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestTaking_Window</remarks>
     public partial class NameEntry_Window : Window
     {
         /// <summary>
-        /// Список з TestStructs.Question для оперування даними запитань тесту
+        /// Test's question list
         /// </summary>
         private List<TestStructs.Question> questionsList;
         /// <summary>
-        /// Структура з інформацією про тест
+        /// Structure with test's general info
         /// </summary>
         private TestStructs.TestInfo testInfo;
         /// <summary>
-        /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
+        /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
 
         /// <summary>
-        /// Конструктор NameEntry_Window, приймає 2 аргументи
+        /// NameEntry_Window constructor
         /// </summary>
-        /// <remarks>Всі аргументи будуть передані у вікно TestTaking</remarks>
-        /// <param name="questionsList">Список з TestStructs.Question для оперування даними запитань тесту</param>
-        /// <param name="currTestInfo">Структура з інформацією про тест</param>
+        /// <remarks>All parameters are later passed into TestTaking_Window</remarks>
+        /// <param name="questionsList">Test's question list</param>
+        /// <param name="currTestInfo">Structure with test's general info</param>
         public NameEntry_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo)
         {
             this.questionsList = questionsList;
@@ -39,57 +38,53 @@ namespace courseWork_project
             InitializeComponent();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку BackToMain_Button
+        /// Handling pressed BackToMain_Button
         /// </summary>
-        /// <remarks>Викликає GoToMainWindow</remarks>
+        /// <remarks>Calls GoToMainWindow method</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             GoToMainWindow();
         }
         /// <summary>
-        /// Обробка події, коли клацнуто на поле вводу ім'я користувача
+        /// Handling pressing on the username prompting TextBox
         /// </summary>
         private void UsernameTextBlock_GotFocus(object sender, RoutedEventArgs e)
         {
-            // У полі текст по замовчуванню
             bool titleContainsDefaultText = UsernameTextBlock != null
                 && string.Compare(UsernameTextBlock.Text, "Введіть ім'я тут") == 0;
             if (titleContainsDefaultText || testInfo.testTitle == null)
             {
-                // Стираємо поле назви тесту та міняємо колір тексту
                 UsernameTextBlock.Foreground = new SolidColorBrush(Colors.Black);
                 UsernameTextBlock.Text = string.Empty;
             }
         }
         /// <summary>
-        /// Обробка події, коли поле вводу ім'я користувача втратило фокус
+        /// Handling loss of focus on the username prompting TextBox
         /// </summary>
-        /// <remarks>Тобто коли після фокусу на полі клацнуто на будь-що інше</remarks>
+        /// <remarks>If field is empty, refills it with default data</remarks>
         private void UsernameTextBlock_LostFocus(object sender, RoutedEventArgs e)
         {
-            // Якщо поле порожнє, то повертаємо значення по замовчуванню
             bool fieldIsEmpty = UsernameTextBlock != null && string.IsNullOrWhiteSpace(UsernameTextBlock.Text);
             if (fieldIsEmpty)
             {
-                // Міняємо значення поля назви тесту та міняємо колір тексту
                 UsernameTextBlock.Text = "Введіть ім'я тут";
                 UsernameTextBlock.Foreground = new SolidColorBrush(Colors.DarkGray);
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку BeginTest_Button
+        /// Handling pressed BeginTest_Button
         /// </summary>
-        /// <remarks>Викликає TryToBeginTest</remarks
+        /// <remarks>Calls TryToBeginTest method</remarks
         private void BeginTest_Button_Click(object sender, RoutedEventArgs e)
         {
             TryToBeginTest();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто клавішу на клавіатурі
+        /// Handling pressed keyboard keys
         /// </summary>
-        /// <remarks>F1 - посібник користувача;
-        /// Esc - повернення до MainWindow;
-        /// Enter - виклик TryToBeginTest</remarks>
+        /// <remarks>F1 - user manual;
+        /// Esc - back to MainWindow;
+        /// Enter - call TryToBeginTest method</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
@@ -107,7 +102,7 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Відкриває вікно MainWindow
+        /// Opens MainWindow and closes current window
         /// </summary>
         private void GoToMainWindow()
         {
@@ -117,7 +112,7 @@ namespace courseWork_project
             Close();
         }
         /// <summary>
-        /// За наявності введеного ім'я користувача відкриває TestTaking_Window
+        /// Attempts to open TestTaking_Window
         /// </summary>
         private void TryToBeginTest()
         {
@@ -143,16 +138,16 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли вікно закривається
+        /// Handling window closing event
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Якщо підтвердження закриття не потрібне, то нічого не робимо
+            // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
             {
-                // Скасує процес закриття вікна
+                // Cancelling closing process
                 e.Cancel = true;
             }
         }

@@ -12,76 +12,72 @@ using courseWork_project.DatabaseRelated;
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для маніпулювання об'єктами ObservableCollection для GridView.
+    /// Class for manipulation with ObservableCollection of questions for GridView.
     /// </summary>
-    /// <remarks>
-    /// Містить Getter i Setter для string Question.
-    /// </remarks>
     public class QuestionItem
     {
         public string Question { get; set; }
     }
     /// <summary>
-    /// Логіка взаємодії з TestSaving_Window.xaml. Клас TestSaving_Window наслідує інтерфейс IListInGUIPuttable<List<Test.Question>>>
+    /// Interaction logic for TestSaving_Window.xaml.
     /// </summary>
-    /// <remarks>Вікно TestSaving_Window використовується для збереження створеного/відредагованого тесту в базу даних</remarks>
+    /// <remarks>TestSaving_Window is used to save created/edited test into database</remarks>
     public partial class TestSaving_Window : Window
     {
         /// <summary>
-        /// Список (List) структур запитань
+        /// List of questions of the test
         /// </summary>
         private List<TestStructs.Question> questionsToSave;
         /// <summary>
-        /// Масив структур для збереження даних про ілюстрації
+        /// List of data about images
         /// </summary>
         private List<ImageManager.ImageInfo> imagesList;
         /// <summary>
-        /// Структура, що містить інформацію про поточний тест
+        /// Overall test info structure
         /// </summary>
         private TestStructs.TestInfo testInfo;
         /// <summary>
-        /// Змінна для використання при оновленні назв картинок
+        /// Used while updating sources of images
         /// </summary>
-        /// <remarks>Містить транслітеровану стару назву тесту</remarks>
+        /// <remarks>Contains deprecated transliterated test title</remarks>
         private string transliterOldTestTitle = string.Empty;
         /// <summary>
-        /// ObservableCollection для QuestionsListView
+        /// ObservableCollection for QuestionsListView
         /// </summary>
         private ObservableCollection<QuestionItem> questionItems;
         /// <summary>
-        /// Булева змінна для визначення режиму вікна
+        /// Determines the window's mode
         /// </summary>
-        /// <remarks>Якщо true - вікно в режимі створення, false - в режимі редагування</remarks>
+        /// <remarks>true - creating mode; false - editing mode</remarks>
         private bool creatingMode;
         /// <summary>
-        /// Змінна, на основі якої буде з'являтись вікно підтвердження закриття вікна
+        /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
         /// <summary>
-        /// Конструктор TestSaving_Window для режиму створення тесту
+        /// TestSaving_Window creating mode constructor
         /// </summary>
-        /// <param name="questionsToSave">Список (List) структур запитань</param>
-        /// <param name="imagesToSave">Список (List) структур інформації про картинки</param>
+        /// <param name="questionsToSave">List of questions of the test</param>
+        /// <param name="imagesToSave">List of data about images</param>
         public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave)
         {
             creatingMode = true;
             this.questionsToSave = questionsToSave;
             imagesList = imagesToSave;
-            // По замовчуванню обмежень проходження тесту в часі немає
+            // There are no time limitations by default
             testInfo.timerValue = 0;
             InitializeComponent();
             TimerInputBox.Text = testInfo.timerValue.ToString();
-            // Ініціювання об'єкту класу ObservableCollection, що містить QuestionItemи
+
             questionItems = new ObservableCollection<QuestionItem>();
-            // Присвоєння questionItems як джерела об'єктів для QuestionsListView з ім'ям QuestionsListView
             QuestionsListView.ItemsSource = questionItems;
             GetListAndPutItInGUI(questionsToSave);
         }
         /// <summary>
-        /// Конструктор TestSaving_Window для режиму редагування тесту
+        /// TestSaving_Window editing mode constructor
         /// </summary>
-        /// <param name="questionsToSave">Список (List) структур запитань</param>
-        /// <param name="currTestInfo">Структура загальної інформації про тест</param>
+        /// <param name="questionsToSave">List of questions of the test</param>
+        /// <param name="currTestInfo">General test info structure</param>
         public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave, TestStructs.TestInfo currTestInfo)
         {
             creatingMode = false;
@@ -91,59 +87,53 @@ namespace courseWork_project
             imagesList = imagesToSave;
             InitializeComponent();
             TimerInputBox.Text = testInfo.timerValue.ToString();
-            // Вивід даної назви у відповідний GUI елемент
+
             TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
             TestTitleBlock.Text = testInfo.testTitle;
             questionItems = new ObservableCollection<QuestionItem>();
-            // Присвоєння questionItems як джерела об'єктів для QuestionsListView з ім'ям QuestionsListView
+
             QuestionsListView.ItemsSource = questionItems;
             GetListAndPutItInGUI(questionsToSave);
         }
         /// <summary>
-        /// Обробка події, коли клацнуто на поле вводу назви тесту
+        /// Handling click on test title
         /// </summary>
         private void TestTitleBlock_GotFocus(object sender, RoutedEventArgs e)
         {
-            // У полі текст по замовчуванню
             bool titleContainsDefaultText = TestTitleBlock != null
                 && string.Compare(TestTitleBlock.Text, "Введіть назву тесту") == 0;
             if (titleContainsDefaultText || testInfo.testTitle == null)
             {
-                // Стираємо поле назви тесту та міняємо колір тексту
                 TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
                 TestTitleBlock.Text = string.Empty;
             }
         }
         /// <summary>
-        /// Обробка події, коли поле вводу назви тесту втратило фокус
+        /// Handling lost focus on test title
         /// </summary>
-        /// <remarks>Тобто коли після фокусу на полі клацнуто на будь-що інше</remarks>
         private void TestTitleBlock_LostFocus(object sender, RoutedEventArgs e)
         {
-            // Якщо поле порожнє, то повертаємо значення по замовчуванню
             bool fieldIsEmpty = TestTitleBlock != null && string.IsNullOrWhiteSpace(TestTitleBlock.Text);
             if (fieldIsEmpty)
             {
-                // Міняємо значення поля назви тесту та міняємо колір тексту
                 TestTitleBlock.Text = "Введіть назву тесту";
                 TestTitleBlock.Foreground = new SolidColorBrush(Colors.DarkGray);
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку Save_Button
+        /// Handling pressed Save_Button
         /// </summary>
-        /// <remarks>Викликає SaveDataAndGoToMain</remarks>
+        /// <remarks>Calls SaveDataAndGoToMain</remarks>
         private void Save_Button_Click(object sender, RoutedEventArgs e)
         {
             SaveDataAndGoToMain();
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу EditButton
+        /// Handling pressed button of type EditButton
         /// </summary>
-        /// <remarks>Знаходить обраний елемент в List<Test.Question> та відкриває його у TestChange_Window в режимі редагування</remarks>
+        /// <remarks>Finds selected question and opens TestChange_Window in editing mode</remarks>
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            // При неправильному вводі нічого не робимо
             if (!InputIsCorrect()) return;
 
             Button button = sender as Button;
@@ -152,7 +142,6 @@ namespace courseWork_project
             if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
             {
                 int indexOfElementToEdit = 0;
-                // Знаходження обраного користувачем елементу в List<TestStructs.Question>
                 for (int i = 0; i < questionsToSave.Count; i++)
                 {
                     if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
@@ -161,11 +150,9 @@ namespace courseWork_project
                         break;
                     }
                 }
-                // Збереження введеної назви у структуру інформації про тест
                 testInfo.testTitle = TestTitleBlock.Text;
-                // Оновлення відповідно до зміни назви тесту
                 UpdateTitleIfChanged();
-                // Ініціація TestChange_Window в режимі редагування
+
                 TestChange_Window testChange_Window = new TestChange_Window(questionsToSave, imagesList, testInfo, indexOfElementToEdit);
                 testChange_Window.Show();
                 askForClosingComfirmation = false;
@@ -173,9 +160,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто GUI кнопку типу DeleteButton
+        /// Handling pressed button of type DeleteButton
         /// </summary>
-        /// <remarks>Видаляє обране запитання з List<Test.Question> та QuestionsListView</remarks>
+        /// <remarks>Deletes selected question from list and GUI</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -183,26 +170,20 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
             {
-                // Якщо передано порожній список
                 if (imagesList.Count == 0)
                 {
-                    // Формування списку з директорії-бази даних
                     ImageListFormer imageListFormer = new ImageListFormer();
-                    imagesList = imageListFormer.FormImageList(testInfo.testTitle, questionsToSave);
+                    imagesList = imageListFormer.GetImageList(testInfo.testTitle, questionsToSave);
                 }
-                // Знаходження обраного користувачем елементу в List<TestStructs.Question>
+
                 for (int i  = 0; i < questionsToSave.Count; i++)
                 {
                     if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
                     {
-                        // Видалення обраного запитання з List<TestStructs.Question>
                         questionsToSave.RemoveAt(i);
-                        // Спроба пошуку картинки під індексом запитання (від 1 до 10)
                         ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == i+1);
-                        // Якщо повернено не значення по замовчуванню, то запис знайдено
                         if (!imageToDelete.Equals(default(ImageInfo)))
                         {
-                            // Видалення прив'язаної картинки з List<ImageManager.ImageInfo>
                             imagesList.Remove(imageToDelete);
                             if (!creatingMode)
                             {
@@ -212,16 +193,16 @@ namespace courseWork_project
                         break;
                     }
                 }
-                // Видалення обраного запитання з QuestionsListView
+
                 questionItems.Remove(selectedItem);
             }
         }
         /// <summary>
-        /// Обробка події, коли натиснуто клавішу на клавіатурі
+        /// Handling pressed keyboard keys
         /// </summary>
-        /// <remarks>F1 - посібник користувача;
-        /// Esc - попереднє вікно;
-        /// Enter - збереження тесту</remarks>
+        /// <remarks>F1 - user manual;
+        /// Esc - previous window;
+        /// Enter - saving the test</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
@@ -231,9 +212,8 @@ namespace courseWork_project
             }
             if (e.Key == Key.Escape)
             {
-                // При неправильному вводі нічого не робимо
                 if (!InputIsCorrect()) return;
-                // Оновлення відповідно до зміни назви тесту
+
                 UpdateTitleIfChanged();
                 TestChange_Window testChange_Window = new TestChange_Window(questionsToSave, imagesList, testInfo, questionsToSave.Count);
                 testChange_Window.Show();
@@ -246,65 +226,59 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Створює базу даних, записує в неї дані тесту та повертається до MainWindow
+        /// Creates database, writes data in it and returns to MainWindow
         /// </summary>
         private void SaveDataAndGoToMain()
         {
-            // При неправильному вводі нічого не робимо
             if (!InputIsCorrect()) return;
-            // Збереження закодованих в рядки даних у файл з однойменною до назви тесту назвою
+            // Saving encoded into lines test data to a file-database
             List<string> listToWrite = DataEncoder.EncodeAndReturnLines(testInfo, questionsToSave);
             FileWriter fileWriter = new FileWriter(testInfo.testTitle);
             fileWriter.WriteListInFileByLines(listToWrite);
-            // Отримання актуального списку транслітерованих назв тестів
+            // Updating list of existing databases in corresponding text file
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
             string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
             FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
             List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
-            // Додання назви щойно збереженого тесту до списку транслітерованих назв тестів
+
             string tranliteratedCurrTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
             allTestsList.Add(tranliteratedCurrTestTitle);
-            // Перезапис списку транслітерованих назв тестів у їхню базу даних
+
             fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
             fileWriter.WriteListInFileByLines(allTestsList);
-            // Переміщення/перейменування всіх картинок до директорії-бази даних
+            // Copying all images to a corresponding image folder-database
             foreach(ImageInfo currentImageInfo in imagesList)
             {
-                // Якщо при видаленні запитання було зменшено кількість запитань
                 if (questionsToSave.Count < currentImageInfo.questionIndex) break;
-                // Якщо прив'язку не видалено
                 bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex - 1].hasLinkedImage;
                 if (imageNeedsMovement)
-                // Переміщення кожної картинки до директорії-бази даних
                 {
                     string imageName = $"{tranliteratedCurrTestTitle}-{currentImageInfo.questionIndex}";
-                    ImageManager.CopyImageToFolder(currentImageInfo.imagePath, imageName);
+                    CopyImageToFolder(currentImageInfo.imagePath, imageName);
                 }
             }
-            // Оновлення відповідно до зміни назви тесту
+
             UpdateTitleIfChanged();
             MessageBox.Show("Тест успішно збережено");
-            // Повернення до MainWindow
+
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
             askForClosingComfirmation = false;
             Close();
         }
         /// <summary>
-        /// Змінює назву тесту в шляхах картинок в папці та списку структур, якщо назву тесту було змінено
+        /// Changes test title in paths of images and resets(deletes) old test passing data
         /// </summary>
         public void UpdateTitleIfChanged()
         {
-            // Якщо назву було змінено
             bool titleChanged = string.Compare(transliterOldTestTitle,
                     DataDecoder.TransliterateAString(testInfo.testTitle)) != 0
                     && transliterOldTestTitle != string.Empty;
             if (titleChanged)
             {
-                // Перейменування всіх картинок в images
+                // Renaming all the images
                 string transliteratedNewTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
                 ImageManager.RenameAll(transliterOldTestTitle, transliteratedNewTestTitle);
-                // Перейменування даних картинок в списку
                 foreach (ImageInfo currImageInfo in imagesList)
                 {
                     if (currImageInfo.imagePath.Contains(transliterOldTestTitle))
@@ -312,35 +286,23 @@ namespace courseWork_project
                         currImageInfo.imagePath.Replace(transliterOldTestTitle, transliteratedNewTestTitle);
                     }
                 }
-                // Видалення даних про проходження тесту
+
                 DataEraser.ErasePassingData(transliterOldTestTitle);
             }
         }
         /// <summary>
-        /// Перевірка, чи шлях містить назву тесту для визначення потреб переміщення картинки
+        /// Checks input and writes it into TestStructs.TestInfo
         /// </summary>
-        /// <returns>true, якщо містить; false, якщо ні</returns>
-        private bool ImagePathContainsTestTitle(ImageInfo imageInfo)
-        {
-            if (imageInfo.imagePath.Contains(DataDecoder.TransliterateAString(testInfo.testTitle))){
-                return true;
-            }
-            return false;
-        }
-        /// <summary>
-        /// Перевіряє, чи ввід в полі назви і таймера правильний та записує ці дані в структуру TestStructs.TestInfo
-        /// </summary>
-        /// <returns>true, якщо правильний ввід; false, якщо ні</returns>
+        /// <returns>true, if input is correct; false if not</returns>
         private bool InputIsCorrect()
         {
             try
             {
-                // Якщо поле назви порожнє або не зазначене (має значення по замовчуванню)
                 bool titleBlockIsNotSet = string.IsNullOrWhiteSpace(TestTitleBlock.Text) || string.Compare(TestTitleBlock.Text, "Введіть назву тесту") == 0;
-                // Якщо значення таймера не встановлене
+
                 bool timerIsEmpty = string.IsNullOrWhiteSpace(TimerInputBox.Text);
                 if (titleBlockIsNotSet || timerIsEmpty) throw new ArgumentNullException();
-                // Якщо значення таймера встановлене, але воно некоректне (не типу int або від'ємне)
+
                 bool timerIsSetWrong = !int.TryParse(TimerInputBox.Text, out testInfo.timerValue) || int.Parse(TimerInputBox.Text) < 0;
                 if (timerIsSetWrong) throw new FormatException();
 
@@ -360,10 +322,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Передає список (List) структур запитань в GUI
+        /// Puts list of questions into GUI
         /// </summary>
-        /// <remarks>Створює новий рядок в QuestionsListView для кожного елемента списку</remarks>
-        /// <param name="questionsList">Список структур даних запитань тесту</param>
+        /// <param name="questionsList">List of questions structure</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questionsList)
         {
             foreach (TestStructs.Question questionFromList in questionsList)
@@ -372,30 +333,29 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Створює новий рядок в QuestionsListView, заповнюючи поле Question заданим значенням
+        /// Creates a new row of QuestionsListView
         /// </summary>
-        /// <param name="questionText">Текст поточного запитання</param>
+        /// <param name="questionText">Current quesiton's text</param>
         private void AddNewQuestionsListViewRow(string questionText)
         {
-            // Створення нового елемента (рядка у QuestionsListView)
             QuestionItem newItem = new QuestionItem
             {
                 Question = questionText
             };
-            // Додання нового елемента до ObservableCollection
+
             questionItems.Add(newItem);
         }
         /// <summary>
-        /// Обробка події, коли вікно закривається
+        /// Handling window closing event
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Якщо підтвердження закриття не потрібне, то нічого не робимо
+            // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
             MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
             {
-                // Скасує процес закриття вікна
+                // Cancelling closing process
                 e.Cancel = true;
             }
             else

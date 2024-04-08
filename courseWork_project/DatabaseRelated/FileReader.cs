@@ -1,52 +1,49 @@
-﻿using courseWork_project.DatabaseRelated;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для зчитування даних з файлу
+    /// Class for reading data out of files
     /// </summary>
-    /// <remarks>Має 2 конструктори, наслідує клас DatabaseManager</remarks>
+    /// <remarks>Has 2 constructors, inherits DatabaseManager class</remarks>
     internal class FileReader : DatabaseManager
     {
         /// <summary>
-        /// Конструктор класу з одним параметром - назва тесту
+        /// Constructor for configuring reader for reading test database
         /// </summary>
-        /// <remarks>На основі цього параметра формується шлях до бази даних</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <remarks>Path to database is formed based on the parameter</remarks>
+        /// <param name="testTitle">Title of a test, not transliterated also allowed</param>
         public FileReader(string testTitle) : base(testTitle) { }
         /// <summary>
-        /// Конструктор класу з 2-ма параметрами
+        /// Constructor for configuring custom paths for a reader
         /// </summary>
-        /// <remarks>Використовується, коли відбувається читка інших даних, а не тесту</remarks>
-        /// <param name="directoryPath">Назва директорії, звідки треба зчитати дані</param>
-        /// <param name="filePath">Назва файлу, звідки треба зчитати дані (вказуйте розширення файлу)</param>
+        /// <remarks>Used to read everything that is not a test database</remarks>
+        /// <param name="directoryPath">Directory title to read from</param>
+        /// <param name="filePath">File title to read from (specify the extension as well)</param>
         public FileReader(string directoryPath, string filePath) : base(directoryPath, filePath) { }
         /// <summary>
-        /// Зчитує питання тесту з файлу рядок за рядком
+        /// Reads test's questions line by line
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
-        /// <returns>Список зчитаних рядків, що формують дані питань тесту; або порожній список, якщо файлу не існує</returns>
-        public List<string> ReadAndReturnQuestionLines()
+        /// <remarks>Path to database can be changed with help of UpdateDatabasePath</remarks>
+        /// <returns>List of strings with questions data; empty or filled</returns>
+        public List<string> GetQuestionLines()
         {
             List<string> lines = new List<string>();
             if (!PathExists()) return lines;
             using (StreamReader streamReader = new StreamReader(FullPath))
             {
                 bool firstIteration = true;
-                // Допоки не буде досягнуто кінця файлу
                 while (!streamReader.EndOfStream)
                 {
                     string currLine = streamReader.ReadLine();
-                    // При першій ітерації зчитування не відбувається, оскільки перший рядок - інформація про тест
+                    // Ignoring first line as it contains data not about questions but about test in general
                     if (firstIteration)
                     {
                         firstIteration = false;
                         continue;
                     }
-                    // Кількість питань не має перевищувати 10
+                    // Questions count cannot be greater than 10 according to coursework task
                     if (lines.Count < 10 && !string.IsNullOrEmpty(currLine))
                         lines.Add(currLine);
                 }
@@ -54,11 +51,11 @@ namespace courseWork_project
             return lines;
         }
         /// <summary>
-        /// Зчитує інформацію про тест з файлу
+        /// Reads general test info from a file
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
-        /// <returns>Перший рядок файлу або пустий рядок, якщо файлу не існує чи він порожній</returns>
-        public string ReadAndReturnTestInfo()
+        /// <remarks>Path to database can be changed with help of UpdateDatabasePath</remarks>
+        /// <returns>First line from a file or empty string</returns>
+        public string GetTestInfo()
         {
             if (!PathExists()) return string.Empty;
             using (StreamReader streamReader = new StreamReader(FullPath))
@@ -72,10 +69,10 @@ namespace courseWork_project
             return string.Empty;
         }
         /// <summary>
-        /// Зчитує дані з файлу рядок за рядком
+        /// Reads all the data from file line by line
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу</remarks>
-        /// <returns>Список зчитаних рядків; або порожній список, якщо файлу не існує</returns
+        /// <remarks>Path to a file is set on object initialization</remarks>
+        /// <returns>Lines list; empty or filled</returns
         public List<string> ReadAndReturnLines()
         {
             List<string> lines = new List<string>();
@@ -84,7 +81,6 @@ namespace courseWork_project
             {
                 using (StreamReader streamReader = new StreamReader(FullPath))
                 {
-                    // Допоки не буде досягнуто кінця файлу
                     while (!streamReader.EndOfStream)
                     {
                         string currLine = streamReader.ReadLine();
@@ -101,17 +97,17 @@ namespace courseWork_project
             return lines;
         }
         /// <summary>
-        /// Формує список назв тестів, бази даних яких існують
+        /// Gets list of titles of tests with existing databases
         /// </summary>
-        /// <remarks>Модифікує поля об'єкта при роботі з кожним елементом списку</remarks>
-        /// <param name="testTitlesList">Список назв тестів, допускаються нетранслітеровані</param>
-        /// <returns>Список транслітерованих назв тестів, бази даних яких існують. Якщо таких немає, то порожній список</returns>
+        /// <remarks>Changes paths while working</remarks>
+        /// <param name="testTitlesList">List of test titles, not transliterated also allowed</param>
+        /// <returns>List of titles of transliterated tests with existing databases. Empty or filled</returns>
         private List<string> FormListOfExistingTests(List<string> testTitlesList)
         {
             List<string> listToForm = new List<string>();
             foreach (string testTitle in testTitlesList)
             {
-                // Зміна шляху на шлях до бази даних поточного тесту
+                // Changing path to a current test's file-database
                 UpdateDatabasePath(testTitle);
 
                 if (PathExists() && !listToForm.Contains(testTitle))
@@ -123,42 +119,42 @@ namespace courseWork_project
             return listToForm;
         }
         /// <summary>
-        /// Оновлює список назв тестів, бази даних яких існують та записує його у потрібний файл
+        /// Updates list of titles of tests with existing databases
         /// </summary>
-        /// <remarks>Порядково зчитує файл та формує список використовуючи інші методи FileReader. 
-        /// Записує новий список у файл, шлях до якого вказується при ініціалізації об'єкту класу</remarks>
-        /// <returns>Список нетранслітерованих назв тестів, бази даних яких існують</returns>
+        /// <remarks>Reads file line by line and forms a list using other methods of the class. 
+        /// Rewrites a new list to a respective file</remarks>
+        /// <returns>List of titles of tests with existing databases</returns>
         public List<string> UpdateListOfExistingTestsPaths()
         {
-            // Тимчасове збереження початкових значень полів
+            // Saving initial paths as they are changed in the process
             string tempDirPath = DirectoryPath;
             string tempFilePath = FilePath;
-            // Список транслітерованих назв тестів, бази даних яких існують
+
             List<string> existingTestsTitles = FormListOfExistingTests(ReadAndReturnLines());
-            // Повернення полям початкових значень (бо FormListOfExistingTests їх змінює)
+            // Restoring initial path values
             DirectoryPath = tempDirPath;
             FilePath = tempFilePath;
             FullPath = Path.Combine(tempDirPath, tempFilePath);
-            // Записує оновлений список транслітерованих назв тестів у потрібний файл
+            // Writing updates list into a respective file
             FileWriter fileWriter = new FileWriter(DirectoryPath, FilePath);
             fileWriter.WriteListInFileByLines(existingTestsTitles);
-            // Повертає оновлений список транслітерованих назв тестів
+
             return existingTestsTitles;
         }
         /// <summary>
-        /// Перевірка на наявність шляху за заданими полями
+        /// Checking full path existance
         /// </summary>
-        /// <remarks>Значення полів задаються при ініціалізації об'єкта класу або за допомогою UpdateDatabasePath</remarks>
-        /// <returns>true, якщо шлях існує; false, якщо ні</returns>
+        /// <remarks>Path values can be changed with help of UpdateDatabasePath</remarks>
+        /// <returns>true if path exists; false if not</returns>
         public bool PathExists()
         {
             return Directory.Exists(DirectoryPath) && File.Exists(FullPath);
         }
         /// <summary>
-        /// Перевірка на наявність шляху і його створення за заданими полями
+        /// Checking full path existance and its creating in case of if not existing
         /// </summary>
-        /// <remarks>Значення полів задаються при ініціалізації об'єкта класу або за допомогою UpdateDatabasePath</remarks>
-        /// <returns>true, якщо шлях існує; false, якщо ні</returns>
+        /// <remarks>Path values can be changed with help of UpdateDatabasePath</remarks>
+        /// <returns>true if path exists; false if not</returns>
         public override bool CreatePathIfNotExists()
         {
             if (!Directory.Exists(DirectoryPath))

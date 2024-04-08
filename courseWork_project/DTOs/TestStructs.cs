@@ -4,50 +4,49 @@ using System.Collections.Generic;
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для визначення структур даних з інформацією про тест
+    /// Class-container for test-related structures
     /// </summary>
     public static class TestStructs
     {
         /// <summary>
-        /// Структура кожного питання
+        /// Structure of question of a test
         /// </summary>
         public struct Question
         {
             /// <summary>
-            /// Текст запитання
+            /// Question itself
             /// </summary>
             public string question;
             /// <summary>
-            /// Список тексту варіантів відповідей
+            /// List of answer variants
             /// </summary>
             public List<string> variants;
             /// <summary>
-            /// Список індексів правильних варіантів відповідей
+            /// List of correct answer variants indeces
             /// </summary>
-            public List<int> correctVariantsIndexes;
+            public List<int> correctVariantsIndeces;
             /// <summary>
-            /// Чи містить запитання ілюстрацію?
+            /// This question has linked image?
             /// </summary>
             public bool hasLinkedImage;
         }
         /// <summary>
-        /// Структура загальної інформації про тест
+        /// General test's info structure
         /// </summary>
-        /// <remarks>Назва, дата останнього редагування, значення таймера</remarks>
         public struct TestInfo
         {
             /// <summary>
-            /// Назва тесту
+            /// Test title
             /// </summary>
             public string testTitle;
             /// <summary>
-            /// Час останнього редагування
+            /// Time of last editing of a test
             /// </summary>
             public DateTime lastEditedTime;
             /// <summary>
-            /// Значення таймера
+            /// Tiemr value
             /// </summary>
-            /// <remarks>Використовується для обмеження проходження тесту в часі</remarks>
+            /// <remarks>0, if no restrictions in time</remarks>
             public int timerValue;
         }
     }

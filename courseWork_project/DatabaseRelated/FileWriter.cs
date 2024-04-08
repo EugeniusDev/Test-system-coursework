@@ -6,37 +6,33 @@ using static courseWork_project.TestStructs;
 namespace courseWork_project
 {
     /// <summary>
-    /// Клас для збереження даних у файл
+    /// Class for writing data into files
     /// </summary>
-    /// <remarks>Має 2 конструктори, наслідує клас DatabaseManager</remarks>
+    /// <remarks>Has 2 constructors, inherits DatabaseManager class</remarks>
     internal class FileWriter : DatabaseManager
     {
         /// <summary>
-        /// Конструктор класу з одним параметром - назва тесту
+        /// Autofill-database-path constructor for operating with test's database
         /// </summary>
-        /// <remarks>На основі цього параметра формується шлях до бази даних</remarks>
-        /// <param name="testTitle">Назва тесту, допускається нетранслітерована</param>
+        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public FileWriter(string testTitle) : base(testTitle) { }
         /// <summary>
-        /// Конструктор класу з 2-ма параметрами
+        /// Constructor for working with specified paths
         /// </summary>
-        /// <remarks>Використовується, коли відбувається запис інших даних, а не тесту</remarks>
-        /// <param name="directoryPath">Назва директорії, куди треба записати дані</param>
-        /// <param name="filePath">Назва файлу, куди треба записати дані (вказуйте розширення файлу)</param>
+        /// <param name="directoryPath">Path to directory that holds file data to be written into</param>
+        /// <param name="filePath">Name of file to write into (specify extension as well)</param>
         public FileWriter(string directoryPath, string filePath) : base(directoryPath, filePath) { }
         /// <summary>
-        /// Записує заданий список у файл рядок за рядком
+        /// Writes given list into file line by line
         /// </summary>
-        /// <remarks>Шлях файлу вказується при ініціалізації об'єкту класу або з допомогою UpdateDatabasePath</remarks>
-        /// <param name="textToWrite">Список рядків для запису в файл</param>
+        /// <param name="textToWrite">List of strings to write into file</param>
         public void WriteListInFileByLines(List<string> textToWrite)
         {
-            // Якщо переданий список порожній, то метод нічого не робить
             if (textToWrite.Count == 0) return;
+
             Directory.CreateDirectory(DirectoryPath);
-            // Об'єднання назви директорії та файлу для знаходження повного шляху до файлу
             string fullPath = Path.Combine(DirectoryPath, FilePath);
-            // Запис переданого списку в файл
+
             using (StreamWriter writer = new StreamWriter(fullPath))
             {
                 foreach (string line in textToWrite)
@@ -54,12 +50,12 @@ namespace courseWork_project
         public void AppendTestTakingData(TestInfo testInfo, string resultToWrite)
         {
             string transliterTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
-            // Отримання шляху до списку даних про проходження
+
             string pathToResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
             Directory.CreateDirectory(pathToResultsDirectory);
             string pathToResultsFile = $"{transliterTestTitle}.txt";
             string fullPath = Path.Combine(pathToResultsDirectory, pathToResultsFile);
-            // Допис нових даних про проходження
+
             using (StreamWriter sw = File.AppendText(fullPath))
             {
                 sw.WriteLine(resultToWrite);
