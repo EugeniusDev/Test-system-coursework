@@ -25,19 +25,12 @@ namespace courseWork_project
         /// <param name="wantedImageTitle">New filename (path) of an image</param>
         public static void CopyImageToFolder(string currentImagePath, string wantedImageTitle)
         {
+            Directory.CreateDirectory(ImagesDirectory);
             string fileExtension = Path.GetExtension(currentImagePath);
-            string relativePath = Path.Combine(ImagesDirectory, wantedImageTitle + fileExtension);
+            string relativePath = Path.Combine(ImagesDirectory, 
+                string.Concat(wantedImageTitle, fileExtension));
 
-            string absolutePathToMoveOn = Path.GetFullPath(relativePath);
-
-            try
-            {
-                File.Copy(currentImagePath, absolutePathToMoveOn, true);
-            }
-            catch
-            {
-                // If error appears, ignoring it and moving on :)
-            }
+            File.Copy(currentImagePath, relativePath, true);
         }
         /// <summary>
         /// Provides all data about all images in database-directory
@@ -66,29 +59,22 @@ namespace courseWork_project
 
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
-                string fullPathToImage = Path.GetFullPath(currentImageRelativePath);
-                string imageDirectory = Path.GetFileName(Path.GetDirectoryName(fullPathToImage));
-                bool containsOldTestTitle = currentImageRelativePath.Contains(oldTestTitleTransliterated)
-                    && string.Compare(imageDirectory, ImagesDirectory) == 0;
-                if (containsOldTestTitle)
+                string imageDirectory = Path.GetFileName(Path.GetDirectoryName(currentImageRelativePath));
+                bool containsOldTestTitle = currentImageRelativePath.Contains(oldTestTitleTransliterated);
+                string newImageRelativePath = currentImageRelativePath.Replace(oldTestTitleTransliterated, newTestTitleTransliterated);
+                bool isInDatabaseDirectory = string.Compare(imageDirectory, ImagesDirectory) == 0;
+                if (containsOldTestTitle && isInDatabaseDirectory)
                 {
-                    string newImageRelativePath = currentImageRelativePath.Replace(oldTestTitleTransliterated, newTestTitleTransliterated);
-                    string newImageAbsolutePath = Path.GetFullPath(newImageRelativePath);
-                    try
+                    if (File.Exists(newImageRelativePath))
                     {
-                        if (File.Exists(newImageAbsolutePath))
-                        {
-                            File.Copy(fullPathToImage, newImageAbsolutePath, true);
-                        }
-                        else
-                        {
-                            File.Move(fullPathToImage, newImageAbsolutePath);
-                        }
+                        File.Delete(newImageRelativePath);
                     }
-                    catch
-                    {
-                        // If error appears, ignoring it and moving on :)
-                    }
+
+                    File.Move(currentImageRelativePath, newImageRelativePath);
+                }
+                else if (containsOldTestTitle)
+                {
+                    File.Copy(currentImageRelativePath, newImageRelativePath, true);
                 }
             }
         }
@@ -105,16 +91,9 @@ namespace courseWork_project
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
                 bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle);
-                try
+                if (containsTestTitle)
                 {
-                    if (containsTestTitle)
-                    {
-                        File.Delete(currentImageRelativePath);
-                    }
-                }
-                catch
-                {
-                    // If error appears, ignoring it and moving on :)
+                    File.Delete(currentImageRelativePath);
                 }
             }
         }

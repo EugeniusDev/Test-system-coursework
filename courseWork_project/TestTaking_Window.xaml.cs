@@ -243,9 +243,9 @@ namespace courseWork_project
                         BitmapImage foundImageBitmap = new BitmapImage();
                         foundImageBitmap.BeginInit();
                         foundImageBitmap.UriSource = new Uri(absoluteImagePath, UriKind.Absolute);
+                        foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
                         foundImageBitmap.EndInit();
                         IllustrationImage.Source = foundImageBitmap;
-                        foundImageBitmap.StreamSource = null;
 
                         QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
                         ViewboxWithImage.Visibility = Visibility.Visible;

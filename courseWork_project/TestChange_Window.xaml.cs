@@ -12,6 +12,8 @@ using static courseWork_project.ImageManager;
 using System.IO;
 using System.Linq;
 using courseWork_project.DatabaseRelated;
+using courseWork_project.ImageManipulations;
+using System.Drawing;
 
 namespace courseWork_project
 {
@@ -282,7 +284,7 @@ namespace courseWork_project
             {
                 Text = "Введіть варіант відповіді",
                 Foreground = new SolidColorBrush(Colors.Black),
-                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("#fff0f0"),
                 FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -330,7 +332,7 @@ namespace courseWork_project
             {
                 Text = variantText,
                 Foreground = new SolidColorBrush(Colors.Black),
-                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("#fff0f0"),
                 FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -463,7 +465,7 @@ namespace courseWork_project
                     }
                     else
                     {
-                        currVariant.Key.Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0");
+                        currVariant.Key.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("#fff0f0");
                         currVariant.Key.Foreground = new SolidColorBrush(Colors.Black);
                     }
                 }
@@ -636,9 +638,9 @@ namespace courseWork_project
                 BitmapImage tempImageSource = new BitmapImage();
                 tempImageSource.BeginInit();
                 tempImageSource.UriSource = new Uri(selectedFilePath, UriKind.RelativeOrAbsolute);
+                tempImageSource.CacheOption = BitmapCacheOption.OnLoad;
                 tempImageSource.EndInit();
                 IllustrationImage.Source = tempImageSource;
-                tempImageSource.StreamSource = null;
             }
         }
         /// <summary>
@@ -669,15 +671,26 @@ namespace courseWork_project
         /// </summary>
         private void ReturnDefaultImage()
         {
-            string defaultImageRelativePath = ConfigurationManager.AppSettings["defaultImageSource"];
-            string defaultImageAbsolutePath = Path.GetFullPath(defaultImageRelativePath);
+            Bitmap defaultImage = DefaultImage.default_image;
+            // Convert Bitmap to BitmapImage
+            BitmapImage bitmapImage = null;
+            using (MemoryStream memory = new MemoryStream())
+            {
+                // Save Bitmap to memory stream
+                defaultImage.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
 
-            BitmapImage defaultImage = new BitmapImage();
-            defaultImage.BeginInit();
-            defaultImage.UriSource = new Uri(defaultImageAbsolutePath, UriKind.Absolute);
-            defaultImage.EndInit();
-            IllustrationImage.Source = defaultImage;
-            defaultImage.StreamSource = null;
+                // Rewind the stream
+                memory.Position = 0;
+
+                // Create BitmapImage
+                bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                // This is important to prevent file locks
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
+            IllustrationImage.Source = bitmapImage;
         }
         /// <summary>
         /// Updates what image to display at current question
@@ -693,9 +706,9 @@ namespace courseWork_project
                 BitmapImage foundImageBitmap = new BitmapImage();
                 foundImageBitmap.BeginInit();
                 foundImageBitmap.UriSource = new Uri(foundImage.imagePath, UriKind.RelativeOrAbsolute);
+                foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
                 foundImageBitmap.EndInit();
                 IllustrationImage.Source = foundImageBitmap;
-                foundImageBitmap.StreamSource = null;
             }
         }
         /// <summary>
