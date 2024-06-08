@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using static courseWork_project.TestStructs;
 
 namespace courseWork_project
 {
@@ -12,14 +13,7 @@ namespace courseWork_project
     /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestTaking_Window</remarks>
     public partial class NameEntry_Window : Window
     {
-        /// <summary>
-        /// Test's question list
-        /// </summary>
-        private List<TestStructs.Question> questionsList;
-        /// <summary>
-        /// Structure with test's general info
-        /// </summary>
-        private TestStructs.TestInfo testInfo;
+        Test testToPass;
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
@@ -31,10 +25,9 @@ namespace courseWork_project
         /// <remarks>All parameters are later passed into TestTaking_Window</remarks>
         /// <param name="questionsList">Test's question list</param>
         /// <param name="currTestInfo">Structure with test's general info</param>
-        public NameEntry_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo)
+        public NameEntry_Window(Test testToPass)
         {
-            this.questionsList = questionsList;
-            this.testInfo = currTestInfo;
+            this.testToPass = testToPass;
             InitializeComponent();
         }
         /// <summary>
@@ -52,7 +45,7 @@ namespace courseWork_project
         {
             bool titleContainsDefaultText = UsernameTextBlock != null
                 && string.Compare(UsernameTextBlock.Text, "Введіть ім'я тут") == 0;
-            if (titleContainsDefaultText || testInfo.testTitle == null)
+            if (titleContainsDefaultText || testToPass.TestInfo.testTitle == null)
             {
                 UsernameTextBlock.Foreground = new SolidColorBrush(Colors.Black);
                 UsernameTextBlock.Text = string.Empty;
@@ -87,11 +80,7 @@ namespace courseWork_project
         /// Enter - call TryToBeginTest method</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F1)
-            {
-                HelpCenter_Window helpCenter = new HelpCenter_Window();
-                helpCenter.Show();
-            }
+            e.OpenHelpCenterOnF1();
             if(e.Key == Key.Escape)
             {
                 GoToMainWindow();
@@ -124,11 +113,7 @@ namespace courseWork_project
                     || string.Compare(UsernameTextBlock.Text, "Введіть ім'я тут") == 0;
                 if (fieldIsEmptyOrDefault) throw new ArgumentNullException();
 
-                TestTaking_Window testTaking_Window = new TestTaking_Window(questionsList, testInfo, userName);
-                if (testTaking_Window.LoadedSuccessfully)
-                {
-                    testTaking_Window.Show();
-                }
+                WindowCaller.ShowTestTaking(testToPass, userName);
                 askForClosingComfirmation = false;
                 Close();
             }

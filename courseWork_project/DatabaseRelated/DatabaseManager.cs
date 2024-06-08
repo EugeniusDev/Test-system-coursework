@@ -1,23 +1,32 @@
-﻿using System.IO;
+﻿using System.Configuration;
+using System.IO;
 
 namespace courseWork_project
 {
     /// <summary>
     /// Superclass for all classes which have access to databases
     /// </summary>
-    public class DatabaseManager
+    internal class DatabaseManager
     {
+        private static readonly string transliteratedTestTitlesDirectoryPath = ConfigurationManager.AppSettings["testTitlesDirPath"];
+        private static readonly string transliteratedTestTitlesFileName = ConfigurationManager.AppSettings["testTitlesFileName"];
+
         public string FilePath { get; set; }
         public string DirectoryPath { get; set; }
         public string FullPath { get; set; }
-
+        
         /// <summary>
-        /// Autofill-database-path constructor for operating with test's database
+        /// Getting access to all tests
+        /// </summary>
+        public DatabaseManager() : this(transliteratedTestTitlesDirectoryPath, transliteratedTestTitlesFileName) { }
+        
+        /// <summary>
+        /// Operating with certain test
         /// </summary>
         /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public DatabaseManager(string testTitle)
         {
-            UpdateDatabasePath(testTitle);
+            UpdateDatabasePathUsingTitle(testTitle);
         }
         /// <summary>
         /// Constructor for working with specified paths
@@ -30,17 +39,16 @@ namespace courseWork_project
             FilePath = filePath;
             FullPath = Path.Combine(DirectoryPath, FilePath);
         }
-        /// <summary>
-        /// Populates class object's properties based on test title
-        /// </summary>
-        /// <param name="newTestTitle">Test title, not transliterated is also allowed</param>
-        public void UpdateDatabasePath(string newTestTitle)
+
+        public void UpdateDatabasePathUsingTitle(string newTestTitle)
         {
-            string transliteratedTitle = DataDecoder.TransliterateAString(newTestTitle);
+            string transliteratedTitle = newTestTitle.TransliterateToEnglish();
             DirectoryPath = transliteratedTitle;
             FilePath = $"{transliteratedTitle}.txt";
             FullPath = Path.Combine(DirectoryPath, FilePath);
         }
+
+
         /// <summary>
         /// Check of existance of directory with specified name. Creating it if needed
         /// </summary>

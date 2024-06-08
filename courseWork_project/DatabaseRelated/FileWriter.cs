@@ -11,16 +11,8 @@ namespace courseWork_project
     /// <remarks>Has 2 constructors, inherits DatabaseManager class</remarks>
     internal class FileWriter : DatabaseManager
     {
-        /// <summary>
-        /// Autofill-database-path constructor for operating with test's database
-        /// </summary>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
+        public FileWriter() : base() { }
         public FileWriter(string testTitle) : base(testTitle) { }
-        /// <summary>
-        /// Constructor for working with specified paths
-        /// </summary>
-        /// <param name="directoryPath">Path to directory that holds file data to be written into</param>
-        /// <param name="filePath">Name of file to write into (specify extension as well)</param>
         public FileWriter(string directoryPath, string filePath) : base(directoryPath, filePath) { }
         /// <summary>
         /// Writes given list into file line by line
@@ -49,7 +41,7 @@ namespace courseWork_project
         /// <param name="resultToWrite">Result to be written into a file</param>
         public void AppendTestTakingData(TestInfo testInfo, string resultToWrite)
         {
-            string transliterTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
+            string transliterTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
 
             string pathToResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
             Directory.CreateDirectory(pathToResultsDirectory);

@@ -9,24 +9,15 @@ namespace courseWork_project
     /// <remarks>Has 2 constructors, inherits DatabaseManager class</remarks>
     internal class FileReader : DatabaseManager
     {
-        /// <summary>
-        /// Constructor for configuring reader for reading test database
-        /// </summary>
-        /// <remarks>Path to database is formed based on the parameter</remarks>
-        /// <param name="testTitle">Title of a test, not transliterated also allowed</param>
+        public FileReader() : base() { }
         public FileReader(string testTitle) : base(testTitle) { }
-        /// <summary>
-        /// Constructor for configuring custom paths for a reader
-        /// </summary>
-        /// <remarks>Used to read everything that is not a test database</remarks>
-        /// <param name="directoryPath">Directory title to read from</param>
-        /// <param name="filePath">File title to read from (specify the extension as well)</param>
         public FileReader(string directoryPath, string filePath) : base(directoryPath, filePath) { }
+
         /// <summary>
-        /// Reads test's questions line by line
+        /// Reads test's Questions line by line
         /// </summary>
-        /// <remarks>Path to database can be changed with help of UpdateDatabasePath</remarks>
-        /// <returns>List of strings with questions data; empty or filled</returns>
+        /// <remarks>Path to database can be changed with help of UpdateDatabasePathUsingTitle</remarks>
+        /// <returns>List of strings with Questions data; empty or filled</returns>
         public List<string> GetQuestionLines()
         {
             List<string> lines = new List<string>();
@@ -37,7 +28,7 @@ namespace courseWork_project
                 while (!streamReader.EndOfStream)
                 {
                     string currLine = streamReader.ReadLine();
-                    // Ignoring first line as it contains data not about questions but about test in general
+                    // Ignoring first line as it contains data not about Questions but about test in general
                     if (firstIteration)
                     {
                         firstIteration = false;
@@ -53,7 +44,7 @@ namespace courseWork_project
         /// <summary>
         /// Reads general test info from a file
         /// </summary>
-        /// <remarks>Path to database can be changed with help of UpdateDatabasePath</remarks>
+        /// <remarks>Path to database can be changed with help of UpdateDatabasePathUsingTitle</remarks>
         /// <returns>First line from a file or empty string</returns>
         public string GetTestInfo()
         {
@@ -108,7 +99,7 @@ namespace courseWork_project
             foreach (string testTitle in testTitlesList)
             {
                 // Changing path to a current test's file-database
-                UpdateDatabasePath(testTitle);
+                UpdateDatabasePathUsingTitle(testTitle);
 
                 if (PathExists() && !listToForm.Contains(testTitle))
                 {
@@ -144,7 +135,7 @@ namespace courseWork_project
         /// <summary>
         /// Checking full path existance
         /// </summary>
-        /// <remarks>Path values can be changed with help of UpdateDatabasePath</remarks>
+        /// <remarks>Path values can be changed with help of UpdateDatabasePathUsingTitle</remarks>
         /// <returns>true if path exists; false if not</returns>
         public bool PathExists()
         {
@@ -153,7 +144,7 @@ namespace courseWork_project
         /// <summary>
         /// Checking full path existance and its creating in case of if not existing
         /// </summary>
-        /// <remarks>Path values can be changed with help of UpdateDatabasePath</remarks>
+        /// <remarks>Path values can be changed with help of UpdateDatabasePathUsingTitle</remarks>
         /// <returns>true if path exists; false if not</returns>
         public override bool CreatePathIfNotExists()
         {

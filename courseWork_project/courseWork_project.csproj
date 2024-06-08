@@ -96,6 +96,7 @@
     <Compile Include="DatabaseRelated\FileWriter.cs" />
     <Compile Include="DataManipulation\Grouper.cs" />
     <Compile Include="DatabaseRelated\DatabaseManager.cs" />
+    <Compile Include="DTOs\Test.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GuiHelper.cs" />
     <Compile Include="ImageManipulations\DefaultImage.Designer.cs">
@@ -119,6 +120,8 @@
     <Compile Include="TestTaking_Window.xaml.cs">
       <DependentUpon>TestTaking_Window.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WindowCaller.cs" />
+    <Compile Include="WindowExtensionMethods.cs" />
     <Page Include="HelpCenter_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

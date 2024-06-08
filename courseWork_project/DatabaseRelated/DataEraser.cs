@@ -65,7 +65,7 @@ namespace courseWork_project.DatabaseRelated
         public static void ErasePassingData(string testTitle)
         {
             string pathOfTestsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
-            string pathOfFile = $"{DataDecoder.TransliterateAString(testTitle)}.txt";
+            string pathOfFile = $"{testTitle.TransliterateToEnglish()}.txt";
             string fullPath = Path.Combine(pathOfTestsDirectory, pathOfFile);
             if (File.Exists(fullPath))
             {

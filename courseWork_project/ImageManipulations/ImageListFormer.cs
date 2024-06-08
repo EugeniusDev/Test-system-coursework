@@ -22,7 +22,7 @@ namespace courseWork_project
             (string[], bool) allImagesTuple = GetAllImages();
             if (!allImagesTuple.Item2) return imagesToReturn;
 
-            string transliteratedTestTitle = DataDecoder.TransliterateAString(testTitle);
+            string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testTitle);
             foreach (string currentImageTitle in allImagesTuple.Item1)
             {
                 if (currentImageTitle.Contains(transliteratedTestTitle))

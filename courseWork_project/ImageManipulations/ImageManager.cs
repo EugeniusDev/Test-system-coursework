@@ -51,8 +51,8 @@ namespace courseWork_project
         /// <param name="newTestTitle">New test title (not transliterated is also allowed)</param>
         public static void RenameAll(string oldTestTitle, string newTestTitle)
         {
-            string oldTestTitleTransliterated = DataDecoder.TransliterateAString(oldTestTitle);
-            string newTestTitleTransliterated = DataDecoder.TransliterateAString(newTestTitle);
+            string oldTestTitleTransliterated = DataDecoder.TransliterateToEnglish(oldTestTitle);
+            string newTestTitleTransliterated = DataDecoder.TransliterateToEnglish(newTestTitle);
 
             (string[], bool) allImagesTuple = GetAllImages();
             if (!allImagesTuple.Item2) return;
@@ -87,7 +87,7 @@ namespace courseWork_project
             (string[], bool) allImagesTuple = GetAllImages();
             if (!allImagesTuple.Item2) return;
 
-            string transliteratedTestTitle = DataDecoder.TransliterateAString(testTitle);
+            string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testTitle);
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
             {
                 bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle);

@@ -12,7 +12,7 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortTests(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<TestStructs.TestInfo> testsToSort = DataDecoder.GetAllTestInfos(transliteratedTitles);
+            List<TestStructs.TestInfo> testsToSort = DataDecoder.GetAllExistingTestInfosByTitles(transliteratedTitles);
             string typeDescription = "Резулат сортування тестів за ";
             switch ((TestSortTypes)typeOfSort)
             {
@@ -27,8 +27,8 @@ namespace courseWork_project
                 case TestSortTypes.BY_QUESTIONS_COUNT:
                     typeDescription = string.Concat(typeDescription, "кількістю запитань");
                     testsToSort.Sort((a, b) =>
-                        DataDecoder.FormQuestionsList(a.testTitle).Count
-                        .CompareTo(DataDecoder.FormQuestionsList(b.testTitle).Count)
+                        DataDecoder.GetQuestionsByTitle(a.testTitle).Count
+                        .CompareTo(DataDecoder.GetQuestionsByTitle(b.testTitle).Count)
                         );
                     break;
                 case TestSortTypes.BY_TITLE:
@@ -46,18 +46,19 @@ namespace courseWork_project
                 resultOfSort = string.Concat(resultOfSort, $"\nНазва: {currTestInfo.testTitle}; " +
                     $"Дата: {currTestInfo.lastEditedTime}; " +
                     $"Таймер: {currTestInfo.timerValue} хв; " +
-                    $"Кількість запитань: {DataDecoder.FormQuestionsList(currTestInfo.testTitle).Count}\n");
+                    $"Кількість запитань: {DataDecoder.GetQuestionsByTitle(currTestInfo.testTitle).Count}\n");
             }
-            MessageBox.Show(resultOfSort, typeDescription);
+
+            ShowSortingResults(resultOfSort, typeDescription);
         }
         /// <summary>
-        /// Sorts questions in a given manner
+        /// Sorts Questions in a given manner
         /// </summary>
         /// <param name="typeOfSort">Type of sorting (according to enum QuestionSortTypes)</param>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortQuestions(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<TestStructs.Question> questionsToSort = DataDecoder.GetAllQuestions(transliteratedTitles);
+            List<TestStructs.Question> questionsToSort = DataDecoder.GetAllExistingQuestionsByTestTitles(transliteratedTitles);
             string typeDescription = "Резулат сортування запитань тестів за ";
             switch ((QuestionSortTypes)typeOfSort)
             {
@@ -89,7 +90,19 @@ namespace courseWork_project
                     $"Всього варіантів: {currQuestion.variants.Count}; " +
                     $"Правильних варіантів: {currQuestion.correctVariantsIndeces.Count}\n");
             }
-            MessageBox.Show(resultOfSort, typeDescription);
+
+            ShowSortingResults(resultOfSort, typeDescription);
+        }
+
+        private static void ShowSortingResults(string result, string typeDescription)
+        {
+            if (result == string.Empty)
+            {
+                MessageBox.Show("Немає що сортувати", typeDescription);
+                return;
+            }
+
+            MessageBox.Show(result, typeDescription);
         }
     }
 }

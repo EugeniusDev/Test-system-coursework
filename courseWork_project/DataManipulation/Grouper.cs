@@ -13,7 +13,7 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void GroupTests(int groupingType, List<string> transliteratedTitles)
         {
-            List<TestStructs.TestInfo> testsToGroup = DataDecoder.GetAllTestInfos(transliteratedTitles);
+            List<TestStructs.TestInfo> testsToGroup = DataDecoder.GetAllExistingTestInfosByTitles(transliteratedTitles);
             List<TestStructs.TestInfo> groupOfTests = new List<TestStructs.TestInfo>();
             string typeDescription = "Група тестів, ";
             switch ((TestGroupTypes)groupingType)
@@ -42,16 +42,17 @@ namespace courseWork_project
                     $"Дата: {currTestInfo.lastEditedTime}; " +
                     $"Таймер: {currTestInfo.timerValue} хв\n");
             }
-            MessageBox.Show(resultOfGrouping, typeDescription);
+
+            ShowGroupingResults(resultOfGrouping, typeDescription);
         }
         /// <summary>
-        /// Groups questions by specified type
+        /// Groups Questions by specified type
         /// </summary>
         /// <param name="groupingType">Type of grouping (according to enum QuestionGroupTypes)</param>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void GroupQuestions(int groupingType, List<string> transliteratedTitles)
         {
-            List<TestStructs.Question> questionsToGroup = DataDecoder.GetAllQuestions(transliteratedTitles);
+            List<TestStructs.Question> questionsToGroup = DataDecoder.GetAllExistingQuestionsByTestTitles(transliteratedTitles);
             List<TestStructs.Question> groupOfQuestions = new List<TestStructs.Question>();
             string typeDescription = "Група запитань тесту, ";
             switch ((QuestionGroupTypes)groupingType)
@@ -79,7 +80,19 @@ namespace courseWork_project
                     string.Concat(resultOfGrouping, "Містить ілюстрацію\n")
                     : string.Concat(resultOfGrouping, "Не містить ілюстрацію\n");
             }
-            MessageBox.Show(resultOfGrouping, typeDescription);
+
+            ShowGroupingResults(resultOfGrouping, typeDescription);
+        }
+
+        private static void ShowGroupingResults(string result, string typeDescription)
+        {
+            if (result == string.Empty)
+            {
+                MessageBox.Show("Немає що групувати", typeDescription);
+                return;
+            }
+
+            MessageBox.Show(result, typeDescription);
         }
     }
 }

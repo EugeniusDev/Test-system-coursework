@@ -6,7 +6,7 @@ namespace courseWork_project
     /// <summary>
     /// Class-container for test-related structures
     /// </summary>
-    public static class TestStructs
+    public static partial class TestStructs
     {
         /// <summary>
         /// Structure of question of a test

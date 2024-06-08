@@ -27,52 +27,28 @@ namespace courseWork_project
         /// ObservableCollection for ListView
         /// </summary>
         private ObservableCollection<TestItem> testItems;
-        /// <summary>
-        /// List of transliterated test titles
-        /// </summary>
-        private List<string> existingTestsTitles;
-        /// <summary>
-        /// List of not transliterated test titles
-        /// </summary>
+
         private List<string> testTitles;
-        /// <summary>
-        /// Path to a directory that contains a file with list of transliterated test titles
-        /// </summary>
-        private readonly string directoryPathToTestsList = ConfigurationManager.AppSettings["testTitlesDirPath"];
-        /// <summary>
-        /// Path to a file with list of transliterated test titles
-        /// </summary>
-        private readonly string filePathToTestsList = ConfigurationManager.AppSettings["testTitlesFilePath"];
-        /// <summary>
-        /// Used to determine if window closing confirmation is needed
-        /// </summary>
-        bool askForClosingComfirmation = true;
-        /// <summary>
-        /// Parameterless MainWindow constructor
-        /// </summary>
+        private List<string> transliteratedTestTitles;
+
+        bool isWindowClosingConfirmationRequired = true;
+
         public MainWindow()
         {
             InitializeComponent();
             // Getting list of existing tests
-            FileReader fileReader = new FileReader(directoryPathToTestsList, $"{filePathToTestsList}.txt");
-            existingTestsTitles = fileReader.UpdateListOfExistingTestsPaths();
+            FileReader fileReader = new FileReader();
+            transliteratedTestTitles = fileReader.UpdateListOfExistingTestsPaths();
 
             testItems = new ObservableCollection<TestItem>();
-            TestsInfoTextblock.Text = (existingTestsTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
+            TestsInfoTextblock.Text = (transliteratedTestTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
             TestsListView.ItemsSource = testItems;
-            GetListAndPutItInGUI(existingTestsTitles);
+            DisplayTestsFromTitles(transliteratedTestTitles);
         }
-        /// <summary>
-        /// Handling pressed keyboard keys
-        /// </summary>
-        /// <remarks>F1 - user manual</remarks>
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.F1)
-            {
-                HelpCenter_Window helpCenter = new HelpCenter_Window();
-                helpCenter.Show();
-            }
+            e.OpenHelpCenterOnF1();
         }
         /// <summary>
         /// Handling pressed HelpCenter_button
@@ -80,8 +56,7 @@ namespace courseWork_project
         /// <remarks>Opens HelpCenter_Window</remarks>
         private void HelpCenter_button_Click(object sender, RoutedEventArgs e)
         {
-            HelpCenter_Window helpCenter_Window = new HelpCenter_Window();
-            helpCenter_Window.Show();
+            WindowCaller.ShowHelpCenter();
         }
         /// <summary>
         /// Handling pressed Create_button
@@ -89,9 +64,8 @@ namespace courseWork_project
         /// <remarks>Opens TestChange_Window in creating mode</remarks>
         private void Create_button_Click(object sender, RoutedEventArgs e)
         {
-            TestChange_Window testChange_Window = new TestChange_Window();
-            testChange_Window.Show();
-            askForClosingComfirmation = false;
+            WindowCaller.ShowTestChange();
+            isWindowClosingConfirmationRequired = false;
             Close();
         }
         /// <summary>
@@ -105,11 +79,10 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                List<TestStructs.Question> questionsToTake = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
-                TestStructs.TestInfo infoOfTestToTake = DataDecoder.GetTestInfo(selectedItem.TestTitle);
-                NameEntry_Window nameEntry_Window = new NameEntry_Window(questionsToTake, infoOfTestToTake);
-                nameEntry_Window.Show();
-                askForClosingComfirmation = false;
+                Test testToPass = new Test(DataDecoder.GetQuestionsByTitle(selectedItem.TestTitle),
+                    DataDecoder.GetTestInfoByTitle(selectedItem.TestTitle));
+                WindowCaller.ShowNameEntry(testToPass);
+                isWindowClosingConfirmationRequired = false;
                 Close();
             }
         }
@@ -124,23 +97,21 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                List<TestStructs.Question> questionsToEdit = DataDecoder.FormQuestionsList(selectedItem.TestTitle);
-                TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfo(selectedItem.TestTitle);
+                List<TestStructs.Question> questionsToEdit = DataDecoder.GetQuestionsByTitle(selectedItem.TestTitle);
+                TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfoByTitle(selectedItem.TestTitle);
 
                 DataEraser.EraseTestFolder(selectedItem.TestTitle);
 
                 // Updating list of transliterated test titles
-                string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
-                string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
-                FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
+                FileReader fileReader = new FileReader();
                 List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
-                FileWriter fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
+                FileWriter fileWriter = new FileWriter();
                 fileWriter.WriteListInFileByLines(allTestsList);
 
                 List<ImageManager.ImageInfo> emptyImageInfos = new List<ImageManager.ImageInfo>();
                 TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToEdit, emptyImageInfos, infoOfTestToEdit);
                 testSaving_Window.Show();
-                askForClosingComfirmation = false;
+                isWindowClosingConfirmationRequired = false;
                 Close();
             }
         }
@@ -155,8 +126,9 @@ namespace courseWork_project
             ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
             if (button != null && itemContainer.DataContext is TestItem selectedItem)
             {
-                string transliteratedTestTitle = DataDecoder.TransliterateAString(selectedItem.TestTitle);
+                string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(selectedItem.TestTitle);
                 // Getting up-to-date list of data about passing selected test
+                // TODO less abstraction level than needed, make it the problem of reader
                 string pathOfResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
                 FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
                 List<string> currTestResultsList = fileReader.ReadAndReturnLines();
@@ -197,7 +169,7 @@ namespace courseWork_project
                     // Reloading MainWindow to update the list of tests
                     MainWindow mainWindow = new MainWindow();
                     mainWindow.Show();
-                    askForClosingComfirmation = false;
+                    isWindowClosingConfirmationRequired = false;
                     Close();
                 }
             }
@@ -206,15 +178,12 @@ namespace courseWork_project
         /// Puts list of test titles into GUI
         /// </summary>
         /// <param name="existingTestsTitles">List of transliterated test titles (a set of paths to databases)</param>
-        public void GetListAndPutItInGUI(List<string> existingTestsTitles)
+        public void DisplayTestsFromTitles(List<string> existingTestsTitles)
         {
-            testTitles = new List<string>();
             foreach (string testTitleTransliterated in existingTestsTitles)
             {
-                string notTransliteratedTitle = DataDecoder.GetTestInfo(testTitleTransliterated)
+                string notTransliteratedTitle = DataDecoder.GetTestInfoByTitle(testTitleTransliterated)
                     .testTitle;
-                testTitles.Add(notTransliteratedTitle);
-
                 AddNewListViewRow(notTransliteratedTitle);
             }
         }
@@ -237,7 +206,7 @@ namespace courseWork_project
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // If closing confirmation is not needed, just close the window
-            if (!askForClosingComfirmation) return;
+            if (!isWindowClosingConfirmationRequired) return;
             MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
@@ -251,31 +220,31 @@ namespace courseWork_project
         /// </summary>
         private void TestInfoSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortTests(TestInfoSortOptions.SelectedIndex, existingTestsTitles);
+            Sorter.SortTests(TestInfoSortOptions.SelectedIndex, transliteratedTestTitles);
         }
         /// <summary>
         /// Handling choosing anything from "QuestionSortOptions" ComboBox
         /// </summary>
         private void QuestionSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortQuestions(QuestionSortOptions.SelectedIndex, existingTestsTitles);
+            Sorter.SortQuestions(QuestionSortOptions.SelectedIndex, transliteratedTestTitles);
         }
         /// <summary>
         /// Handling choosing anything from "TestInfoGroupOptions" ComboBox
         /// </summary>
         private void TestInfoGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupTests(TestInfoGroupOptions.SelectedIndex, existingTestsTitles);
+            Grouper.GroupTests(TestInfoGroupOptions.SelectedIndex, transliteratedTestTitles);
         }
         /// <summary>
         /// Handling choosing anything from "QuestionGroupOptions" ComboBox
         /// </summary>
         private void QuestionGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupQuestions(QuestionGroupOptions.SelectedIndex, existingTestsTitles);
+            Grouper.GroupQuestions(QuestionGroupOptions.SelectedIndex, transliteratedTestTitles);
         }
         /// <summary>
-        /// Handling clock in questions search field
+        /// Handling clock in Questions search field
         /// </summary>
         private void QuestionSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -304,15 +273,15 @@ namespace courseWork_project
                     throw new ArgumentNullException();
                 }
 
-                foreach(string testTitle in existingTestsTitles)
+                foreach(string testTitle in transliteratedTestTitles)
                 {
-                    List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
+                    List<TestStructs.Question> currentTestQuestions = DataDecoder.GetQuestionsByTitle(testTitle);
                     TestStructs.Question foundQuestion = currentTestQuestions.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
                     // If a structure with required title is found
                     if (foundQuestion.question != null)
                     {
                         // Forming output
-                        string foundQuestionTestTitle = DataDecoder.GetTestInfo(testTitle).testTitle;
+                        string foundQuestionTestTitle = DataDecoder.GetTestInfoByTitle(testTitle).testTitle;
                         MessageBox.Show($"Введене запитання знайдено в тесті \"{foundQuestionTestTitle}\":\n"
                         + $"Запитання: {foundQuestion.question}; "
                         + $"Всього варіантів: {foundQuestion.variants.Count}; "
@@ -344,16 +313,16 @@ namespace courseWork_project
                     throw new ArgumentNullException();
                 }
 
-                foreach (string testTitle in existingTestsTitles)
+                foreach (string testTitle in transliteratedTestTitles)
                 {
-                    List<TestStructs.Question> currentTestQuestions = DataDecoder.FormQuestionsList(testTitle);
+                    List<TestStructs.Question> currentTestQuestions = DataDecoder.GetQuestionsByTitle(testTitle);
                     foreach(TestStructs.Question currentQuestion in currentTestQuestions)
                     {
                         foreach(string variant in currentQuestion.variants)
                         {
                             if (string.Compare(variant.ToLower(), variantToSearch.ToLower()) == 0){
                                 // If searched variant was found, form the output
-                                string foundVariantTestTitle = DataDecoder.GetTestInfo(testTitle).testTitle;
+                                string foundVariantTestTitle = DataDecoder.GetTestInfoByTitle(testTitle).testTitle;
                                 MessageBox.Show($"Введений варіант знайдено в тесті \"{foundVariantTestTitle}\",\n"
                                 + $"в запитанні \"{currentQuestion.question}\"",
                                 "Результат пошуку запитання тесту");

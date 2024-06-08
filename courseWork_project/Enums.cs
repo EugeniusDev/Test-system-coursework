@@ -11,7 +11,7 @@
         CONTROL_WORK
     }
     /// <summary>
-    /// Enum for types of questions grouping
+    /// Enum for types of Questions grouping
     /// </summary>
     public enum QuestionGroupTypes
     {
@@ -32,7 +32,7 @@
         BY_TITLE
     }
     /// <summary>
-    /// Enum for types of questions sorting
+    /// Enum for types of Questions sorting
     /// </summary>
     public enum QuestionSortTypes
     {
@@ -75,7 +75,7 @@
     /// <summary>
     /// Enum for TestChange_Window related manuals
     /// </summary>
-    public enum TestChangeManuls
+    public enum TestChangeManuals
     {
         QUESTION_ENTRY,
         VARIANT_ADD,

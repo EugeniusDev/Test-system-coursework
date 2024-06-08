@@ -17,20 +17,9 @@ namespace courseWork_project
     /// <remarks>TestTaking_Window.xaml is used for tasking tests</remarks>
     public partial class TestTaking_Window : Window
     {
-        /// <summary>
-        /// Index of test's current question
-        /// </summary>
-        /// <remarks>Values from 1 to 10</remarks>
+        Test testToPass;
+
         private int currentQuestionIndex = 1;
-        /// <summary>
-        /// Total count of questions of a test
-        /// </summary>
-        /// <remarks>Values from 1 to 10</remarks>
-        private int totalQuestionsCount;
-        /// <summary>
-        /// Count of correctly answered questions
-        /// </summary>
-        /// <remarks>Values from 1 to 10</remarks>
         private int correctAnswersCount = 0;
         /// <summary>
         /// Prompted name of a user who takes a test
@@ -41,21 +30,13 @@ namespace courseWork_project
         /// </summary>
         private bool buttonClicked = false;
         /// <summary>
-        /// List of test's questions
-        /// </summary>
-        private readonly List<TestStructs.Question> questionsList;
-        /// <summary>
-        /// Structure with test's info
-        /// </summary>
-        private TestStructs.TestInfo testInfo;
-        /// <summary>
         /// Used for operating with images if they exist
         /// </summary>
         private readonly string transliteratedTestTitle;
         /// <summary>
         /// Button-bool dictionary used for determining correct variants
         /// </summary>
-        /// <remarks>Changes while passing through questions</remarks>
+        /// <remarks>Changes while passing through Questions</remarks>
         private Dictionary<Button, bool> variantsDict = new Dictionary<Button, bool>();
         /// <summary>
         /// Used for controlling a timer
@@ -75,16 +56,10 @@ namespace courseWork_project
         readonly bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
-        /// <summary>
-        /// 3-argument TestTaking_Window constructor
-        /// </summary>
-        /// <param name="questionsList">Test's question list</param>
-        /// <param name="currTestInfo">Structure with test's general info</param>
-        /// <param name="userName">Name of user that takes a test</param>
-        public TestTaking_Window(List<TestStructs.Question> questionsList, TestStructs.TestInfo currTestInfo, string userName)
+        public TestTaking_Window(Test testToPass, string userName)
         {
-            // If there are no questions in the test, close the window
-            if (questionsList.Count == 0)
+            // If there are no Questions in the test, close the window
+            if (testToPass.Questions.Count == 0)
             {
                 MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -96,22 +71,20 @@ namespace courseWork_project
                 return;
             }
 
-            this.questionsList = questionsList;
-            testInfo = currTestInfo;
-            transliteratedTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
-            totalQuestionsCount = questionsList.Count;
+            this.testToPass = testToPass;
+            transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testToPass.TestInfo.testTitle);
             this.userName = userName;
 
             InitializeComponent();
 
             // Displaying general info about test before an attempt of passing it
-            string generalInfoForMessageBox = $"Тест \"{currTestInfo.testTitle}\"" +
-                $"\nКількість запитань: {questionsList.Count}\n";
-            timeLimitInSeconds = currTestInfo.timerValue * 60;
+            string generalInfoForMessageBox = $"Тест \"{testToPass.TestInfo.testTitle}\"" +
+                $"\nКількість запитань: {testToPass.Questions.Count}\n";
+            timeLimitInSeconds = testToPass.TestInfo.timerValue * 60;
             bool noTimeLimits = timeLimitInSeconds == 0;
             generalInfoForMessageBox =  noTimeLimits ?
                 string.Concat(generalInfoForMessageBox, "Час проходження необмежений")
-                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: {currTestInfo.timerValue} хв");
+                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: {testToPass.TestInfo.timerValue} хв");
             generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
                 "\nДеякі запитання можуть мати декілька правильних варіантів відповідей");
             generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
@@ -187,7 +160,7 @@ namespace courseWork_project
         /// <returns>String with results info</returns>
         private string FormResultsOfTest()
         {
-            string resultsToReturn = $"{userName}: {correctAnswersCount}/{totalQuestionsCount}";
+            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.Questions.Count}";
             return resultsToReturn;
         }
         /// <summary>
@@ -196,8 +169,8 @@ namespace courseWork_project
         /// <param name="currentResult">String with current test's passing results</param>
         private void EndTestAndSaveResults(string currentResult)
         {
-            FileWriter fileWriter = new FileWriter(testInfo.testTitle);
-            fileWriter.AppendTestTakingData(testInfo, currentResult);
+            FileWriter fileWriter = new FileWriter(testToPass.TestInfo.testTitle);
+            fileWriter.AppendTestTakingData(testToPass.TestInfo, currentResult);
 
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
@@ -209,15 +182,15 @@ namespace courseWork_project
         /// </summary>
         private void UpdateGUI()
         {
-            CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{totalQuestionsCount}";
+            CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{testToPass.Questions.Count}";
 
-            if (currentQuestionIndex == totalQuestionsCount)
+            if (currentQuestionIndex == testToPass.Questions.Count)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
             }
             else NextQuestion_Button.Visibility = Visibility.Visible;
 
-            if (currentQuestionIndex == totalQuestionsCount)
+            if (currentQuestionIndex == testToPass.Questions.Count)
             {
                 EndTest_Button.Visibility = Visibility.Visible;
             }
@@ -235,7 +208,7 @@ namespace courseWork_project
                 foreach (string currentImagePath in allImagesPaths)
                 {
                     // Finding required image from images folder
-                    if (questionsList[currentQuestionIndex-1].hasLinkedImage
+                    if (testToPass.Questions[currentQuestionIndex-1].hasLinkedImage
                         && currentImagePath.Contains($"{transliteratedTestTitle}-{currentQuestionIndex}"))
                     {
                         // Displaying found image
@@ -277,7 +250,7 @@ namespace courseWork_project
             currentQuestionIndex = ++indexOfElementToReturnTo;
             ClearElementsData();
             UpdateGUI();
-            GetListAndPutItInGUI(questionsList);
+            GetListAndPutItInGUI(testToPass.Questions);
         }
         /// <summary>
         /// Adds answer variant with specified values
@@ -317,7 +290,7 @@ namespace courseWork_project
             Button clickedButton = (Button)sender;
             string clickedButtonContent = clickedButton.Content.ToString();
             // Changing focus on other buttons for convenient Enter usage (depends on question index)
-            if(currentQuestionIndex != questionsList.Count)
+            if(currentQuestionIndex != testToPass.Questions.Count)
             {
                 NextQuestion_Button.Focus();
             }
@@ -368,18 +341,14 @@ namespace courseWork_project
         /// Enter - next question/end test passing attempt</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F1)
-            {
-                HelpCenter_Window helpCenter = new HelpCenter_Window();
-                helpCenter.Show();
-            }
+            e.OpenHelpCenterOnF1();
             if (e.Key == Key.Escape)
             {
                 GoToMainWithConfimation();
             }
             if(e.Key == Key.Enter)
             {
-                if (currentQuestionIndex != totalQuestionsCount)
+                if (currentQuestionIndex != testToPass.Questions.Count)
                 {
                     GoToNextQuestion();
                     return;
@@ -421,7 +390,7 @@ namespace courseWork_project
                 timer.Stop();
 
                 string resultsOfTest = FormResultsOfTest();
-                MessageBox.Show($"Тест \"{testInfo.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
+                MessageBox.Show($"Тест \"{testToPass.TestInfo.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
 
                 EndTestAndSaveResults(resultsOfTest);
             }
@@ -441,7 +410,7 @@ namespace courseWork_project
                 {
                     throw new ArgumentNullException();
                 }
-                if (questionsList.Count > currentQuestionIndex)
+                if (testToPass.Questions.Count > currentQuestionIndex)
                 {
                     buttonClicked = false;
                     currentQuestionIndex++;
@@ -454,9 +423,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Puts questions structure in GUI
+        /// Puts Questions structure in GUI
         /// </summary>
-        /// <param name="questions">List of questions</param>
+        /// <param name="questions">List of Questions</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
         {
             TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];

@@ -12,7 +12,7 @@ using courseWork_project.DatabaseRelated;
 namespace courseWork_project
 {
     /// <summary>
-    /// Class for manipulation with ObservableCollection of questions for GridView.
+    /// Class for manipulation with ObservableCollection of Questions for GridView.
     /// </summary>
     public class QuestionItem
     {
@@ -25,7 +25,7 @@ namespace courseWork_project
     public partial class TestSaving_Window : Window
     {
         /// <summary>
-        /// List of questions of the test
+        /// List of Questions of the test
         /// </summary>
         private List<TestStructs.Question> questionsToSave;
         /// <summary>
@@ -57,7 +57,7 @@ namespace courseWork_project
         /// <summary>
         /// TestSaving_Window creating mode constructor
         /// </summary>
-        /// <param name="questionsToSave">List of questions of the test</param>
+        /// <param name="questionsToSave">List of Questions of the test</param>
         /// <param name="imagesToSave">List of data about images</param>
         public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave)
         {
@@ -76,14 +76,14 @@ namespace courseWork_project
         /// <summary>
         /// TestSaving_Window editing mode constructor
         /// </summary>
-        /// <param name="questionsToSave">List of questions of the test</param>
+        /// <param name="questionsToSave">List of Questions of the test</param>
         /// <param name="currTestInfo">General test info structure</param>
         public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave, TestStructs.TestInfo currTestInfo)
         {
             creatingMode = false;
             this.questionsToSave = questionsToSave;
             testInfo = currTestInfo;
-            transliterOldTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
+            transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
             imagesList = imagesToSave;
             InitializeComponent();
             TimerInputBox.Text = testInfo.timerValue.ToString();
@@ -205,11 +205,7 @@ namespace courseWork_project
         /// Enter - saving the test</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F1)
-            {
-                HelpCenter_Window helpCenter = new HelpCenter_Window();
-                helpCenter.Show();
-            }
+            e.OpenHelpCenterOnF1();
             if (e.Key == Key.Escape)
             {
                 if (!InputIsCorrect()) return;
@@ -236,12 +232,10 @@ namespace courseWork_project
             FileWriter fileWriter = new FileWriter(testInfo.testTitle);
             fileWriter.WriteListInFileByLines(listToWrite);
             // Updating list of existing databases in corresponding text file
-            string pathOfTestsDirectory = ConfigurationManager.AppSettings["testTitlesDirPath"];
-            string pathOfTestsFile = ConfigurationManager.AppSettings["testTitlesFilePath"];
-            FileReader fileReader = new FileReader(pathOfTestsDirectory, $"{pathOfTestsFile}.txt");
+            FileReader fileReader = new FileReader();
             List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
 
-            string tranliteratedCurrTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
+            string tranliteratedCurrTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
             allTestsList.Add(tranliteratedCurrTestTitle);
 
             fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
@@ -272,12 +266,12 @@ namespace courseWork_project
         public void UpdateTitleIfChanged()
         {
             bool titleChanged = string.Compare(transliterOldTestTitle,
-                    DataDecoder.TransliterateAString(testInfo.testTitle)) != 0
+                    DataDecoder.TransliterateToEnglish(testInfo.testTitle)) != 0
                     && transliterOldTestTitle != string.Empty;
             if (titleChanged)
             {
                 // Renaming all the images
-                string transliteratedNewTestTitle = DataDecoder.TransliterateAString(testInfo.testTitle);
+                string transliteratedNewTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
                 ImageManager.RenameAll(transliterOldTestTitle, transliteratedNewTestTitle);
                 foreach (ImageInfo currImageInfo in imagesList)
                 {
@@ -322,9 +316,9 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Puts list of questions into GUI
+        /// Puts list of Questions into GUI
         /// </summary>
-        /// <param name="questionsList">List of questions structure</param>
+        /// <param name="questionsList">List of Questions structure</param>
         public void GetListAndPutItInGUI(List<TestStructs.Question> questionsList)
         {
             foreach (TestStructs.Question questionFromList in questionsList)

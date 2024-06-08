@@ -20,7 +20,7 @@ namespace courseWork_project
     /// <summary>
     /// Interaction logic for TestChange_Window.xaml
     /// </summary>
-    /// <remarks> TestChange_Window.xaml is used for creating/editing test's questions</remarks>
+    /// <remarks> TestChange_Window.xaml is used for creating/editing test's Questions</remarks>
     public partial class TestChange_Window : Window
     {
         /// <summary>
@@ -29,7 +29,7 @@ namespace courseWork_project
         /// <remarks>Values from 1 to 10</remarks>
         private int currentQuestionIndex = 1;
         /// <summary>
-        /// Count of test's questions
+        /// Count of test's Questions
         /// </summary>
         /// <remarks>Values from 1 to 10</remarks>
         private int totalQuestionsCount = 1;
@@ -79,7 +79,7 @@ namespace courseWork_project
         /// Editing mode constructor
         /// </summary>
         /// <remarks>Takes 4 parameters</remarks>
-        /// <param name="oldQuestionsList">List of questions</param>
+        /// <param name="oldQuestionsList">List of Questions</param>
         /// <param name="imageSources">List of images (could be empty)</param>
         /// <param name="currTestInfo">General test info</param>
         /// <param name="indexOfElementToEdit">Index of question to edit (1-10)</param>
@@ -483,11 +483,7 @@ namespace courseWork_project
         /// Enter - next question/test saving window</remarks>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F1)
-            {
-                HelpCenter_Window helpCenter = new HelpCenter_Window();
-                helpCenter.Show();
-            }
+            e.OpenHelpCenterOnF1();
             if (e.Key == Key.Escape)
             {
                 if(currentQuestionIndex > 1)

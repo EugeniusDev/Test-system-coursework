@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Windows;
 
 namespace courseWork_project
@@ -42,8 +44,8 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Uses FileReader under the hood</remarks>
         /// <param name="testTitle">Test title, not transliterated is also allowed</param>
-        /// <returns>List of questions, populated or empty</returns>
-        public static List<TestStructs.Question> FormQuestionsList(string testTitle)
+        /// <returns>List of Questions, populated or empty</returns>
+        public static List<TestStructs.Question> GetQuestionsByTitle(string testTitle)
         {
             List<TestStructs.Question> formedQuestionsList = new List<TestStructs.Question>();
             FileReader reader = new FileReader(testTitle);
@@ -82,7 +84,7 @@ namespace courseWork_project
         /// <remarks>Uses FileReader under the hood</remarks>
         /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         /// <returns>Populated or empty TestStructs.TestInfo</returns>
-        public static TestStructs.TestInfo GetTestInfo(string testTitle)
+        public static TestStructs.TestInfo GetTestInfoByTitle(string testTitle)
         {
             try
             {
@@ -103,14 +105,15 @@ namespace courseWork_project
                 return NullTestInfo;
             }
         }
-        /// <summary>
-        /// Transliterates some symbols for optimal usage as database paths
-        /// </summary>
-        /// <param name="inputString">String to transliterate</param>
-        /// <returns>Optimized for use as database path string</returns>
-        public static string TransliterateAString(string inputString)
+
+        public static string TransliterateToEnglish(this string inputString)
         {
             if (inputString is null) return string.Empty;
+
+            if (inputString.IsTransliterated())
+            {
+                return inputString;
+            }
 
             string transliteratedString = string.Empty;
             foreach(char c in inputString.ToLower())
@@ -122,17 +125,23 @@ namespace courseWork_project
 
             return transliteratedString;
         }
+
+        private static bool IsTransliterated(this string testTitle)
+        {
+            return !transliterationTable.Keys.Any(character => testTitle.Contains(character));
+        }
+
         /// <summary>
-        /// Gets list of all questions of all tests
+        /// Gets list of all Questions of all tests
         /// </summary>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
-        /// <returns>List of all questions available</returns>
-        public static List<TestStructs.Question> GetAllQuestions(List<string> transliteratedTitles)
+        /// <returns>List of all Questions available</returns>
+        public static List<TestStructs.Question> GetAllExistingQuestionsByTestTitles(List<string> transliteratedTitles)
         {
             List<TestStructs.Question> listToReturn = new List<TestStructs.Question>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                List<TestStructs.Question> tempQuestionsList = FormQuestionsList(transliteratedTitle);
+                List<TestStructs.Question> tempQuestionsList = GetQuestionsByTitle(transliteratedTitle);
                 listToReturn.AddRange(tempQuestionsList);
             }
             return listToReturn;
@@ -142,12 +151,12 @@ namespace courseWork_project
         /// </summary>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         /// <returns>List of all TestInfos available</returns>
-        public static List<TestStructs.TestInfo> GetAllTestInfos(List<string> transliteratedTitles)
+        public static List<TestStructs.TestInfo> GetAllExistingTestInfosByTitles(List<string> transliteratedTitles)
         {
             List<TestStructs.TestInfo> listToReturn = new List<TestStructs.TestInfo>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                TestStructs.TestInfo currentTestInfo = GetTestInfo(transliteratedTitle);
+                TestStructs.TestInfo currentTestInfo = GetTestInfoByTitle(transliteratedTitle);
                 if (!currentTestInfo.Equals(NullTestInfo))
                 {
                     listToReturn.Add(currentTestInfo);
