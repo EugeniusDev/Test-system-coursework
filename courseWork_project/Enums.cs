@@ -11,7 +11,7 @@
         CONTROL_WORK
     }
     /// <summary>
-    /// Enum for types of Questions grouping
+    /// Enum for types of QuestionMetadatas grouping
     /// </summary>
     public enum QuestionGroupTypes
     {
@@ -32,7 +32,7 @@
         BY_TITLE
     }
     /// <summary>
-    /// Enum for types of Questions sorting
+    /// Enum for types of QuestionMetadatas sorting
     /// </summary>
     public enum QuestionSortTypes
     {

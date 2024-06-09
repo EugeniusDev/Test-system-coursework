@@ -4,13 +4,13 @@ namespace courseWork_project
 {
     public class Test
     {
-        public List<TestStructs.Question> Questions { get; private set; }
-        public TestStructs.TestInfo TestInfo { get; private set; }
+        public List<TestStructs.QuestionMetadata> QuestionMetadatas { get; private set; }
+        public TestStructs.TestMetadata TestMetadata { get; private set; }
 
-        public Test(List<TestStructs.Question> questions, TestStructs.TestInfo testInfo)
+        public Test(List<TestStructs.QuestionMetadata> questionMetadatas, TestStructs.TestMetadata testMetadata)
         {
-            Questions = questions;
-            TestInfo = testInfo;
+            QuestionMetadatas = questionMetadatas;
+            TestMetadata = testMetadata;
         }
     }
 }

@@ -15,9 +15,9 @@ namespace courseWork_project
         /// <param name="testTitle">Title of test to search linked to images</param>
         /// <param name="questionsList">List of question structures</param>
         /// <returns>List<ImageManager.ImageInfo> for specified test</returns>
-        public List<ImageInfo> GetImageList(string testTitle, List<TestStructs.Question> questionsList)
+        public List<ImageMetadata> GetImageList(string testTitle, List<TestStructs.QuestionMetadata> questionsList)
         {
-            List<ImageInfo> imagesToReturn = new List<ImageInfo>();
+            List<ImageMetadata> imagesToReturn = new List<ImageMetadata>();
 
             (string[], bool) allImagesTuple = GetAllImages();
             if (!allImagesTuple.Item2) return imagesToReturn;
@@ -32,7 +32,7 @@ namespace courseWork_project
                     string relativePath = currentImageTitle;
                     string absolutePath = Path.GetFullPath(relativePath);
 
-                    ImageInfo currImageInfo = new ImageInfo
+                    ImageMetadata currImageInfo = new ImageMetadata
                     {
                         imagePath = absolutePath
                     };

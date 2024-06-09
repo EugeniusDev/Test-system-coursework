@@ -1,7 +1,21 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="courseWork_project.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="testTitlesDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">test_titles_folder</Value>
+    </Setting>
+    <Setting Name="testTitlesFilename" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">test_titles_file.txt</Value>
+    </Setting>
+    <Setting Name="testResultsDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">test_results_folder</Value>
+    </Setting>
+    <Setting Name="imagesDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">images</Value>
+    </Setting>
+    <Setting Name="maxQuestionsAllowed" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

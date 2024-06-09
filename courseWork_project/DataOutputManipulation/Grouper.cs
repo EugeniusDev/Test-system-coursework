@@ -13,8 +13,8 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void GroupTests(int groupingType, List<string> transliteratedTitles)
         {
-            List<TestStructs.TestInfo> testsToGroup = DataDecoder.GetAllExistingTestInfosByTitles(transliteratedTitles);
-            List<TestStructs.TestInfo> groupOfTests = new List<TestStructs.TestInfo>();
+            List<TestStructs.TestMetadata> testsToGroup = DataDecoder.GetAllTestMetadatasByTitles(transliteratedTitles);
+            List<TestStructs.TestMetadata> groupOfTests = new List<TestStructs.TestMetadata>();
             string typeDescription = "Група тестів, ";
             switch ((TestGroupTypes)groupingType)
             {
@@ -36,24 +36,24 @@ namespace courseWork_project
             }
             // Forming output of grouped stuff
             string resultOfGrouping = string.Empty;
-            foreach (TestStructs.TestInfo currTestInfo in groupOfTests)
+            foreach (TestStructs.TestMetadata currentTestMetadatas in groupOfTests)
             {
-                resultOfGrouping = string.Concat(resultOfGrouping, $"\nНазва: {currTestInfo.testTitle}; " +
-                    $"Дата: {currTestInfo.lastEditedTime}; " +
-                    $"Таймер: {currTestInfo.timerValue} хв\n");
+                resultOfGrouping = string.Concat(resultOfGrouping, $"\nНазва: {currentTestMetadatas.testTitle}; " +
+                    $"Дата: {currentTestMetadatas.lastEditedTime}; " +
+                    $"Таймер: {currentTestMetadatas.timerValue} хв\n");
             }
 
             ShowGroupingResults(resultOfGrouping, typeDescription);
         }
         /// <summary>
-        /// Groups Questions by specified type
+        /// Groups QuestionMetadatas by specified type
         /// </summary>
         /// <param name="groupingType">Type of grouping (according to enum QuestionGroupTypes)</param>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void GroupQuestions(int groupingType, List<string> transliteratedTitles)
         {
-            List<TestStructs.Question> questionsToGroup = DataDecoder.GetAllExistingQuestionsByTestTitles(transliteratedTitles);
-            List<TestStructs.Question> groupOfQuestions = new List<TestStructs.Question>();
+            List<TestStructs.QuestionMetadata> questionsToGroup = DataDecoder.GetAllQuestionsByTestTitles(transliteratedTitles);
+            List<TestStructs.QuestionMetadata> groupOfQuestions = new List<TestStructs.QuestionMetadata>();
             string typeDescription = "Група запитань тесту, ";
             switch ((QuestionGroupTypes)groupingType)
             {
@@ -71,7 +71,7 @@ namespace courseWork_project
             }
             // Forming output of grouped stuff
             string resultOfGrouping = string.Empty;
-            foreach (TestStructs.Question currQuestion in groupOfQuestions)
+            foreach (TestStructs.QuestionMetadata currQuestion in groupOfQuestions)
             {
                 resultOfGrouping = string.Concat(resultOfGrouping, $"\nЗапитання: {currQuestion.question}; " +
                     $"Всього варіантів: {currQuestion.variants.Count}; " +

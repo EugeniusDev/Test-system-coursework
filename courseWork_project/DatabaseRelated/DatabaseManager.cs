@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.IO;
+﻿using System.IO;
 
 namespace courseWork_project
 {
@@ -8,8 +7,8 @@ namespace courseWork_project
     /// </summary>
     internal class DatabaseManager
     {
-        private static readonly string transliteratedTestTitlesDirectoryPath = ConfigurationManager.AppSettings["testTitlesDirPath"];
-        private static readonly string transliteratedTestTitlesFileName = ConfigurationManager.AppSettings["testTitlesFileName"];
+        private static readonly string transliteratedTestTitlesDirectoryPath = Properties.Settings.Default.testTitlesDirectory;
+        private static readonly string transliteratedTestTitlesFileName = Properties.Settings.Default.testTitlesFilename;
 
         public string FilePath { get; set; }
         public string DirectoryPath { get; set; }
@@ -46,23 +45,6 @@ namespace courseWork_project
             DirectoryPath = transliteratedTitle;
             FilePath = $"{transliteratedTitle}.txt";
             FullPath = Path.Combine(DirectoryPath, FilePath);
-        }
-
-
-        /// <summary>
-        /// Check of existance of directory with specified name. Creating it if needed
-        /// </summary>
-        /// <returns>true, if directory already exists; false if not</returns>
-        public virtual bool CreatePathIfNotExists()
-        {
-            if (!Directory.Exists(DirectoryPath))
-            {
-                Directory.CreateDirectory(DirectoryPath);
-
-                return false;
-            }
-
-            return true;
         }
     }
 }

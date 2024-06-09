@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,20 +6,17 @@ namespace courseWork_project.DatabaseRelated
 {
     public static class DataEraser
     {
-        /// <summary>
-        /// Erases all data related with current test
-        /// </summary>
-        /// <param name="testInfo">TestInfo structure</param>
-        /// <param name="creatingMode">Is test in creating mode or in edit mode</param>
-        /// <param name="imagesList">List of ImageInfo structures with data about images</param>
-        public static void EraseCurrentTestData(TestStructs.TestInfo testInfo, bool creatingMode, List<ImageManager.ImageInfo> imagesList)
+        public static void EraseTestCreatingMode(TestStructs.TestMetadata testMetadata)
         {
-            EraseTestFolder(testInfo.testTitle);
-            ErasePassingData(testInfo.testTitle);
-            if (!creatingMode)
-            {
-                imagesList.ForEach(img => EraseImage(img));
-            }
+            EraseTestFolderByTitle(testMetadata.testTitle);
+            EraseTestPassingDataByTitle(testMetadata.testTitle);
+        }
+
+        public static void EraseTestEditingMode(TestStructs.TestMetadata testMetadata, List<ImageManager.ImageMetadata> imageMetadatas)
+        {
+            EraseTestFolderByTitle(testMetadata.testTitle);
+            EraseTestPassingDataByTitle(testMetadata.testTitle);
+            imageMetadatas.ForEach(img => EraseImage(img));
         }
 
         /// <summary>
@@ -28,10 +24,10 @@ namespace courseWork_project.DatabaseRelated
         /// </summary>
         /// <remarks>Deletes directory recursively, including all files in it</remarks>
         /// <param name="testTitle">Test title, not transliterated is also allowed</param>
-        public static void EraseTestFolder(string testTitle)
+        public static void EraseTestFolderByTitle(string testTitle)
         {
             FileReader reader = new FileReader(testTitle);
-            if (reader.PathExists())
+            if (reader.FullPathExists())
             {
                 Directory.Delete(reader.DirectoryPath, true);
             }
@@ -39,21 +35,20 @@ namespace courseWork_project.DatabaseRelated
         /// <summary>
         /// Deletes an image from directory-database
         /// </summary>
-        /// <param name="imageInfo">Structure with image's info</param>
-        public static void EraseImage(ImageManager.ImageInfo imageInfo)
+        /// <param name="imageMetadata">Structure with image's info</param>
+        public static void EraseImage(ImageManager.ImageMetadata imageMetadata)
         {
-            if (File.Exists(imageInfo.imagePath))
+            if (File.Exists(imageMetadata.imagePath))
             {
-                // Attempting to delete file after a delay of 100 milliseconds
                 Task.Delay(100).ContinueWith(_ =>
                 {
                     try
                     {
-                        File.Delete(imageInfo.imagePath);
+                        File.Delete(imageMetadata.imagePath);
                     }
                     catch
                     {
-                        // Ignoring the problems and continue on living :)
+                        // Not critical for application work
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
@@ -62,9 +57,9 @@ namespace courseWork_project.DatabaseRelated
         /// Deletes given test's passing data
         /// </summary>
         /// <param name="testTitle">Test title, not transliterated is also allowed</param>
-        public static void ErasePassingData(string testTitle)
+        public static void EraseTestPassingDataByTitle(string testTitle)
         {
-            string pathOfTestsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
+            string pathOfTestsDirectory = Properties.Settings.Default.testResultsDirectory;
             string pathOfFile = $"{testTitle.TransliterateToEnglish()}.txt";
             string fullPath = Path.Combine(pathOfTestsDirectory, pathOfFile);
             if (File.Exists(fullPath))

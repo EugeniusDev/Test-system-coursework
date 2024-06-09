@@ -94,11 +94,11 @@
     <Compile Include="DatabaseRelated\DataEraser.cs" />
     <Compile Include="DatabaseRelated\FileReader.cs" />
     <Compile Include="DatabaseRelated\FileWriter.cs" />
-    <Compile Include="DataManipulation\Grouper.cs" />
+    <Compile Include="DataOutputManipulation\Grouper.cs" />
     <Compile Include="DatabaseRelated\DatabaseManager.cs" />
     <Compile Include="DTOs\Test.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="GuiHelper.cs" />
+    <Compile Include="GuiManipulation\GuiObjectsFinder.cs" />
     <Compile Include="ImageManipulations\DefaultImage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -109,7 +109,7 @@
     <Compile Include="NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataManipulation\Sorter.cs" />
+    <Compile Include="DataOutputManipulation\Sorter.cs" />
     <Compile Include="DTOs\TestStructs.cs" />
     <Compile Include="TestChange_Window.xaml.cs">
       <DependentUpon>TestChange_Window.xaml</DependentUpon>
@@ -120,8 +120,8 @@
     <Compile Include="TestTaking_Window.xaml.cs">
       <DependentUpon>TestTaking_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WindowCaller.cs" />
-    <Compile Include="WindowExtensionMethods.cs" />
+    <Compile Include="GuiManipulation\WindowCaller.cs" />
+    <Compile Include="GuiManipulation\WindowExtensionMethods.cs" />
     <Page Include="HelpCenter_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.IO;
+﻿using System.IO;
 
 namespace courseWork_project
 {
@@ -11,13 +10,13 @@ namespace courseWork_project
         /// <summary>
         /// Structure for managing info about an image
         /// </summary>
-        public struct ImageInfo
+        public struct ImageMetadata
         {
             public string imagePath;
             // Index of question to which image is linked to
             public int questionIndex;
         }
-        public static string ImagesDirectory { get { return ConfigurationManager.AppSettings["imagesDirPath"]; } }
+        public static string ImagesDirectory { get { return Properties.Settings.Default.imagesDirectory; } }
         /// <summary>
         /// Moves an image from old path to a new one
         /// </summary>
@@ -49,7 +48,7 @@ namespace courseWork_project
         /// </summary>
         /// <param name="oldTestTitle">Old test title (not transliterated is also allowed)</param>
         /// <param name="newTestTitle">New test title (not transliterated is also allowed)</param>
-        public static void RenameAll(string oldTestTitle, string newTestTitle)
+        public static void RenameImagesByTitles(string oldTestTitle, string newTestTitle)
         {
             string oldTestTitleTransliterated = DataDecoder.TransliterateToEnglish(oldTestTitle);
             string newTestTitleTransliterated = DataDecoder.TransliterateToEnglish(newTestTitle);
@@ -82,7 +81,7 @@ namespace courseWork_project
         /// Deletes all images of specified test (deprecated)
         /// </summary>
         /// <param name="testTitle">Title of test to delete related to images (not transliterated is also allowed)</param>
-        public static void ImagesCleanup(string testTitle)
+        public static void ImagesCleanupByTitle(string testTitle)
         {
             (string[], bool) allImagesTuple = GetAllImages();
             if (!allImagesTuple.Item2) return;

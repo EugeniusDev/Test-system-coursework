@@ -38,7 +38,7 @@
             <ComboBox
                 FontSize="14"
                 Height="28" Width="180"
-                x:Name="TestInfoGroupOptions" SelectionChanged="TestInfoGroupOptions_SelectionChanged"
+                x:Name="TestMetadataGroupOptions" SelectionChanged="TestMetadataGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування інформації про тести">
                 <ComboBoxItem Content="Групування обмежених в часі проходження тестів"/>
                 <ComboBoxItem Content="Групування відредагованих сьогодні тестів"/>
@@ -49,7 +49,7 @@
             <ComboBox 
                 FontSize="14"
                 Height="28" Width="180"
-                x:Name="QuestionGroupOptions" SelectionChanged="QuestionGroupOptions_SelectionChanged"
+                x:Name="QuestionMetadataGroupOptions" SelectionChanged="QuestionMetadataGroupOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа групування запитань тестів">
                 <ComboBoxItem Content="Групування ілюстрованих запитань"/>
                 <ComboBoxItem Content="Групування запитань, в яких всі варіанти правильні"/>
@@ -63,7 +63,7 @@
             <ComboBox
                 FontSize="14"
                 Height="28" Width="180"
-                x:Name="TestInfoSortOptions" SelectionChanged="TestInfoSortOptions_SelectionChanged"
+                x:Name="TestMetadataSortOptions" SelectionChanged="TestMetadataSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування інформації про тести">
                 <ComboBoxItem Content="Сортування за датою останнього редагування"/>
                 <ComboBoxItem Content="Сортування за значенням таймера"/>
@@ -74,7 +74,7 @@
             <TextBlock FontSize="12" FontStyle="Italic" Text="Сортування запитань"/>
             <ComboBox
                 FontSize="14" Height="28" Width="180"
-                x:Name="QuestionSortOptions" SelectionChanged="QuestionSortOptions_SelectionChanged"
+                x:Name="QuestionMetadataSortOptions" SelectionChanged="QuestionMetadataSortOptions_SelectionChanged"
                 ToolTip="Список для вибору ключа сортування запитань тестів">
                 <ComboBoxItem Content="Сортування за кількістю варіантів"/>
                 <ComboBoxItem Content="Сортування за кількістю правильних відповідей"/>

@@ -1,13 +1,39 @@
 ﻿using System.Windows.Media;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Helps to find ancestors and childs of UI objects
-    /// </summary>
-    public static class GuiHelper
+    public static class GuiObjectsFinder
     {
+        public static bool TryGetTestItemFromValidAncestor(object eventSender, ref TestItem selectedItem)
+        {
+            Button button = eventSender as Button;
+            ListViewItem itemContainer = FindAncestor<ListViewItem>(button);
+            bool buttonHasValidAncestor = button != null && itemContainer.DataContext is TestItem;
+
+            if (buttonHasValidAncestor)
+            {
+                selectedItem = itemContainer.DataContext as TestItem;
+            }
+
+            return buttonHasValidAncestor;
+        }
+
+        public static bool TryGetQuestionItemFromValidAncestor(object eventSender, ref QuestionItem selectedItem)
+        {
+            Button button = eventSender as Button;
+            ListViewItem itemContainer = GuiObjectsFinder.FindAncestor<ListViewItem>(button);
+            bool buttonHasValidAncestor = button != null && itemContainer.DataContext is QuestionItem;
+
+            if (buttonHasValidAncestor)
+            {
+                selectedItem = itemContainer.DataContext as QuestionItem;
+            }
+
+            return buttonHasValidAncestor;
+        }
+
         /// <summary>
         /// Finds ancestor UI object of provided one
         /// </summary>

@@ -9,27 +9,27 @@ namespace courseWork_project
     public static class DataEncoder
     {
         /// <summary>
-        /// Forms a list of strings from TestInfo structure
+        /// Forms a list of strings from TestMetadata structure
         /// </summary>
         /// <remarks>Uses ₴ as separator operator</remarks>
-        /// <param name="testInfo">TestInfo structure</param>
-        /// <param name="questionsListToDecode">List of question structures</param>
+        /// <param name="testMetadata">TestMetadata structure</param>
+        /// <param name="questionsListToDecode">List of questionMetadata structures</param>
         /// <returns>List of string infos</returns>
-        public static List<string> EncodeAndReturnLines(TestStructs.TestInfo testInfo, List<TestStructs.Question> questionsListToDecode)
+        public static List<string> EncodeAndReturnLines(TestStructs.TestMetadata testMetadata, List<TestStructs.QuestionMetadata> questionsListToDecode)
         {
             List<string> stringListToReturn = new List<string>
             {
-                $"{testInfo.testTitle}₴{testInfo.lastEditedTime}₴{testInfo.timerValue}"
+                $"{testMetadata.testTitle}₴{testMetadata.lastEditedTime}₴{testMetadata.timerValue}"
             };
             string tempStringToForm = string.Empty;
-            foreach (TestStructs.Question question in questionsListToDecode)
+            foreach (TestStructs.QuestionMetadata questionMetadata in questionsListToDecode)
             {
-                tempStringToForm = RemoveSplitCharacters(question.question);
+                tempStringToForm = ReplaceSplitCharacterWithRepresentation(questionMetadata.question);
                 tempStringToForm = string.Concat(tempStringToForm, "₴");
-                tempStringToForm = string.Concat(tempStringToForm, string.Join("₴", question.variants.Select(variant => RemoveSplitCharacters(variant))));
+                tempStringToForm = string.Concat(tempStringToForm, string.Join("₴", questionMetadata.variants.Select(variant => ReplaceSplitCharacterWithRepresentation(variant))));
                 tempStringToForm = string.Concat(tempStringToForm, "₴");
-                tempStringToForm = string.Concat(tempStringToForm, string.Join("₴", question.correctVariantsIndeces.Select(index => index.ToString())));
-                tempStringToForm = string.Concat(tempStringToForm, $"₴{question.hasLinkedImage}");
+                tempStringToForm = string.Concat(tempStringToForm, string.Join("₴", questionMetadata.correctVariantsIndeces.Select(index => index.ToString())));
+                tempStringToForm = string.Concat(tempStringToForm, $"₴{questionMetadata.hasLinkedImage}");
                 stringListToReturn.Add(tempStringToForm);
             }
             return stringListToReturn;
@@ -40,7 +40,7 @@ namespace courseWork_project
         /// <remarks>Used for correct encoding of structures</remarks>
         /// <param name="stringToRemoveFrom">String to check for separator symbol</param>
         /// <returns>Modified or same string</returns>
-        private static string RemoveSplitCharacters(string stringToRemoveFrom)
+        private static string ReplaceSplitCharacterWithRepresentation(this string stringToRemoveFrom)
         {
             return stringToRemoveFrom.Contains("₴") ? stringToRemoveFrom.Replace("₴", "грн") : stringToRemoveFrom;
         }

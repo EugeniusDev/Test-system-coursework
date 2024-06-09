@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using static courseWork_project.TestStructs;
 
@@ -37,15 +36,13 @@ namespace courseWork_project
         /// Appends new data to file with results of test taking
         /// </summary>
         /// <remarks>If such file don't exists, creates it</remarks>
-        /// <param name="testInfo">TestInfo structure of current test</param>
+        /// <param name="testMetadata">TestMetadata structure of current test</param>
         /// <param name="resultToWrite">Result to be written into a file</param>
-        public void AppendTestTakingData(TestInfo testInfo, string resultToWrite)
+        public void AppendNewTestPassingDataToDatabase(TestMetadata testMetadata, string resultToWrite)
         {
-            string transliterTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
-
-            string pathToResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
+            string pathToResultsDirectory = Properties.Settings.Default.testResultsDirectory;
             Directory.CreateDirectory(pathToResultsDirectory);
-            string pathToResultsFile = $"{transliterTestTitle}.txt";
+            string pathToResultsFile = $"{testMetadata.testTitle.TransliterateToEnglish()}.txt";
             string fullPath = Path.Combine(pathToResultsDirectory, pathToResultsFile);
 
             using (StreamWriter sw = File.AppendText(fullPath))

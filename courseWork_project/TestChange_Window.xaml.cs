@@ -5,10 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Text.RegularExpressions;
-using System.Configuration;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using static courseWork_project.ImageManager;
 using System.IO;
 using System.Linq;
 using courseWork_project.DatabaseRelated;
@@ -20,7 +18,7 @@ namespace courseWork_project
     /// <summary>
     /// Interaction logic for TestChange_Window.xaml
     /// </summary>
-    /// <remarks> TestChange_Window.xaml is used for creating/editing test's Questions</remarks>
+    /// <remarks> TestChange_Window.xaml is used for creating/editing test's QuestionMetadatas</remarks>
     public partial class TestChange_Window : Window
     {
         /// <summary>
@@ -29,7 +27,7 @@ namespace courseWork_project
         /// <remarks>Values from 1 to 10</remarks>
         private int currentQuestionIndex = 1;
         /// <summary>
-        /// Count of test's Questions
+        /// Count of test's QuestionMetadatas
         /// </summary>
         /// <remarks>Values from 1 to 10</remarks>
         private int totalQuestionsCount = 1;
@@ -37,24 +35,24 @@ namespace courseWork_project
         /// Used to determine the type of current window
         /// </summary>
         /// <remarks>If true - creation mode, false if not</remarks>
-        private bool creatingMode;
+        private readonly bool isCreatingMode;
         /// <summary>
         /// Test's question list
         /// </summary>
-        private List<TestStructs.Question> questionsList;
+        private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
         /// <summary>
-        /// List of ImageInfo for manipulations with images
+        /// List of ImageMetadata for manipulations with images
         /// </summary>
-        private List<ImageManager.ImageInfo> imagesList;
+        private readonly List<ImageManager.ImageMetadata> imageMetadatas;
         /// <summary>
         /// Structure with test's general info
         /// </summary>
-        private TestStructs.TestInfo testInfo;
+        private readonly TestStructs.TestMetadata testMetadata;
         /// <summary>
         /// TextBox-CheckBox dictionary for variants data manipulation
         /// </summary>
         /// <remarks>Changes on adding and removing variants</remarks>
-        private Dictionary<TextBox, CheckBox> variantsDict = new Dictionary<TextBox, CheckBox>();
+        private readonly Dictionary<TextBox, CheckBox> variantsDict = new Dictionary<TextBox, CheckBox>();
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
@@ -62,7 +60,7 @@ namespace courseWork_project
         /// <summary>
         /// List of ImageInfos scheduled for deletion
         /// </summary>
-        private List<ImageInfo> imageInfosToDelete = new List<ImageInfo>();
+        private readonly List<ImageManager.ImageMetadata> imageInfosToDelete = new List<ImageManager.ImageMetadata>();
         /// <summary>
         /// Creation mode constructor
         /// </summary>
@@ -70,33 +68,30 @@ namespace courseWork_project
         public TestChange_Window()
         {
             InitializeComponent();
-            questionsList = new List<TestStructs.Question>();
-            imagesList = new List<ImageManager.ImageInfo>();
-            creatingMode = true;
+            questionMetadatas = new List<TestStructs.QuestionMetadata>();
+            imageMetadatas = new List<ImageManager.ImageMetadata>();
+            isCreatingMode = true;
             UpdateGUI();
         }
         /// <summary>
         /// Editing mode constructor
         /// </summary>
-        /// <remarks>Takes 4 parameters</remarks>
-        /// <param name="oldQuestionsList">List of Questions</param>
-        /// <param name="imageSources">List of images (could be empty)</param>
-        /// <param name="currTestInfo">General test info</param>
+        /// <param name="imageSources">List of images (can be empty)</param>
         /// <param name="indexOfElementToEdit">Index of question to edit (1-10)</param>
-        public TestChange_Window(List<TestStructs.Question> oldQuestionsList, List<ImageManager.ImageInfo> imageSources, TestStructs.TestInfo currTestInfo, int indexOfElementToEdit)
+        public TestChange_Window(Test testToChange, List<ImageManager.ImageMetadata> imageSources, int indexOfElementToEdit)
         {
-            creatingMode = false;
-            questionsList = oldQuestionsList;
-            testInfo = currTestInfo;
+            isCreatingMode = false;
+            questionMetadatas = testToChange.QuestionMetadatas;
+            testMetadata = testToChange.TestMetadata;
             if (imageSources.Count == 0)
             {
                 // If images list is empty, try to get them from the database
                 ImageListFormer imageListFormer = new ImageListFormer();
-                imagesList = imageListFormer.GetImageList(testInfo.testTitle, questionsList);
+                imageMetadatas = imageListFormer.GetImageList(testMetadata.testTitle, questionMetadatas);
             }
             else
             {
-                imagesList = imageSources;
+                imageMetadatas = imageSources;
             }
 
             InitializeComponent();
@@ -202,7 +197,7 @@ namespace courseWork_project
                 PrevQuestion_Button.Visibility = Visibility.Collapsed;
             }
             else PrevQuestion_Button.Visibility = Visibility.Visible;
-            if (currentQuestionIndex == 10)
+            if (currentQuestionIndex == Properties.Settings.Default.maxQuestionsAllowed)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
             }
@@ -386,7 +381,7 @@ namespace courseWork_project
             try
             {
                 int indexOfCurrentQuestion = currentQuestionIndex - 1;
-                TestStructs.Question currQuestion;
+                TestStructs.QuestionMetadata currQuestion;
 
                 if (!AreAllTextboxesFilled())
                 {
@@ -398,9 +393,9 @@ namespace courseWork_project
                 }
 
                 currQuestion.question = QuestionInput.Text.Trim();
-                ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
+                ImageManager.ImageMetadata foundImage = imageMetadatas.Find(x => x.questionIndex == currentQuestionIndex);
                 currQuestion.hasLinkedImage = false;
-                if (!foundImage.Equals(default(ImageInfo)))
+                if (!foundImage.Equals(default(ImageManager.ImageMetadata)))
                 {
                     currQuestion.hasLinkedImage = true;
                 }
@@ -421,14 +416,14 @@ namespace courseWork_project
                 {
                     throw new ArgumentNullException();
                 }
-                if (questionsList.Count >= indexOfCurrentQuestion+1)
+                if (questionMetadatas.Count >= indexOfCurrentQuestion+1)
                 {
-                    questionsList.Insert(indexOfCurrentQuestion, currQuestion);
-                    questionsList.RemoveAt(indexOfCurrentQuestion+1);
+                    questionMetadatas.Insert(indexOfCurrentQuestion, currQuestion);
+                    questionMetadatas.RemoveAt(indexOfCurrentQuestion+1);
                 }
                 else
                 {
-                    questionsList.Add(currQuestion);
+                    questionMetadatas.Add(currQuestion);
                 }
 
                 return true;
@@ -498,7 +493,7 @@ namespace courseWork_project
             }
             if(e.Key == Key.Enter)
             {
-                if(currentQuestionIndex != 10)
+                if(currentQuestionIndex != Properties.Settings.Default.maxQuestionsAllowed)
                 {
                     GoToNextQuestion();
                     return;
@@ -517,9 +512,16 @@ namespace courseWork_project
                 "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.Yes))
             {
-                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
+                if (isCreatingMode)
+                {
+                    DataEraser.EraseTestCreatingMode(testMetadata);
+                }
+                else
+                {
+                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
+                }
+
+                WindowCaller.ShowMain();
                 askForClosingComfirmation = false;
                 Close();
             }
@@ -530,13 +532,13 @@ namespace courseWork_project
         private void GoToNextQuestion()
         {
             if (!UpdateCurrentQuestionInfo()) return;
-            if (questionsList.Count > currentQuestionIndex)
+            if (questionMetadatas.Count > currentQuestionIndex)
             {
                 currentQuestionIndex++;
                 ShowQuestionAtIndex(currentQuestionIndex - 1);
                 return;
             }
-            if (currentQuestionIndex == totalQuestionsCount && currentQuestionIndex != 10)
+            if (currentQuestionIndex == totalQuestionsCount && currentQuestionIndex != Properties.Settings.Default.maxQuestionsAllowed)
             {
                 totalQuestionsCount++;
                 currentQuestionIndex++;
@@ -551,10 +553,16 @@ namespace courseWork_project
         {
             if (!UpdateCurrentQuestionInfo()) return;
             ReturnDefaultImage();
-            TestSaving_Window testSaving_Window = creatingMode ?
-                new TestSaving_Window(questionsList, imagesList) :
-                new TestSaving_Window(questionsList, imagesList, testInfo);
-            testSaving_Window.Show();
+            if (isCreatingMode)
+            {
+                WindowCaller.ShowTestSavingCreatingMode(questionMetadatas, imageMetadatas);
+            }
+            else
+            {
+                Test testToSave = new Test(questionMetadatas, testMetadata);
+                WindowCaller.ShowTestSavingEditingMode(testToSave, imageMetadatas);
+            }
+
             askForClosingComfirmation = false;
             Close();
         }
@@ -562,9 +570,9 @@ namespace courseWork_project
         /// Puts current test's question list in GUI
         /// </summary>
         /// <param name="questions">Список структур запитань тесту</param>
-        public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
+        public void GetListAndPutItInGUI(List<TestStructs.QuestionMetadata> questions)
         {
-            TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];
+            TestStructs.QuestionMetadata currentQuestion = questions[currentQuestionIndex - 1];
             QuestionInput.Text = currentQuestion.question;
             int tempIndexOfCorrectVariant = 0;
             foreach(string variant in currentQuestion.variants)
@@ -583,9 +591,9 @@ namespace courseWork_project
         private void ShowQuestionAtIndex(int indexOfElementToEdit)
         {
             currentQuestionIndex = ++indexOfElementToEdit;
-            totalQuestionsCount = questionsList.Count;
+            totalQuestionsCount = questionMetadatas.Count;
             EraseElementsData();
-            GetListAndPutItInGUI(questionsList);
+            GetListAndPutItInGUI(questionMetadatas);
             UpdateGUI();
         }
         /// <summary>
@@ -598,15 +606,17 @@ namespace courseWork_project
             imageInfosToDelete.Clear();
 
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.No))
+
+            if (e.GetClosingConfirmation())
             {
-                // Cancelling closing process
-                e.Cancel = true;
-            }
-            else
-            {
-                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
+                if (isCreatingMode)
+                {
+                    DataEraser.EraseTestCreatingMode(testMetadata);
+                }
+                else
+                {
+                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
+                }
             }
         }
         /// <summary>
@@ -624,7 +634,7 @@ namespace courseWork_project
             {
                 string selectedFilePath = openFileDialog.FileName;
 
-                ImageManager.ImageInfo currentImageInfo = new ImageManager.ImageInfo
+                ImageManager.ImageMetadata currentImageInfo = new ImageManager.ImageMetadata
                 {
                     questionIndex = currentQuestionIndex,
                     imagePath = selectedFilePath
@@ -642,23 +652,23 @@ namespace courseWork_project
         /// <summary>
         /// Handling pressed ImageDeletion_Button
         /// </summary>
-        /// <remarks>Deletes link to correspoding ImageInfo</remarks>
+        /// <remarks>Deletes link to correspoding ImageMetadata</remarks>
         private void ImageDeletion_Button_Click(object sender, RoutedEventArgs e)
         {
-            ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
-            if (!imageToDelete.Equals(default(ImageInfo)))
+            ImageManager.ImageMetadata imageToDelete = imageMetadatas.Find(x => x.questionIndex == currentQuestionIndex);
+            if (!imageToDelete.Equals(default(ImageManager.ImageMetadata)))
             {
-                imagesList.RemoveAt(imagesList.IndexOf(imageToDelete));
+                imageMetadatas.RemoveAt(imageMetadatas.IndexOf(imageToDelete));
 
                 ReturnDefaultImage();
-                if (!creatingMode && questionsList.Count >= currentQuestionIndex
-                    && questionsList[currentQuestionIndex - 1].hasLinkedImage)
+                if (!isCreatingMode && questionMetadatas.Count >= currentQuestionIndex
+                    && questionMetadatas[currentQuestionIndex - 1].hasLinkedImage)
                 {
                     imageInfosToDelete.Add(imageToDelete);
-                    TestStructs.Question questionToUpdate = questionsList[currentQuestionIndex - 1];
+                    TestStructs.QuestionMetadata questionToUpdate = questionMetadatas[currentQuestionIndex - 1];
                     questionToUpdate.hasLinkedImage = false;
-                    questionsList.Insert(currentQuestionIndex - 1, questionToUpdate);
-                    questionsList.RemoveAt(currentQuestionIndex);
+                    questionMetadatas.Insert(currentQuestionIndex - 1, questionToUpdate);
+                    questionMetadatas.RemoveAt(currentQuestionIndex);
                 }
             }
         }
@@ -694,10 +704,10 @@ namespace courseWork_project
         private void UpdateImageAppearance()
         {
             ReturnDefaultImage();
-            if (imagesList == null || imagesList.Count == 0) return;
-            ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
+            if (imageMetadatas == null || imageMetadatas.Count == 0) return;
+            ImageManager.ImageMetadata foundImage = imageMetadatas.Find(x => x.questionIndex == currentQuestionIndex);
 
-            if (!foundImage.Equals(default(ImageInfo)))
+            if (!foundImage.Equals(default(ImageManager.ImageMetadata)))
             {
                 BitmapImage foundImageBitmap = new BitmapImage();
                 foundImageBitmap.BeginInit();
@@ -710,27 +720,27 @@ namespace courseWork_project
         /// <summary>
         /// Updates images list
         /// </summary>
-        /// <param name="imageInfoToPush">Image to push into list</param>
-        private void PushImageSource(ImageManager.ImageInfo imageInfoToPush)
+        /// <param name="imageInfoToPush">ImageMetadata to push into list</param>
+        private void PushImageSource(ImageManager.ImageMetadata imageInfoToPush)
         {
-            if (imagesList.Count == 0)
+            if (imageMetadatas.Count == 0)
             {
-                imagesList.Add(imageInfoToPush);
+                imageMetadatas.Add(imageInfoToPush);
                 return;
             }
 
-            ImageManager.ImageInfo foundImage = imagesList.Find(x => x.questionIndex == currentQuestionIndex);
-            if (!foundImage.Equals(default(ImageInfo)))
+            ImageManager.ImageMetadata foundImage = imageMetadatas.Find(x => x.questionIndex == currentQuestionIndex);
+            if (!foundImage.Equals(default(ImageManager.ImageMetadata)))
             {
-                int indexToUpdate = imagesList.IndexOf(foundImage);
-                imagesList.Insert(indexToUpdate, imageInfoToPush);
-                imagesList.RemoveAt(indexToUpdate + 1);
+                int indexToUpdate = imageMetadatas.IndexOf(foundImage);
+                imageMetadatas.Insert(indexToUpdate, imageInfoToPush);
+                imageMetadatas.RemoveAt(indexToUpdate + 1);
             }
             else
             {
-                imagesList.Add(imageInfoToPush);
+                imageMetadatas.Add(imageInfoToPush);
             }
-            imagesList.Sort((a, b) => a.questionIndex.CompareTo(b.questionIndex));
+            imageMetadatas.Sort((a, b) => a.questionIndex.CompareTo(b.questionIndex));
         }
     }
 }

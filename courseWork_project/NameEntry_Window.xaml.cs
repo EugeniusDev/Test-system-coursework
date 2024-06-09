@@ -13,27 +13,18 @@ namespace courseWork_project
     /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestTaking_Window</remarks>
     public partial class NameEntry_Window : Window
     {
-        Test testToPass;
+        private readonly Test testToPass;
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
         bool askForClosingComfirmation = true;
 
-        /// <summary>
-        /// NameEntry_Window constructor
-        /// </summary>
-        /// <remarks>All parameters are later passed into TestTaking_Window</remarks>
-        /// <param name="questionsList">Test's question list</param>
-        /// <param name="currTestInfo">Structure with test's general info</param>
         public NameEntry_Window(Test testToPass)
         {
             this.testToPass = testToPass;
             InitializeComponent();
         }
-        /// <summary>
-        /// Handling pressed BackToMain_Button
-        /// </summary>
-        /// <remarks>Calls GoToMainWindow method</remarks>
+
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
             GoToMainWindow();
@@ -45,7 +36,7 @@ namespace courseWork_project
         {
             bool titleContainsDefaultText = UsernameTextBlock != null
                 && string.Compare(UsernameTextBlock.Text, "Введіть ім'я тут") == 0;
-            if (titleContainsDefaultText || testToPass.TestInfo.testTitle == null)
+            if (titleContainsDefaultText || testToPass.TestMetadata.testTitle == null)
             {
                 UsernameTextBlock.Foreground = new SolidColorBrush(Colors.Black);
                 UsernameTextBlock.Text = string.Empty;
@@ -64,10 +55,7 @@ namespace courseWork_project
                 UsernameTextBlock.Foreground = new SolidColorBrush(Colors.DarkGray);
             }
         }
-        /// <summary>
-        /// Handling pressed BeginTest_Button
-        /// </summary>
-        /// <remarks>Calls TryToBeginTest method</remarks
+
         private void BeginTest_Button_Click(object sender, RoutedEventArgs e)
         {
             TryToBeginTest();
@@ -81,10 +69,12 @@ namespace courseWork_project
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             e.OpenHelpCenterOnF1();
+
             if(e.Key == Key.Escape)
             {
                 GoToMainWindow();
             }
+
             if(e.Key == Key.Enter)
             {
                 TryToBeginTest();
@@ -95,8 +85,7 @@ namespace courseWork_project
         /// </summary>
         private void GoToMainWindow()
         {
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            WindowCaller.ShowMain();
             askForClosingComfirmation = false;
             Close();
         }
@@ -129,12 +118,8 @@ namespace courseWork_project
         {
             // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.No))
-            {
-                // Cancelling closing process
-                e.Cancel = true;
-            }
+            
+            e.GetClosingConfirmation();
         }
     }
 }

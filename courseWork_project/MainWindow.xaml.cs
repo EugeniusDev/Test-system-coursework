@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,10 +25,9 @@ namespace courseWork_project
         /// <summary>
         /// ObservableCollection for ListView
         /// </summary>
-        private ObservableCollection<TestItem> testItems;
+        private readonly ObservableCollection<TestItem> testItems;
 
-        private List<string> testTitles;
-        private List<string> transliteratedTestTitles;
+        private readonly List<string> transliteratedTestTitles;
 
         bool isWindowClosingConfirmationRequired = true;
 
@@ -50,37 +48,26 @@ namespace courseWork_project
         {
             e.OpenHelpCenterOnF1();
         }
-        /// <summary>
-        /// Handling pressed HelpCenter_button
-        /// </summary>
-        /// <remarks>Opens HelpCenter_Window</remarks>
+
         private void HelpCenter_button_Click(object sender, RoutedEventArgs e)
         {
             WindowCaller.ShowHelpCenter();
         }
-        /// <summary>
-        /// Handling pressed Create_button
-        /// </summary>
-        /// <remarks>Opens TestChange_Window in creating mode</remarks>
+
         private void Create_button_Click(object sender, RoutedEventArgs e)
         {
-            WindowCaller.ShowTestChange();
+            WindowCaller.ShowTestChangeCreatingMode();
             isWindowClosingConfirmationRequired = false;
             Close();
         }
-        /// <summary>
-        /// Handling pressed button of type Taking_Button
-        /// </summary>
-        /// <remarks>Begins passing procedure of selected test</remarks>
+
         private void Taking_Button_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is TestItem selectedItem)
+            TestItem selectedItem = new TestItem();
+            if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
-                Test testToPass = new Test(DataDecoder.GetQuestionsByTitle(selectedItem.TestTitle),
-                    DataDecoder.GetTestInfoByTitle(selectedItem.TestTitle));
+                Test testToPass = new Test(DataDecoder.GetQuestionMetadatasByTitle(selectedItem.TestTitle),
+                    DataDecoder.GetTestMetadataByTitle(selectedItem.TestTitle));
                 WindowCaller.ShowNameEntry(testToPass);
                 isWindowClosingConfirmationRequired = false;
                 Close();
@@ -92,15 +79,13 @@ namespace courseWork_project
         /// <remarks>Opens TestSaving_Window in editing mode</remarks>
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is TestItem selectedItem)
+            TestItem selectedItem = new TestItem();
+            if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
-                List<TestStructs.Question> questionsToEdit = DataDecoder.GetQuestionsByTitle(selectedItem.TestTitle);
-                TestStructs.TestInfo infoOfTestToEdit = DataDecoder.GetTestInfoByTitle(selectedItem.TestTitle);
+                List<TestStructs.QuestionMetadata> questionsToEdit = DataDecoder.GetQuestionMetadatasByTitle(selectedItem.TestTitle);
+                TestStructs.TestMetadata infoOfTestToEdit = DataDecoder.GetTestMetadataByTitle(selectedItem.TestTitle);
 
-                DataEraser.EraseTestFolder(selectedItem.TestTitle);
+                DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
 
                 // Updating list of transliterated test titles
                 FileReader fileReader = new FileReader();
@@ -108,9 +93,9 @@ namespace courseWork_project
                 FileWriter fileWriter = new FileWriter();
                 fileWriter.WriteListInFileByLines(allTestsList);
 
-                List<ImageManager.ImageInfo> emptyImageInfos = new List<ImageManager.ImageInfo>();
-                TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToEdit, emptyImageInfos, infoOfTestToEdit);
-                testSaving_Window.Show();
+                Test testToEdit = new Test(questionsToEdit, infoOfTestToEdit);
+                List<ImageManager.ImageMetadata> emptyImages = new List<ImageManager.ImageMetadata>();
+                WindowCaller.ShowTestSavingEditingMode(testToEdit, emptyImages);
                 isWindowClosingConfirmationRequired = false;
                 Close();
             }
@@ -121,15 +106,13 @@ namespace courseWork_project
         /// <remarks>Shows results of selected test's passings in MessageBox</remarks>
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is TestItem selectedItem)
+            TestItem selectedItem = new TestItem();
+            if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
                 string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(selectedItem.TestTitle);
                 // Getting up-to-date list of data about passing selected test
                 // TODO less abstraction level than needed, make it the problem of reader
-                string pathOfResultsDirectory = ConfigurationManager.AppSettings["testResultsDirPath"];
+                string pathOfResultsDirectory = Properties.Settings.Default.testResultsDirectory;
                 FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
                 List<string> currTestResultsList = fileReader.ReadAndReturnLines();
                 // Empty list means no one tried to pass the test yet
@@ -152,10 +135,8 @@ namespace courseWork_project
         /// </summary>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is TestItem selectedItem)
+            TestItem selectedItem = new TestItem();
+            if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
                 string confirmationString = $"Ви видалите тест \"{selectedItem.TestTitle}\". Ви справді хочете це зробити?";
                 MessageBoxResult result = MessageBox.Show(confirmationString,
@@ -163,26 +144,22 @@ namespace courseWork_project
                 if (result.Equals(MessageBoxResult.Yes))
                 {
                     // Deleting selected test's related data
-                    DataEraser.EraseTestFolder(selectedItem.TestTitle);
-                    DataEraser.ErasePassingData(selectedItem.TestTitle);
-                    ImageManager.ImagesCleanup(selectedItem.TestTitle);
+                    DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
+                    DataEraser.EraseTestPassingDataByTitle(selectedItem.TestTitle);
+                    ImageManager.ImagesCleanupByTitle(selectedItem.TestTitle);
                     // Reloading MainWindow to update the list of tests
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.Show();
+                    WindowCaller.ShowMain();
                     isWindowClosingConfirmationRequired = false;
                     Close();
                 }
             }
         }
-        /// <summary>
-        /// Puts list of test titles into GUI
-        /// </summary>
-        /// <param name="existingTestsTitles">List of transliterated test titles (a set of paths to databases)</param>
+
         public void DisplayTestsFromTitles(List<string> existingTestsTitles)
         {
             foreach (string testTitleTransliterated in existingTestsTitles)
             {
-                string notTransliteratedTitle = DataDecoder.GetTestInfoByTitle(testTitleTransliterated)
+                string notTransliteratedTitle = DataDecoder.GetTestMetadataByTitle(testTitleTransliterated)
                     .testTitle;
                 AddNewListViewRow(notTransliteratedTitle);
             }
@@ -207,44 +184,29 @@ namespace courseWork_project
         {
             // If closing confirmation is not needed, just close the window
             if (!isWindowClosingConfirmationRequired) return;
-            MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.No))
-            {
-                // Cancelling closing process
-                e.Cancel = true;
-            }
+
+            e.GetClosingConfirmation();
         }
-        /// <summary>
-        /// Handling choosing anything from "TestInfoSortOptions" ComboBox
-        /// </summary>
-        private void TestInfoSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void TestMetadataSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortTests(TestInfoSortOptions.SelectedIndex, transliteratedTestTitles);
+            Sorter.SortTests(TestMetadataSortOptions.SelectedIndex, transliteratedTestTitles);
         }
-        /// <summary>
-        /// Handling choosing anything from "QuestionSortOptions" ComboBox
-        /// </summary>
-        private void QuestionSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QuestionMetadataSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortQuestions(QuestionSortOptions.SelectedIndex, transliteratedTestTitles);
+            Sorter.SortQuestions(QuestionMetadataSortOptions.SelectedIndex, transliteratedTestTitles);
         }
-        /// <summary>
-        /// Handling choosing anything from "TestInfoGroupOptions" ComboBox
-        /// </summary>
-        private void TestInfoGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void TestMetadataGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupTests(TestInfoGroupOptions.SelectedIndex, transliteratedTestTitles);
+            Grouper.GroupTests(TestMetadataGroupOptions.SelectedIndex, transliteratedTestTitles);
         }
-        /// <summary>
-        /// Handling choosing anything from "QuestionGroupOptions" ComboBox
-        /// </summary>
-        private void QuestionGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QuestionMetadataGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupQuestions(QuestionGroupOptions.SelectedIndex, transliteratedTestTitles);
+            Grouper.GroupQuestions(QuestionMetadataGroupOptions.SelectedIndex, transliteratedTestTitles);
         }
         /// <summary>
-        /// Handling clock in Questions search field
+        /// Handling click in QuestionMetadatas search field
         /// </summary>
         private void QuestionSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -252,7 +214,7 @@ namespace courseWork_project
             QuestionSearchBox.Foreground = new SolidColorBrush(Colors.Black);
         }
         /// <summary>
-        /// Handling clock in variants search field
+        /// Handling click in variants search field
         /// </summary>
         private void VariantSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -275,14 +237,14 @@ namespace courseWork_project
 
                 foreach(string testTitle in transliteratedTestTitles)
                 {
-                    List<TestStructs.Question> currentTestQuestions = DataDecoder.GetQuestionsByTitle(testTitle);
-                    TestStructs.Question foundQuestion = currentTestQuestions.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
+                    List<TestStructs.QuestionMetadata> currentQuestionMetadata = DataDecoder.GetQuestionMetadatasByTitle(testTitle);
+                    TestStructs.QuestionMetadata foundQuestion = currentQuestionMetadata.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
                     // If a structure with required title is found
                     if (foundQuestion.question != null)
                     {
                         // Forming output
-                        string foundQuestionTestTitle = DataDecoder.GetTestInfoByTitle(testTitle).testTitle;
-                        MessageBox.Show($"Введене запитання знайдено в тесті \"{foundQuestionTestTitle}\":\n"
+                        string foundTestTitle = DataDecoder.GetTestMetadataByTitle(testTitle).testTitle;
+                        MessageBox.Show($"Введене запитання знайдено в тесті \"{foundTestTitle}\":\n"
                         + $"Запитання: {foundQuestion.question}; "
                         + $"Всього варіантів: {foundQuestion.variants.Count}; "
                         + $"Правильних варіантів: {foundQuestion.correctVariantsIndeces.Count}\n",
@@ -315,14 +277,14 @@ namespace courseWork_project
 
                 foreach (string testTitle in transliteratedTestTitles)
                 {
-                    List<TestStructs.Question> currentTestQuestions = DataDecoder.GetQuestionsByTitle(testTitle);
-                    foreach(TestStructs.Question currentQuestion in currentTestQuestions)
+                    List<TestStructs.QuestionMetadata> currentTestQuestions = DataDecoder.GetQuestionMetadatasByTitle(testTitle);
+                    foreach(TestStructs.QuestionMetadata currentQuestion in currentTestQuestions)
                     {
                         foreach(string variant in currentQuestion.variants)
                         {
                             if (string.Compare(variant.ToLower(), variantToSearch.ToLower()) == 0){
                                 // If searched variant was found, form the output
-                                string foundVariantTestTitle = DataDecoder.GetTestInfoByTitle(testTitle).testTitle;
+                                string foundVariantTestTitle = DataDecoder.GetTestMetadataByTitle(testTitle).testTitle;
                                 MessageBox.Show($"Введений варіант знайдено в тесті \"{foundVariantTestTitle}\",\n"
                                 + $"в запитанні \"{currentQuestion.question}\"",
                                 "Результат пошуку запитання тесту");

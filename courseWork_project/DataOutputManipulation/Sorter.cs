@@ -12,7 +12,7 @@ namespace courseWork_project
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortTests(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<TestStructs.TestInfo> testsToSort = DataDecoder.GetAllExistingTestInfosByTitles(transliteratedTitles);
+            List<TestStructs.TestMetadata> testsToSort = DataDecoder.GetAllTestMetadatasByTitles(transliteratedTitles);
             string typeDescription = "Резулат сортування тестів за ";
             switch ((TestSortTypes)typeOfSort)
             {
@@ -27,8 +27,8 @@ namespace courseWork_project
                 case TestSortTypes.BY_QUESTIONS_COUNT:
                     typeDescription = string.Concat(typeDescription, "кількістю запитань");
                     testsToSort.Sort((a, b) =>
-                        DataDecoder.GetQuestionsByTitle(a.testTitle).Count
-                        .CompareTo(DataDecoder.GetQuestionsByTitle(b.testTitle).Count)
+                        DataDecoder.GetQuestionMetadatasByTitle(a.testTitle).Count
+                        .CompareTo(DataDecoder.GetQuestionMetadatasByTitle(b.testTitle).Count)
                         );
                     break;
                 case TestSortTypes.BY_TITLE:
@@ -41,24 +41,24 @@ namespace courseWork_project
             }
             // Forming the output of sorted stuff
             string resultOfSort = string.Empty;
-            foreach(TestStructs.TestInfo currTestInfo in testsToSort)
+            foreach(TestStructs.TestMetadata currentTestMetadata in testsToSort)
             {
-                resultOfSort = string.Concat(resultOfSort, $"\nНазва: {currTestInfo.testTitle}; " +
-                    $"Дата: {currTestInfo.lastEditedTime}; " +
-                    $"Таймер: {currTestInfo.timerValue} хв; " +
-                    $"Кількість запитань: {DataDecoder.GetQuestionsByTitle(currTestInfo.testTitle).Count}\n");
+                resultOfSort = string.Concat(resultOfSort, $"\nНазва: {currentTestMetadata.testTitle}; " +
+                    $"Дата: {currentTestMetadata.lastEditedTime}; " +
+                    $"Таймер: {currentTestMetadata.timerValue} хв; " +
+                    $"Кількість запитань: {DataDecoder.GetQuestionMetadatasByTitle(currentTestMetadata.testTitle).Count}\n");
             }
 
             ShowSortingResults(resultOfSort, typeDescription);
         }
         /// <summary>
-        /// Sorts Questions in a given manner
+        /// Sorts QuestionMetadatas in a given manner
         /// </summary>
         /// <param name="typeOfSort">Type of sorting (according to enum QuestionSortTypes)</param>
         /// <param name="transliteratedTitles">List of transliterated test titles</param>
         public static void SortQuestions(int typeOfSort, List<string> transliteratedTitles)
         {
-            List<TestStructs.Question> questionsToSort = DataDecoder.GetAllExistingQuestionsByTestTitles(transliteratedTitles);
+            List<TestStructs.QuestionMetadata> questionsToSort = DataDecoder.GetAllQuestionsByTestTitles(transliteratedTitles);
             string typeDescription = "Резулат сортування запитань тестів за ";
             switch ((QuestionSortTypes)typeOfSort)
             {
@@ -84,7 +84,7 @@ namespace courseWork_project
             }
             // Forming the output of sorted stuff
             string resultOfSort = string.Empty;
-            foreach (TestStructs.Question currQuestion in questionsToSort)
+            foreach (TestStructs.QuestionMetadata currQuestion in questionsToSort)
             {
                 resultOfSort = string.Concat(resultOfSort, $"\nЗапитання: {currQuestion.question}; " +
                     $"Всього варіантів: {currQuestion.variants.Count}; " +

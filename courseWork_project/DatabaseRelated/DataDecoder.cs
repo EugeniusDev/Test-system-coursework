@@ -26,85 +26,14 @@ namespace courseWork_project
             {'\"', "_"}, {'/', "_"}, {'\\', "_"}, {'|', "_"}, {'?', "_"}, {'*', "_"}
         };
         /// <summary>
-        /// TestInfo with sample data
+        /// TestMetadata with sample data
         /// </summary>
-        private static TestStructs.TestInfo NullTestInfo
+        private static TestStructs.TestMetadata EmptyTestMetadata = new TestStructs.TestMetadata()
         {
-            get
-            {
-                TestStructs.TestInfo nullTestInfo;
-                nullTestInfo.testTitle = "null";
-                nullTestInfo.lastEditedTime = DateTime.Now;
-                nullTestInfo.timerValue = 0;
-                return nullTestInfo;
-            }
-        }
-        /// <summary>
-        /// Gets question info strings and forms Question structures from them
-        /// </summary>
-        /// <remarks>Uses FileReader under the hood</remarks>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
-        /// <returns>List of Questions, populated or empty</returns>
-        public static List<TestStructs.Question> GetQuestionsByTitle(string testTitle)
-        {
-            List<TestStructs.Question> formedQuestionsList = new List<TestStructs.Question>();
-            FileReader reader = new FileReader(testTitle);
-            List<string> textInLines = reader.GetQuestionLines();
-            foreach (string line in textInLines)
-            {
-                TestStructs.Question tempQuestion = new TestStructs.Question
-                {
-                    variants = new List<string>(),
-                    correctVariantsIndeces = new List<int>()
-                };
-                string[] splitLine = line.Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
-                tempQuestion.question = splitLine[0];
-                for (int i = 1; i < splitLine.Length - 1; i++)
-                {
-                    // If current part can be parsed to int, add it to correctVariantsIndeces list
-                    if (int.TryParse(splitLine[i], out int correctAnswerIndex) && splitLine[i].Length == 1)
-                    {
-                        tempQuestion.correctVariantsIndeces.Add(correctAnswerIndex);
-                    }
-                    // Else add current part to a variants list
-                    else if (tempQuestion.variants.Count < 8)
-                    {
-                        tempQuestion.variants.Add(splitLine[i]);
-                    }
-                }
-                // Last part is converted into info about illustration
-                tempQuestion.hasLinkedImage = bool.Parse(splitLine[splitLine.Length - 1]);
-                formedQuestionsList.Add(tempQuestion);
-            }
-            return formedQuestionsList;
-        }
-        /// <summary>
-        /// Gets first line from test's file-database and populates corresponding TestInfo structure
-        /// </summary>
-        /// <remarks>Uses FileReader under the hood</remarks>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
-        /// <returns>Populated or empty TestStructs.TestInfo</returns>
-        public static TestStructs.TestInfo GetTestInfoByTitle(string testTitle)
-        {
-            try
-            {
-                FileReader reader = new FileReader(testTitle);
-                string[] stringToSplit = reader.GetTestInfo().Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
-                if (stringToSplit.Length < 3) throw new FormatException();
-
-                TestStructs.TestInfo currentTestInfo;
-                currentTestInfo.testTitle = stringToSplit[0];
-                currentTestInfo.lastEditedTime = DateTime.Parse(stringToSplit[1]);
-                int.TryParse(stringToSplit[2], out int timerValue);
-                currentTestInfo.timerValue = timerValue;
-                return currentTestInfo;
-            }
-            catch (FormatException)
-            {
-                MessageBox.Show("Помилка! Дані з бази даних некоректні!");
-                return NullTestInfo;
-            }
-        }
+            testTitle = "empty",
+            lastEditedTime = DateTime.Now,
+            timerValue = 0
+        };
 
         public static string TransliterateToEnglish(this string inputString)
         {
@@ -131,38 +60,87 @@ namespace courseWork_project
             return !transliterationTable.Keys.Any(character => testTitle.Contains(character));
         }
 
-        /// <summary>
-        /// Gets list of all Questions of all tests
-        /// </summary>
-        /// <param name="transliteratedTitles">List of transliterated test titles</param>
-        /// <returns>List of all Questions available</returns>
-        public static List<TestStructs.Question> GetAllExistingQuestionsByTestTitles(List<string> transliteratedTitles)
+        public static List<TestStructs.QuestionMetadata> GetAllQuestionsByTestTitles(List<string> transliteratedTitles)
         {
-            List<TestStructs.Question> listToReturn = new List<TestStructs.Question>();
+            List<TestStructs.QuestionMetadata> listToReturn = new List<TestStructs.QuestionMetadata>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                List<TestStructs.Question> tempQuestionsList = GetQuestionsByTitle(transliteratedTitle);
+                List<TestStructs.QuestionMetadata> tempQuestionsList = GetQuestionMetadatasByTitle(transliteratedTitle);
                 listToReturn.AddRange(tempQuestionsList);
             }
             return listToReturn;
         }
-        /// <summary>
-        /// Gets list of all TestInfos of all tests
-        /// </summary>
-        /// <param name="transliteratedTitles">List of transliterated test titles</param>
-        /// <returns>List of all TestInfos available</returns>
-        public static List<TestStructs.TestInfo> GetAllExistingTestInfosByTitles(List<string> transliteratedTitles)
+        public static List<TestStructs.QuestionMetadata> GetQuestionMetadatasByTitle(string testTitle)
         {
-            List<TestStructs.TestInfo> listToReturn = new List<TestStructs.TestInfo>();
+            List<TestStructs.QuestionMetadata> formedQuestionsList = new List<TestStructs.QuestionMetadata>();
+            FileReader reader = new FileReader(testTitle);
+            List<string> textInLines = reader.GetQuestionLines();
+            foreach (string line in textInLines)
+            {
+                TestStructs.QuestionMetadata tempQuestion = new TestStructs.QuestionMetadata
+                {
+                    variants = new List<string>(),
+                    correctVariantsIndeces = new List<int>()
+                };
+                string[] splitLine = line.Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
+                tempQuestion.question = splitLine[0];
+                for (int i = 1; i < splitLine.Length - 1; i++)
+                {
+                    // If current part can be parsed to int, add it to correctVariantsIndeces list
+                    if (int.TryParse(splitLine[i], out int correctAnswerIndex) && splitLine[i].Length == 1)
+                    {
+                        tempQuestion.correctVariantsIndeces.Add(correctAnswerIndex);
+                    }
+                    // Else add current part to a variants list
+                    else if (tempQuestion.variants.Count < 8)
+                    {
+                        tempQuestion.variants.Add(splitLine[i]);
+                    }
+                }
+                // Last part is converted into info about illustration
+                tempQuestion.hasLinkedImage = bool.Parse(splitLine[splitLine.Length - 1]);
+                formedQuestionsList.Add(tempQuestion);
+            }
+            return formedQuestionsList;
+        }
+
+        public static List<TestStructs.TestMetadata> GetAllTestMetadatasByTitles(List<string> transliteratedTitles)
+        {
+            List<TestStructs.TestMetadata> listToReturn = new List<TestStructs.TestMetadata>();
             foreach (string transliteratedTitle in transliteratedTitles)
             {
-                TestStructs.TestInfo currentTestInfo = GetTestInfoByTitle(transliteratedTitle);
-                if (!currentTestInfo.Equals(NullTestInfo))
+                TestStructs.TestMetadata currentTestMetadata = GetTestMetadataByTitle(transliteratedTitle);
+                if (!currentTestMetadata.Equals(EmptyTestMetadata))
                 {
-                    listToReturn.Add(currentTestInfo);
+                    listToReturn.Add(currentTestMetadata);
                 }
             }
             return listToReturn;
         }
+        public static TestStructs.TestMetadata GetTestMetadataByTitle(string testTitle)
+        {
+            try
+            {
+                FileReader reader = new FileReader(testTitle);
+                string[] stringToSplit = reader.GetTestMetadataFromFile().Split(new char[] { '₴' }, StringSplitOptions.RemoveEmptyEntries);
+                if (stringToSplit.Length < 3) throw new FormatException();
+
+                int.TryParse(stringToSplit[2], out int timerValue);
+                TestStructs.TestMetadata readTestMetadata = new TestStructs.TestMetadata()
+                {
+                    testTitle = stringToSplit[0],
+                    lastEditedTime = DateTime.Parse(stringToSplit[1]),
+                    timerValue = timerValue
+                };
+
+                return readTestMetadata;
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("Помилка! Дані з бази даних некоректні!");
+                return EmptyTestMetadata;
+            }
+        }
+
     }
 }

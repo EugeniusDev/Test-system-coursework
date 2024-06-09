@@ -17,7 +17,7 @@ namespace courseWork_project
     /// <remarks>TestTaking_Window.xaml is used for tasking tests</remarks>
     public partial class TestTaking_Window : Window
     {
-        Test testToPass;
+        private readonly Test testToPass;
 
         private int currentQuestionIndex = 1;
         private int correctAnswersCount = 0;
@@ -36,8 +36,8 @@ namespace courseWork_project
         /// <summary>
         /// Button-bool dictionary used for determining correct variants
         /// </summary>
-        /// <remarks>Changes while passing through Questions</remarks>
-        private Dictionary<Button, bool> variantsDict = new Dictionary<Button, bool>();
+        /// <remarks>Changes while passing through QuestionMetadatas</remarks>
+        private readonly Dictionary<Button, bool> variantsDict = new Dictionary<Button, bool>();
         /// <summary>
         /// Used for controlling a timer
         /// </summary>
@@ -45,7 +45,7 @@ namespace courseWork_project
         /// <summary>
         /// Timer object
         /// </summary>
-        private Timer timer = new Timer();
+        private readonly Timer timer = new Timer();
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
@@ -58,13 +58,12 @@ namespace courseWork_project
 
         public TestTaking_Window(Test testToPass, string userName)
         {
-            // If there are no Questions in the test, close the window
-            if (testToPass.Questions.Count == 0)
+            // If there are no QuestionMetadatas in the test, close the window
+            if (testToPass.QuestionMetadatas.Count == 0)
             {
                 MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
+                WindowCaller.ShowMain();
                 askForClosingComfirmation = false;
                 loadedSuccessfully = false;
                 Close();
@@ -72,19 +71,19 @@ namespace courseWork_project
             }
 
             this.testToPass = testToPass;
-            transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testToPass.TestInfo.testTitle);
+            transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testToPass.TestMetadata.testTitle);
             this.userName = userName;
 
             InitializeComponent();
 
             // Displaying general info about test before an attempt of passing it
-            string generalInfoForMessageBox = $"Тест \"{testToPass.TestInfo.testTitle}\"" +
-                $"\nКількість запитань: {testToPass.Questions.Count}\n";
-            timeLimitInSeconds = testToPass.TestInfo.timerValue * 60;
+            string generalInfoForMessageBox = $"Тест \"{testToPass.TestMetadata.testTitle}\"" +
+                $"\nКількість запитань: {testToPass.QuestionMetadatas.Count}\n";
+            timeLimitInSeconds = testToPass.TestMetadata.timerValue * 60;
             bool noTimeLimits = timeLimitInSeconds == 0;
             generalInfoForMessageBox =  noTimeLimits ?
                 string.Concat(generalInfoForMessageBox, "Час проходження необмежений")
-                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: {testToPass.TestInfo.timerValue} хв");
+                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: {testToPass.TestMetadata.timerValue} хв");
             generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
                 "\nДеякі запитання можуть мати декілька правильних варіантів відповідей");
             generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
@@ -160,7 +159,7 @@ namespace courseWork_project
         /// <returns>String with results info</returns>
         private string FormResultsOfTest()
         {
-            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.Questions.Count}";
+            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.QuestionMetadatas.Count}";
             return resultsToReturn;
         }
         /// <summary>
@@ -169,11 +168,10 @@ namespace courseWork_project
         /// <param name="currentResult">String with current test's passing results</param>
         private void EndTestAndSaveResults(string currentResult)
         {
-            FileWriter fileWriter = new FileWriter(testToPass.TestInfo.testTitle);
-            fileWriter.AppendTestTakingData(testToPass.TestInfo, currentResult);
+            FileWriter fileWriter = new FileWriter(testToPass.TestMetadata.testTitle);
+            fileWriter.AppendNewTestPassingDataToDatabase(testToPass.TestMetadata, currentResult);
 
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            WindowCaller.ShowMain();
             askForClosingComfirmation = false;
             Close();
         }
@@ -182,15 +180,15 @@ namespace courseWork_project
         /// </summary>
         private void UpdateGUI()
         {
-            CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{testToPass.Questions.Count}";
+            CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{testToPass.QuestionMetadatas.Count}";
 
-            if (currentQuestionIndex == testToPass.Questions.Count)
+            if (currentQuestionIndex == testToPass.QuestionMetadatas.Count)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
             }
             else NextQuestion_Button.Visibility = Visibility.Visible;
 
-            if (currentQuestionIndex == testToPass.Questions.Count)
+            if (currentQuestionIndex == testToPass.QuestionMetadatas.Count)
             {
                 EndTest_Button.Visibility = Visibility.Visible;
             }
@@ -208,7 +206,7 @@ namespace courseWork_project
                 foreach (string currentImagePath in allImagesPaths)
                 {
                     // Finding required image from images folder
-                    if (testToPass.Questions[currentQuestionIndex-1].hasLinkedImage
+                    if (testToPass.QuestionMetadatas[currentQuestionIndex-1].hasLinkedImage
                         && currentImagePath.Contains($"{transliteratedTestTitle}-{currentQuestionIndex}"))
                     {
                         // Displaying found image
@@ -250,7 +248,7 @@ namespace courseWork_project
             currentQuestionIndex = ++indexOfElementToReturnTo;
             ClearElementsData();
             UpdateGUI();
-            GetListAndPutItInGUI(testToPass.Questions);
+            GetListAndPutItInGUI(testToPass.QuestionMetadatas);
         }
         /// <summary>
         /// Adds answer variant with specified values
@@ -290,7 +288,7 @@ namespace courseWork_project
             Button clickedButton = (Button)sender;
             string clickedButtonContent = clickedButton.Content.ToString();
             // Changing focus on other buttons for convenient Enter usage (depends on question index)
-            if(currentQuestionIndex != testToPass.Questions.Count)
+            if(currentQuestionIndex != testToPass.QuestionMetadatas.Count)
             {
                 NextQuestion_Button.Focus();
             }
@@ -348,7 +346,7 @@ namespace courseWork_project
             }
             if(e.Key == Key.Enter)
             {
-                if (currentQuestionIndex != testToPass.Questions.Count)
+                if (currentQuestionIndex != testToPass.QuestionMetadatas.Count)
                 {
                     GoToNextQuestion();
                     return;
@@ -367,8 +365,7 @@ namespace courseWork_project
                 "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.Yes))
             {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
+                WindowCaller.ShowMain();
                 askForClosingComfirmation = false;
                 Close();
             }
@@ -390,7 +387,7 @@ namespace courseWork_project
                 timer.Stop();
 
                 string resultsOfTest = FormResultsOfTest();
-                MessageBox.Show($"Тест \"{testToPass.TestInfo.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
+                MessageBox.Show($"Тест \"{testToPass.TestMetadata.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
 
                 EndTestAndSaveResults(resultsOfTest);
             }
@@ -410,7 +407,7 @@ namespace courseWork_project
                 {
                     throw new ArgumentNullException();
                 }
-                if (testToPass.Questions.Count > currentQuestionIndex)
+                if (testToPass.QuestionMetadatas.Count > currentQuestionIndex)
                 {
                     buttonClicked = false;
                     currentQuestionIndex++;
@@ -423,12 +420,12 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Puts Questions structure in GUI
+        /// Puts QuestionMetadatas structure in GUI
         /// </summary>
-        /// <param name="questions">List of Questions</param>
-        public void GetListAndPutItInGUI(List<TestStructs.Question> questions)
+        /// <param name="questions">List of QuestionMetadatas</param>
+        public void GetListAndPutItInGUI(List<TestStructs.QuestionMetadata> questions)
         {
-            TestStructs.Question currentQuestion = questions[currentQuestionIndex - 1];
+            TestStructs.QuestionMetadata currentQuestion = questions[currentQuestionIndex - 1];
             ViewboxWithImage.Visibility = Visibility.Collapsed;
             IllustrationImage.Visibility = Visibility.Collapsed;
             QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
@@ -456,12 +453,8 @@ namespace courseWork_project
         {
             // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.No))
-            {
-                // Cancelling closing process
-                e.Cancel = true;
-            }
+
+            e.GetClosingConfirmation();
         }
     }
 }

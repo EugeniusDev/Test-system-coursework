@@ -14,29 +14,32 @@ namespace courseWork_project
         public FileReader(string directoryPath, string filePath) : base(directoryPath, filePath) { }
 
         /// <summary>
-        /// Reads test's Questions line by line
+        /// Reads test's QuestionMetadatas line by line
         /// </summary>
         /// <remarks>Path to database can be changed with help of UpdateDatabasePathUsingTitle</remarks>
-        /// <returns>List of strings with Questions data; empty or filled</returns>
+        /// <returns>List of strings with QuestionMetadatas data; empty or filled</returns>
         public List<string> GetQuestionLines()
         {
             List<string> lines = new List<string>();
-            if (!PathExists()) return lines;
+            if (!FullPathExists()) return lines;
             using (StreamReader streamReader = new StreamReader(FullPath))
             {
-                bool firstIteration = true;
+                bool isFirstIteration = true;
                 while (!streamReader.EndOfStream)
                 {
                     string currLine = streamReader.ReadLine();
-                    // Ignoring first line as it contains data not about Questions but about test in general
-                    if (firstIteration)
+                    // Ignoring first line as it contains data not about QuestionMetadatas but about test in general
+                    if (isFirstIteration)
                     {
-                        firstIteration = false;
+                        isFirstIteration = false;
                         continue;
                     }
-                    // Questions count cannot be greater than 10 according to coursework task
-                    if (lines.Count < 10 && !string.IsNullOrEmpty(currLine))
+
+                    if (lines.Count < Properties.Settings.Default.maxQuestionsAllowed
+                        && !string.IsNullOrEmpty(currLine))
+                    {
                         lines.Add(currLine);
+                    }
                 }
             }
             return lines;
@@ -46,9 +49,9 @@ namespace courseWork_project
         /// </summary>
         /// <remarks>Path to database can be changed with help of UpdateDatabasePathUsingTitle</remarks>
         /// <returns>First line from a file or empty string</returns>
-        public string GetTestInfo()
+        public string GetTestMetadataFromFile()
         {
-            if (!PathExists()) return string.Empty;
+            if (!FullPathExists()) return string.Empty;
             using (StreamReader streamReader = new StreamReader(FullPath))
             {
                 // Якщо не досягнуто кінця файлу (тобто якщо він не порожній)
@@ -67,7 +70,12 @@ namespace courseWork_project
         public List<string> ReadAndReturnLines()
         {
             List<string> lines = new List<string>();
-            if (!CreatePathIfNotExists()) return lines;
+            if (!DirectoryExists())
+            {
+                CreateFullPath();
+                return lines;
+            }
+
             try
             {
                 using (StreamReader streamReader = new StreamReader(FullPath))
@@ -76,7 +84,9 @@ namespace courseWork_project
                     {
                         string currLine = streamReader.ReadLine();
                         if (!string.IsNullOrEmpty(currLine))
+                        {
                             lines.Add(currLine);
+                        }
                     }
                 }
             }
@@ -101,7 +111,7 @@ namespace courseWork_project
                 // Changing path to a current test's file-database
                 UpdateDatabasePathUsingTitle(testTitle);
 
-                if (PathExists() && !listToForm.Contains(testTitle))
+                if (FullPathExists() && !listToForm.Contains(testTitle))
                 {
                     listToForm.Add(testTitle);
                 }
@@ -132,34 +142,24 @@ namespace courseWork_project
 
             return existingTestsTitles;
         }
-        /// <summary>
-        /// Checking full path existance
-        /// </summary>
-        /// <remarks>Path values can be changed with help of UpdateDatabasePathUsingTitle</remarks>
-        /// <returns>true if path exists; false if not</returns>
-        public bool PathExists()
+
+        public bool FullPathExists()
         {
-            return Directory.Exists(DirectoryPath) && File.Exists(FullPath);
+            return DirectoryExists() && File.Exists(FullPath);
         }
-        /// <summary>
-        /// Checking full path existance and its creating in case of if not existing
-        /// </summary>
-        /// <remarks>Path values can be changed with help of UpdateDatabasePathUsingTitle</remarks>
-        /// <returns>true if path exists; false if not</returns>
-        public override bool CreatePathIfNotExists()
+
+        public bool DirectoryExists()
         {
-            if (!Directory.Exists(DirectoryPath))
+            return Directory.Exists(DirectoryPath);
+        }
+
+        private void CreateFullPath()
+        {
+            Directory.CreateDirectory(DirectoryPath);
+            if (!File.Exists(FullPath))
             {
-                Directory.CreateDirectory(DirectoryPath);
-                if (!File.Exists(FullPath))
-                {
-                    File.Create(FullPath).Close();
-                }
-
-                return false;
+                File.Create(FullPath).Close();
             }
-
-            return true;
         }
     }
 }

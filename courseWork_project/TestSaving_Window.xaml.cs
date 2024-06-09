@@ -4,15 +4,15 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using static courseWork_project.ImageManager;
 using System.Windows.Controls;
 using courseWork_project.DatabaseRelated;
+using System.Windows.Media.Animation;
 
 namespace courseWork_project
 {
     /// <summary>
-    /// Class for manipulation with ObservableCollection of Questions for GridView.
+    /// Class for manipulation with ObservableCollection of QuestionMetadatas
     /// </summary>
     public class QuestionItem
     {
@@ -25,31 +25,31 @@ namespace courseWork_project
     public partial class TestSaving_Window : Window
     {
         /// <summary>
-        /// List of Questions of the test
+        /// List of QuestionMetadatas of the test
         /// </summary>
-        private List<TestStructs.Question> questionsToSave;
+        private readonly List<TestStructs.QuestionMetadata> questionsToSave;
         /// <summary>
         /// List of data about images
         /// </summary>
-        private List<ImageManager.ImageInfo> imagesList;
+        private List<ImageManager.ImageMetadata> imageMetadatas;
         /// <summary>
         /// Overall test info structure
         /// </summary>
-        private TestStructs.TestInfo testInfo;
+        private TestStructs.TestMetadata testMetadata;
         /// <summary>
         /// Used while updating sources of images
         /// </summary>
         /// <remarks>Contains deprecated transliterated test title</remarks>
-        private string transliterOldTestTitle = string.Empty;
+        private readonly string transliterOldTestTitle = string.Empty;
         /// <summary>
         /// ObservableCollection for QuestionsListView
         /// </summary>
-        private ObservableCollection<QuestionItem> questionItems;
+        private readonly ObservableCollection<QuestionItem> questionItems;
         /// <summary>
         /// Determines the window's mode
         /// </summary>
         /// <remarks>true - creating mode; false - editing mode</remarks>
-        private bool creatingMode;
+        private readonly bool isCreatingMode;
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
@@ -57,43 +57,41 @@ namespace courseWork_project
         /// <summary>
         /// TestSaving_Window creating mode constructor
         /// </summary>
-        /// <param name="questionsToSave">List of Questions of the test</param>
+        /// <param name="questionsToSave">List of QuestionMetadatas of the test</param>
         /// <param name="imagesToSave">List of data about images</param>
-        public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave)
+        public TestSaving_Window(List<TestStructs.QuestionMetadata> questionsToSave, List<ImageManager.ImageMetadata> imagesToSave)
         {
-            creatingMode = true;
+            isCreatingMode = true;
             this.questionsToSave = questionsToSave;
-            imagesList = imagesToSave;
+            imageMetadatas = imagesToSave;
             // There are no time limitations by default
-            testInfo.timerValue = 0;
+            testMetadata.timerValue = 0;
             InitializeComponent();
-            TimerInputBox.Text = testInfo.timerValue.ToString();
+            TimerInputBox.Text = testMetadata.timerValue.ToString();
 
             questionItems = new ObservableCollection<QuestionItem>();
             QuestionsListView.ItemsSource = questionItems;
-            GetListAndPutItInGUI(questionsToSave);
+            DisplayQuestionsFromMetadatas(questionsToSave);
         }
         /// <summary>
         /// TestSaving_Window editing mode constructor
         /// </summary>
-        /// <param name="questionsToSave">List of Questions of the test</param>
-        /// <param name="currTestInfo">General test info structure</param>
-        public TestSaving_Window(List<TestStructs.Question> questionsToSave, List<ImageManager.ImageInfo> imagesToSave, TestStructs.TestInfo currTestInfo)
+        public TestSaving_Window(Test testToSave, List<ImageManager.ImageMetadata> imagesToSave)
         {
-            creatingMode = false;
-            this.questionsToSave = questionsToSave;
-            testInfo = currTestInfo;
-            transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
-            imagesList = imagesToSave;
+            isCreatingMode = false;
+            questionsToSave = testToSave.QuestionMetadatas;
+            testMetadata = testToSave.TestMetadata;
+            transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
+            imageMetadatas = imagesToSave;
             InitializeComponent();
-            TimerInputBox.Text = testInfo.timerValue.ToString();
+            TimerInputBox.Text = testMetadata.timerValue.ToString();
 
             TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
-            TestTitleBlock.Text = testInfo.testTitle;
+            TestTitleBlock.Text = testMetadata.testTitle;
             questionItems = new ObservableCollection<QuestionItem>();
 
             QuestionsListView.ItemsSource = questionItems;
-            GetListAndPutItInGUI(questionsToSave);
+            DisplayQuestionsFromMetadatas(questionsToSave);
         }
         /// <summary>
         /// Handling click on test title
@@ -102,7 +100,7 @@ namespace courseWork_project
         {
             bool titleContainsDefaultText = TestTitleBlock != null
                 && string.Compare(TestTitleBlock.Text, "Введіть назву тесту") == 0;
-            if (titleContainsDefaultText || testInfo.testTitle == null)
+            if (titleContainsDefaultText || testMetadata.testTitle == null)
             {
                 TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
                 TestTitleBlock.Text = string.Empty;
@@ -136,25 +134,22 @@ namespace courseWork_project
         {
             if (!InputIsCorrect()) return;
 
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
+            QuestionItem questionItemToEdit = new QuestionItem();
+            if (GuiObjectsFinder.TryGetQuestionItemFromValidAncestor(sender, ref questionItemToEdit))
             {
                 int indexOfElementToEdit = 0;
                 for (int i = 0; i < questionsToSave.Count; i++)
                 {
-                    if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
+                    if (string.Compare(questionsToSave[i].question, questionItemToEdit.Question) == 0)
                     {
                         indexOfElementToEdit = i+1;
                         break;
                     }
                 }
-                testInfo.testTitle = TestTitleBlock.Text;
+                testMetadata.testTitle = TestTitleBlock.Text;
                 UpdateTitleIfChanged();
-
-                TestChange_Window testChange_Window = new TestChange_Window(questionsToSave, imagesList, testInfo, indexOfElementToEdit);
-                testChange_Window.Show();
+                Test testToEdit = new Test(questionsToSave, testMetadata);
+                WindowCaller.ShowTestChangeEditingMode(testToEdit, imageMetadatas, indexOfElementToEdit);
                 askForClosingComfirmation = false;
                 Close();
             }
@@ -165,27 +160,25 @@ namespace courseWork_project
         /// <remarks>Deletes selected question from list and GUI</remarks>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            // Find the parent ListViewItem of the clicked button
-            ListViewItem itemContainer = GuiHelper.FindAncestor<ListViewItem>(button);
-            if (button != null && itemContainer.DataContext is QuestionItem selectedItem)
+            QuestionItem questionItemToDelete = new QuestionItem();
+            if (GuiObjectsFinder.TryGetQuestionItemFromValidAncestor(sender, ref questionItemToDelete))
             {
-                if (imagesList.Count == 0)
+                if (imageMetadatas.Count == 0)
                 {
                     ImageListFormer imageListFormer = new ImageListFormer();
-                    imagesList = imageListFormer.GetImageList(testInfo.testTitle, questionsToSave);
+                    imageMetadatas = imageListFormer.GetImageList(testMetadata.testTitle, questionsToSave);
                 }
 
                 for (int i  = 0; i < questionsToSave.Count; i++)
                 {
-                    if (string.Compare(questionsToSave[i].question, selectedItem.Question) == 0)
+                    if (string.Compare(questionsToSave[i].question, questionItemToDelete.Question) == 0)
                     {
                         questionsToSave.RemoveAt(i);
-                        ImageManager.ImageInfo imageToDelete = imagesList.Find(x => x.questionIndex == i+1);
-                        if (!imageToDelete.Equals(default(ImageInfo)))
+                        ImageManager.ImageMetadata imageToDelete = imageMetadatas.Find(x => x.questionIndex == i+1);
+                        if (!imageToDelete.Equals(default(ImageManager.ImageMetadata)))
                         {
-                            imagesList.Remove(imageToDelete);
-                            if (!creatingMode)
+                            imageMetadatas.Remove(imageToDelete);
+                            if (!isCreatingMode)
                             {
                                 DataEraser.EraseImage(imageToDelete);
                             }
@@ -194,7 +187,7 @@ namespace courseWork_project
                     }
                 }
 
-                questionItems.Remove(selectedItem);
+                questionItems.Remove(questionItemToDelete);
             }
         }
         /// <summary>
@@ -211,8 +204,8 @@ namespace courseWork_project
                 if (!InputIsCorrect()) return;
 
                 UpdateTitleIfChanged();
-                TestChange_Window testChange_Window = new TestChange_Window(questionsToSave, imagesList, testInfo, questionsToSave.Count);
-                testChange_Window.Show();
+                Test testToEdit = new Test(questionsToSave, testMetadata);
+                WindowCaller.ShowTestChangeEditingMode(testToEdit, imageMetadatas, questionsToSave.Count);
                 askForClosingComfirmation = false;
                 Close();
             }
@@ -228,20 +221,20 @@ namespace courseWork_project
         {
             if (!InputIsCorrect()) return;
             // Saving encoded into lines test data to a file-database
-            List<string> listToWrite = DataEncoder.EncodeAndReturnLines(testInfo, questionsToSave);
-            FileWriter fileWriter = new FileWriter(testInfo.testTitle);
+            List<string> listToWrite = DataEncoder.EncodeAndReturnLines(testMetadata, questionsToSave);
+            FileWriter fileWriter = new FileWriter(testMetadata.testTitle);
             fileWriter.WriteListInFileByLines(listToWrite);
             // Updating list of existing databases in corresponding text file
             FileReader fileReader = new FileReader();
             List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
 
-            string tranliteratedCurrTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
+            string tranliteratedCurrTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
             allTestsList.Add(tranliteratedCurrTestTitle);
 
             fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
             fileWriter.WriteListInFileByLines(allTestsList);
             // Copying all images to a corresponding image folder-database
-            foreach(ImageInfo currentImageInfo in imagesList)
+            foreach(ImageManager.ImageMetadata currentImageInfo in imageMetadatas)
             {
                 if (questionsToSave.Count < currentImageInfo.questionIndex) break;
                 bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex - 1].hasLinkedImage;
@@ -255,8 +248,7 @@ namespace courseWork_project
             UpdateTitleIfChanged();
             MessageBox.Show("Тест успішно збережено");
 
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            WindowCaller.ShowMain();
             askForClosingComfirmation = false;
             Close();
         }
@@ -266,14 +258,14 @@ namespace courseWork_project
         public void UpdateTitleIfChanged()
         {
             bool titleChanged = string.Compare(transliterOldTestTitle,
-                    DataDecoder.TransliterateToEnglish(testInfo.testTitle)) != 0
+                    DataDecoder.TransliterateToEnglish(testMetadata.testTitle)) != 0
                     && transliterOldTestTitle != string.Empty;
             if (titleChanged)
             {
                 // Renaming all the images
-                string transliteratedNewTestTitle = DataDecoder.TransliterateToEnglish(testInfo.testTitle);
-                ImageManager.RenameAll(transliterOldTestTitle, transliteratedNewTestTitle);
-                foreach (ImageInfo currImageInfo in imagesList)
+                string transliteratedNewTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
+                ImageManager.RenameImagesByTitles(transliterOldTestTitle, transliteratedNewTestTitle);
+                foreach (ImageManager.ImageMetadata currImageInfo in imageMetadatas)
                 {
                     if (currImageInfo.imagePath.Contains(transliterOldTestTitle))
                     {
@@ -281,11 +273,11 @@ namespace courseWork_project
                     }
                 }
 
-                DataEraser.ErasePassingData(transliterOldTestTitle);
+                DataEraser.EraseTestPassingDataByTitle(transliterOldTestTitle);
             }
         }
         /// <summary>
-        /// Checks input and writes it into TestStructs.TestInfo
+        /// Checks input and writes it into TestStructs.TestMetadata
         /// </summary>
         /// <returns>true, if input is correct; false if not</returns>
         private bool InputIsCorrect()
@@ -297,11 +289,11 @@ namespace courseWork_project
                 bool timerIsEmpty = string.IsNullOrWhiteSpace(TimerInputBox.Text);
                 if (titleBlockIsNotSet || timerIsEmpty) throw new ArgumentNullException();
 
-                bool timerIsSetWrong = !int.TryParse(TimerInputBox.Text, out testInfo.timerValue) || int.Parse(TimerInputBox.Text) < 0;
+                bool timerIsSetWrong = !int.TryParse(TimerInputBox.Text, out testMetadata.timerValue) || int.Parse(TimerInputBox.Text) < 0;
                 if (timerIsSetWrong) throw new FormatException();
 
-                testInfo.lastEditedTime = DateTime.Now;
-                testInfo.testTitle = TestTitleBlock.Text;
+                testMetadata.lastEditedTime = DateTime.Now;
+                testMetadata.testTitle = TestTitleBlock.Text;
                 return true;
             }
             catch (ArgumentNullException)
@@ -316,14 +308,14 @@ namespace courseWork_project
             }
         }
         /// <summary>
-        /// Puts list of Questions into GUI
+        /// Puts list of QuestionMetadatas into GUI
         /// </summary>
-        /// <param name="questionsList">List of Questions structure</param>
-        public void GetListAndPutItInGUI(List<TestStructs.Question> questionsList)
+        /// <param name="questionMetadatas">List of QuestionMetadatas structure</param>
+        public void DisplayQuestionsFromMetadatas(List<TestStructs.QuestionMetadata> questionMetadatas)
         {
-            foreach (TestStructs.Question questionFromList in questionsList)
+            foreach (TestStructs.QuestionMetadata metadata in questionMetadatas)
             {
-                AddNewQuestionsListViewRow(questionFromList.question);
+                AddNewQuestionsListViewRow(metadata.question);
             }
         }
         /// <summary>
@@ -346,15 +338,18 @@ namespace courseWork_project
         {
             // If closing confirmation is not needed, just close the window
             if (!askForClosingComfirmation) return;
-            MessageBoxResult result = MessageBox.Show("Дані тесту буде втрачено. Ви справді хочете закрити програму?", "Підтвердження закриття вікна", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.No))
+            string additionalMessage = "Дані тесту буде втрачено. ";
+
+            if (e.GetClosingConfirmation(additionalMessage))
             {
-                // Cancelling closing process
-                e.Cancel = true;
-            }
-            else
-            {
-                DataEraser.EraseCurrentTestData(testInfo, creatingMode, imagesList);
+                if (isCreatingMode)
+                {
+                    DataEraser.EraseTestCreatingMode(testMetadata);
+                }
+                else
+                {
+                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
+                }
             }
         }
     }
