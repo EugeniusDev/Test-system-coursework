@@ -80,7 +80,7 @@
         </TextBlock>
         <WrapPanel Grid.Row="2" Grid.Column="0"
                    Grid.RowSpan="2" Grid.ColumnSpan="7"
-                   x:Name="dynamicWrapPanel"
+                   x:Name="variantsPanel"
                    Orientation="Vertical"
                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
         <Button Style="{StaticResource BasicButton}"

@@ -10,8 +10,9 @@ using Microsoft.Win32;
 using System.IO;
 using System.Linq;
 using courseWork_project.DatabaseRelated;
-using courseWork_project.ImageManipulations;
+using courseWork_project.ImageManipulation;
 using System.Drawing;
+using courseWork_project.GuiManipulation;
 
 namespace courseWork_project
 {
@@ -21,38 +22,17 @@ namespace courseWork_project
     /// <remarks> TestChange_Window.xaml is used for creating/editing test's QuestionMetadatas</remarks>
     public partial class TestChange_Window : Window
     {
-        /// <summary>
-        /// Current question's index
-        /// </summary>
-        /// <remarks>Values from 1 to 10</remarks>
         private int currentQuestionIndex = 1;
-        /// <summary>
-        /// Count of test's QuestionMetadatas
-        /// </summary>
-        /// <remarks>Values from 1 to 10</remarks>
         private int totalQuestionsCount = 1;
-        /// <summary>
-        /// Used to determine the type of current window
-        /// </summary>
-        /// <remarks>If true - creation mode, false if not</remarks>
         private readonly bool isCreatingMode;
-        /// <summary>
-        /// Test's question list
-        /// </summary>
         private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
-        /// <summary>
-        /// List of ImageMetadata for manipulations with images
-        /// </summary>
         private readonly List<ImageManager.ImageMetadata> imageMetadatas;
-        /// <summary>
-        /// Structure with test's general info
-        /// </summary>
         private readonly TestStructs.TestMetadata testMetadata;
         /// <summary>
         /// TextBox-CheckBox dictionary for variants data manipulation
         /// </summary>
         /// <remarks>Changes on adding and removing variants</remarks>
-        private readonly Dictionary<TextBox, CheckBox> variantsDict = new Dictionary<TextBox, CheckBox>();
+        private readonly Dictionary<TextBox, CheckBox> variantComponents = new Dictionary<TextBox, CheckBox>();
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
@@ -60,18 +40,15 @@ namespace courseWork_project
         /// <summary>
         /// List of ImageInfos scheduled for deletion
         /// </summary>
-        private readonly List<ImageManager.ImageMetadata> imageInfosToDelete = new List<ImageManager.ImageMetadata>();
-        /// <summary>
-        /// Creation mode constructor
-        /// </summary>
-        /// <remarks>Parameterless</remarks>
+        private readonly List<ImageManager.ImageMetadata> imagesToDelete = new List<ImageManager.ImageMetadata>();
+
         public TestChange_Window()
         {
             InitializeComponent();
             questionMetadatas = new List<TestStructs.QuestionMetadata>();
             imageMetadatas = new List<ImageManager.ImageMetadata>();
             isCreatingMode = true;
-            UpdateGUI();
+            UpdateUI();
         }
         /// <summary>
         /// Editing mode constructor
@@ -104,7 +81,11 @@ namespace courseWork_project
         /// <remarks>Opens confirmation of going to main page</remarks>
         private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (!UpdateCurrentQuestionInfo()) return;
+            if (!UpdateCurrentQuestionInfo())
+            {
+                return;
+            }
+
             TryOpenMainWindow();
         }
         /// <summary>
@@ -134,32 +115,6 @@ namespace courseWork_project
             GoToSavingWindow();
         }
         /// <summary>
-        /// Handling click on variant's field
-        /// </summary>
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            bool fieldContainsDefaultText = textBox != null
-                && string.Compare(textBox.Text, "Введіть варіант відповіді") == 0;
-            if (fieldContainsDefaultText)
-            {
-                textBox.Text = string.Empty;
-            }
-        }
-        /// <summary>
-        /// Handling event when variant field loses focus
-        /// </summary>
-        /// <remarks>Refilling it default data is required</remarks>
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            bool fieldIsEmpty = textBox != null && string.IsNullOrWhiteSpace(textBox.Text);
-            if (fieldIsEmpty)
-            {
-                textBox.Text = "Введіть варіант відповіді";
-            }
-        }
-        /// <summary>
         /// Handling change of a value of any CheckBox
         /// </summary>
         private void CheckBox_Updated(object sender, RoutedEventArgs e)
@@ -173,7 +128,7 @@ namespace courseWork_project
         private void AddVariant_Button_Click(object sender, RoutedEventArgs e)
         {
             AddNewVariant();
-            UpdateGUI();
+            UpdateUI();
         }
         /// <summary>
         /// Handling pressed RemoveLastVariant_Button
@@ -182,55 +137,65 @@ namespace courseWork_project
         private void RemoveLastVariant_Button_Click(object sender, RoutedEventArgs e)
         {
             RemoveLastVariant();
-            UpdateGUI();
+            UpdateUI();
         }
-        /// <summary>
-        /// Updates visibility of changeable GUI elements
-        /// </summary>
-        private void UpdateGUI()
+
+        private void UpdateUI()
         {
-            // Displaying index of current question and total amount of them
+            UpdateCurrentQuestionText();
+            UpdateNavigationButtonsVisibility();
+            UpdateVariantButtonsVisibility();
+            UpdateImageAppearance();
+        }
+
+        private void UpdateCurrentQuestionText()
+        {
             CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{totalQuestionsCount}";
-            // Updating visibility of prev/next buttons
+        }
+
+        private void UpdateNavigationButtonsVisibility()
+        {
             if (currentQuestionIndex == 1)
             {
                 PrevQuestion_Button.Visibility = Visibility.Collapsed;
             }
-            else PrevQuestion_Button.Visibility = Visibility.Visible;
-            if (currentQuestionIndex == Properties.Settings.Default.maxQuestionsAllowed)
+            else if (currentQuestionIndex == Properties.Settings.Default.questionsLimit)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
             }
-            else NextQuestion_Button.Visibility = Visibility.Visible;
-
-            // Updating visibility of add/remove variant buttons
-            switch (dynamicWrapPanel.Children.Count)
+            else
             {
-                case 0:
-                    RemoveLastVariant_Button.Visibility = Visibility.Collapsed;
-                    AddVariant_Button.Visibility = Visibility.Visible;
-                    break;
-                case 1:
-                    RemoveLastVariant_Button.Visibility = Visibility.Visible;
-                    break;
-                case 8:
-                    AddVariant_Button.Visibility = Visibility.Collapsed;
-                    break;
-                default:
-                    RemoveLastVariant_Button.Visibility = Visibility.Visible;
-                    AddVariant_Button.Visibility = Visibility.Visible;
-                    break;
+                PrevQuestion_Button.Visibility = Visibility.Visible;
+                NextQuestion_Button.Visibility = Visibility.Visible;
             }
-            UpdateImageAppearance();
         }
+
+        private void UpdateVariantButtonsVisibility()
+        {
+            if (variantsPanel.Children.Count == 0)
+            {
+                AddVariant_Button.Visibility = Visibility.Visible;
+                RemoveLastVariant_Button.Visibility = Visibility.Collapsed;
+            }
+            else if (variantsPanel.Children.Count == Properties.Settings.Default.variantsLimit)
+            {
+                AddVariant_Button.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                AddVariant_Button.Visibility = Visibility.Visible;
+                RemoveLastVariant_Button.Visibility = Visibility.Visible;
+            }
+        }
+
         /// <summary>
         /// Erases data from QuestionInput; WrapPanel list; TextBox-CheckBox dictionary
         /// </summary>
-        private void EraseElementsData()
+        private void EraseInputElementsData()
         {
             QuestionInput.Text = string.Empty;
-            dynamicWrapPanel.Children.Clear();
-            variantsDict.Clear();
+            variantsPanel.Children.Clear();
+            variantComponents.Clear();
         }
         /// <summary>
         /// Checking if all required textboxes filled
@@ -240,12 +205,12 @@ namespace courseWork_project
             string questionString = QuestionInput.Text;
             bool questionInputIsNull = string.IsNullOrWhiteSpace(questionString);
             if (questionInputIsNull) return false;
-            foreach (var textBoxRelatedPair in variantsDict)
+            foreach (var textBoxRelatedPair in variantComponents)
             {
                 string tempStringOfVariant = textBoxRelatedPair.Key.Text;
                 bool variantIsNotFilled = string.IsNullOrWhiteSpace(tempStringOfVariant) 
                     || string.Compare(tempStringOfVariant, "Введіть варіант відповіді") == 0;
-                if (variantIsNotFilled || dynamicWrapPanel.Children.Count == 0)
+                if (variantIsNotFilled || variantsPanel.Children.Count == 0)
                     return false;
             }
             return true;
@@ -254,122 +219,48 @@ namespace courseWork_project
         /// Checking the proper filling of required fields
         /// </summary>
         /// <remarks>Fields must contain not only digits</remarks>
-        private bool AllTextboxesContainProperInfo()
+        private bool IsTextboxesInputValid()
         {
             string pattern = @"[^0-9]";
             bool resultOfCheck = Regex.IsMatch(QuestionInput.Text, pattern);
-            foreach (var textBoxRelatedPair in variantsDict)
+            foreach (var textBoxRelatedPair in variantComponents)
             {
                 string tempStringOfVariant = textBoxRelatedPair.Key.Text;
                 if (!Regex.IsMatch(tempStringOfVariant, pattern)) return false;
             }
             return resultOfCheck;
         }
-        /// <summary>
-        /// Adds new answer variant with default data in it
-        /// </summary>
-        private void AddNewVariant()
+
+        private void AddNewVariant(string variantText = "Введіть варіант відповіді", bool isVariantCorrect = false)
         {
-            // Limit of variants according to coursework task equals 8
-            bool variantsLimitReached = dynamicWrapPanel.Children.Count >= 8;
-            if (variantsLimitReached) return;
-
-            DockPanel dockPanel = new DockPanel();
-            TextBox textBox = new TextBox
+            bool variantsLimitReached = variantsPanel.Children.Count >= Properties.Settings.Default.variantsLimit;
+            if (variantsLimitReached)
             {
-                Text = "Введіть варіант відповіді",
-                Foreground = new SolidColorBrush(Colors.Black),
-                Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                TextAlignment = TextAlignment.Center,
-                TextWrapping = TextWrapping.NoWrap,
-                ToolTip = "Варіант відповіді",
-                Margin = new Thickness(4),
-                MinWidth = 200,
-                MaxWidth = 270
-            };
-            textBox.GotFocus += TextBox_GotFocus;
-            textBox.LostFocus += TextBox_LostFocus;
-            DockPanel.SetDock(textBox, Dock.Left);
-            dockPanel.Children.Add(textBox);
+                return;
+            }
 
-            CheckBox checkBox = new CheckBox
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                FontStyle = FontStyles.Oblique,
-                Content = "Правильний",
-                ToolTip = "Позначити варіант як правильний",
-                Margin = new Thickness(4)
-            };
+            TextBox textBox = SampleGuiElementsFactory.MakeVariantTextbox(variantText);
+            CheckBox checkBox = SampleGuiElementsFactory.MakeVariantCheckbox(isVariantCorrect);
+            HangCheckingEvents(checkBox);
+
+            variantComponents.Add(textBox, checkBox);
+
+            DockPanel dockPanel = SampleGuiElementsFactory.MakeVariantDockpanel(textBox, checkBox);
+            variantsPanel.Children.Add(dockPanel);
+        }
+
+        private void HangCheckingEvents(CheckBox checkBox)
+        {
             checkBox.Unchecked += CheckBox_Updated;
             checkBox.Checked += CheckBox_Updated;
-
-            DockPanel.SetDock(checkBox, Dock.Right);
-            dockPanel.Children.Add(checkBox);
-
-            variantsDict.Add(textBox, checkBox);
-
-            dynamicWrapPanel.Children.Add(dockPanel);
         }
-        /// <summary>
-        /// Adds new answer variant with given data
-        /// </summary>
-        /// <param name="variantText">Text of answer variant</param>
-        /// <param name="isCorrect">This variant is correct?</param>
-        private void AddNewVariant(string variantText, bool isCorrect)
-        {
-            bool variantsLimitReached = dynamicWrapPanel.Children.Count >= 8;
-            if (variantsLimitReached) return;
-            DockPanel dockPanel = new DockPanel();
-            TextBox textBox = new TextBox
-            {
-                Text = variantText,
-                Foreground = new SolidColorBrush(Colors.Black),
-                Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                TextAlignment = TextAlignment.Center,
-                TextWrapping = TextWrapping.NoWrap,
-                ToolTip = "Варіант відповіді",
-                Margin = new Thickness(4),
-                MinWidth = 200,
-                MaxWidth = 270
-            };
-            textBox.GotFocus += TextBox_GotFocus;
-            textBox.LostFocus += TextBox_LostFocus;
-            DockPanel.SetDock(textBox, Dock.Left);
-            dockPanel.Children.Add(textBox);
 
-            CheckBox checkBox = new CheckBox
-            {
-                IsChecked = isCorrect,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                FontStyle = FontStyles.Oblique,
-                Content = "Правильний",
-                ToolTip = "Позначити варіант як правильний",
-                Margin = new Thickness(4)
-            };
-            checkBox.Unchecked += CheckBox_Updated;
-            checkBox.Checked += CheckBox_Updated;
-            DockPanel.SetDock(checkBox, Dock.Right);
-            dockPanel.Children.Add(checkBox);
-
-            variantsDict.Add(textBox, checkBox);
-
-            dynamicWrapPanel.Children.Add(dockPanel);
-        }
-        /// <summary>
-        /// Deletes last answer variant
-        /// </summary>
         private void RemoveLastVariant()
         {
-            if (dynamicWrapPanel.Children.Count != 0)
+            if (variantsPanel.Children.Count != 0)
             {
-                dynamicWrapPanel.Children.RemoveAt(dynamicWrapPanel.Children.Count - 1);
-                variantsDict.Remove(variantsDict.Keys.Last());
+                variantsPanel.Children.RemoveAt(variantsPanel.Children.Count - 1);
+                variantComponents.Remove(variantComponents.Keys.Last());
             }
         }
         /// <summary>
@@ -385,9 +276,9 @@ namespace courseWork_project
 
                 if (!AreAllTextboxesFilled())
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException("At least one textbox is not filled");
                 }
-                if(!AllTextboxesContainProperInfo())
+                if(!IsTextboxesInputValid())
                 {
                     throw new FormatException();
                 }
@@ -402,7 +293,7 @@ namespace courseWork_project
                 currQuestion.variants = new List<string>();
                 currQuestion.correctVariantsIndeces = new List<int>();
                 int tempIndexForCorrectVariants = 0;
-                foreach (var pairOfTextBoxAndCheckBox in variantsDict)
+                foreach (var pairOfTextBoxAndCheckBox in variantComponents)
                 {
                     if ((bool)pairOfTextBoxAndCheckBox.Value.IsChecked)
                     {
@@ -451,7 +342,7 @@ namespace courseWork_project
         {
             try
             {
-                foreach(var currVariant in variantsDict)
+                foreach(var currVariant in variantComponents)
                 {
                     if ((bool)currVariant.Value.IsChecked)
                     {
@@ -465,7 +356,7 @@ namespace courseWork_project
                     }
                 }
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
                 MessageBox.Show($"Немає варіантів відповідей. Створіть їх, використовуючи кнопку \"{AddVariant_Button.Content}\"");
             }
@@ -493,7 +384,7 @@ namespace courseWork_project
             }
             if(e.Key == Key.Enter)
             {
-                if(currentQuestionIndex != Properties.Settings.Default.maxQuestionsAllowed)
+                if(currentQuestionIndex != Properties.Settings.Default.questionsLimit)
                 {
                     GoToNextQuestion();
                     return;
@@ -538,12 +429,12 @@ namespace courseWork_project
                 ShowQuestionAtIndex(currentQuestionIndex - 1);
                 return;
             }
-            if (currentQuestionIndex == totalQuestionsCount && currentQuestionIndex != Properties.Settings.Default.maxQuestionsAllowed)
+            if (currentQuestionIndex == totalQuestionsCount && currentQuestionIndex != Properties.Settings.Default.questionsLimit)
             {
                 totalQuestionsCount++;
                 currentQuestionIndex++;
-                UpdateGUI();
-                EraseElementsData();
+                UpdateUI();
+                EraseInputElementsData();
             }
         }
         /// <summary>
@@ -582,7 +473,7 @@ namespace courseWork_project
                 tempIndexOfCorrectVariant++;
             }
             UpdateVariantsCheckedConditions();
-            UpdateGUI();
+            UpdateUI();
         }
         /// <summary>
         /// Shows test's question under given index
@@ -592,9 +483,9 @@ namespace courseWork_project
         {
             currentQuestionIndex = ++indexOfElementToEdit;
             totalQuestionsCount = questionMetadatas.Count;
-            EraseElementsData();
+            EraseInputElementsData();
             GetListAndPutItInGUI(questionMetadatas);
-            UpdateGUI();
+            UpdateUI();
         }
         /// <summary>
         /// Handling window closing event
@@ -602,8 +493,8 @@ namespace courseWork_project
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Deleting all images scheduled for deletion
-            imageInfosToDelete.ForEach(img => DataEraser.EraseImage(img));
-            imageInfosToDelete.Clear();
+            imagesToDelete.ForEach(img => DataEraser.EraseImage(img));
+            imagesToDelete.Clear();
 
             if (!askForClosingComfirmation) return;
 
@@ -664,7 +555,7 @@ namespace courseWork_project
                 if (!isCreatingMode && questionMetadatas.Count >= currentQuestionIndex
                     && questionMetadatas[currentQuestionIndex - 1].hasLinkedImage)
                 {
-                    imageInfosToDelete.Add(imageToDelete);
+                    imagesToDelete.Add(imageToDelete);
                     TestStructs.QuestionMetadata questionToUpdate = questionMetadatas[currentQuestionIndex - 1];
                     questionToUpdate.hasLinkedImage = false;
                     questionMetadatas.Insert(currentQuestionIndex - 1, questionToUpdate);

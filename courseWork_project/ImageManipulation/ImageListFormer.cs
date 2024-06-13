@@ -4,22 +4,13 @@ using static courseWork_project.ImageManager;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Class used to form a list of image infos from database-directory
-    /// </summary>
     public class ImageListFormer
     {
-        /// <summary>
-        /// Gets a list of image infos for specified test
-        /// </summary>
-        /// <param name="testTitle">Title of test to search linked to images</param>
-        /// <param name="questionsList">List of question structures</param>
-        /// <returns>List<ImageManager.ImageInfo> for specified test</returns>
         public List<ImageMetadata> GetImageList(string testTitle, List<TestStructs.QuestionMetadata> questionsList)
         {
             List<ImageMetadata> imagesToReturn = new List<ImageMetadata>();
 
-            (string[], bool) allImagesTuple = GetAllImages();
+            (string[], bool) allImagesTuple = GetImageDirectoryFiles();
             if (!allImagesTuple.Item2) return imagesToReturn;
 
             string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testTitle);

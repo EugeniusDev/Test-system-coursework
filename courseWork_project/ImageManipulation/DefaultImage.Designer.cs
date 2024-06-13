@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace courseWork_project.ImageManipulations {
+namespace courseWork_project.ImageManipulation {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace courseWork_project.ImageManipulations {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("courseWork_project.ImageManipulations.DefaultImage", typeof(DefaultImage).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("courseWork_project.ImageManipulation.DefaultImage", typeof(DefaultImage).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -99,13 +99,14 @@
     <Compile Include="DTOs\Test.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GuiManipulation\GuiObjectsFinder.cs" />
-    <Compile Include="ImageManipulations\DefaultImage.Designer.cs">
+    <Compile Include="GuiManipulation\SampleGuiElementsFactory.cs" />
+    <Compile Include="ImageManipulation\DefaultImage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DefaultImage.resx</DependentUpon>
     </Compile>
-    <Compile Include="ImageManipulations\ImageListFormer.cs" />
-    <Compile Include="ImageManipulations\ImageManager.cs" />
+    <Compile Include="ImageManipulation\ImageListFormer.cs" />
+    <Compile Include="ImageManipulation\ImageManager.cs" />
     <Compile Include="NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
@@ -172,7 +173,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="ImageManipulations\DefaultImage.resx">
+    <EmbeddedResource Include="ImageManipulation\DefaultImage.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>DefaultImage.Designer.cs</LastGenOutput>
     </EmbeddedResource>
@@ -181,6 +182,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="courseWork_project_TemporaryKey.pfx" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -200,6 +202,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\SonarAnalyzer.CSharp.9.27.0.93347\analyzers\Google.Protobuf.dll" />
+    <Analyzer Include="..\packages\SonarAnalyzer.CSharp.9.27.0.93347\analyzers\SonarAnalyzer.CFG.dll" />
+    <Analyzer Include="..\packages\SonarAnalyzer.CSharp.9.27.0.93347\analyzers\SonarAnalyzer.CSharp.dll" />
+    <Analyzer Include="..\packages\SonarAnalyzer.CSharp.9.27.0.93347\analyzers\SonarAnalyzer.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

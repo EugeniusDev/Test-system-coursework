@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace courseWork_project
 {
@@ -10,41 +11,36 @@ namespace courseWork_project
         private static readonly string transliteratedTestTitlesDirectoryPath = Properties.Settings.Default.testTitlesDirectory;
         private static readonly string transliteratedTestTitlesFileName = Properties.Settings.Default.testTitlesFilename;
 
-        public string FilePath { get; set; }
-        public string DirectoryPath { get; set; }
+        public string FileName { get; set; }
+        public string DirectoryName { get; set; }
         public string FullPath { get; set; }
         
         /// <summary>
-        /// Getting access to all tests
+        /// Getting access to all existing tests
         /// </summary>
         public DatabaseManager() : this(transliteratedTestTitlesDirectoryPath, transliteratedTestTitlesFileName) { }
         
         /// <summary>
         /// Operating with certain test
         /// </summary>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public DatabaseManager(string testTitle)
         {
-            UpdateDatabasePathUsingTitle(testTitle);
-        }
-        /// <summary>
-        /// Constructor for working with specified paths
-        /// </summary>
-        /// <param name="directoryPath">Path to directory that holds wanted file</param>
-        /// <param name="filePath">Name of wanted file (specify extension as well)</param>
-        public DatabaseManager(string directoryPath, string filePath)
-        {
-            DirectoryPath = directoryPath;
-            FilePath = filePath;
-            FullPath = Path.Combine(DirectoryPath, FilePath);
+            UpdateDatabasePathByTitle(testTitle);
         }
 
-        public void UpdateDatabasePathUsingTitle(string newTestTitle)
+        public DatabaseManager(string directoryPath, string filePath)
+        {
+            DirectoryName = directoryPath;
+            FileName = filePath;
+            FullPath = Path.Combine(DirectoryName, FileName);
+        }
+
+        public void UpdateDatabasePathByTitle(string newTestTitle)
         {
             string transliteratedTitle = newTestTitle.TransliterateToEnglish();
-            DirectoryPath = transliteratedTitle;
-            FilePath = $"{transliteratedTitle}.txt";
-            FullPath = Path.Combine(DirectoryPath, FilePath);
+            DirectoryName = transliteratedTitle;
+            FileName = $"{transliteratedTitle}.txt";
+            FullPath = Path.Combine(DirectoryName, FileName);
         }
     }
 }

@@ -168,8 +168,8 @@ namespace courseWork_project
         /// <param name="currentResult">String with current test's passing results</param>
         private void EndTestAndSaveResults(string currentResult)
         {
-            FileWriter fileWriter = new FileWriter(testToPass.TestMetadata.testTitle);
-            fileWriter.AppendNewTestPassingDataToDatabase(testToPass.TestMetadata, currentResult);
+            FileWriter fileWriter = new FileWriter();
+            fileWriter.AppendNewTestPassingData(testToPass.TestMetadata, currentResult);
 
             WindowCaller.ShowMain();
             askForClosingComfirmation = false;
@@ -257,8 +257,6 @@ namespace courseWork_project
         /// <param name="isCorrect">Is the variant correct?</param>
         private void AddNewVariant(string variantText, bool isCorrect)
         {
-            if (wrapPanelOfVariants.Children.Count >= 8) return;
-
             Button button = new Button
             {
                 Content = variantText,

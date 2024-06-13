@@ -2,20 +2,15 @@
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// class for manipulation with images
-    /// </summary>
     public static class ImageManager
     {
-        /// <summary>
-        /// Structure for managing info about an image
-        /// </summary>
         public struct ImageMetadata
         {
             public string imagePath;
             // Index of question to which image is linked to
             public int questionIndex;
         }
+
         public static string ImagesDirectory { get { return Properties.Settings.Default.imagesDirectory; } }
         /// <summary>
         /// Moves an image from old path to a new one
@@ -35,7 +30,7 @@ namespace courseWork_project
         /// Provides all data about all images in database-directory
         /// </summary>
         /// <returns>Tuple from array of relative paths and bool value that shows if array is empty</returns>
-        public static (string[] imagePaths, bool imagesExist) GetAllImages()
+        public static (string[] imagePaths, bool imagesExist) GetImageDirectoryFiles()
         {
             Directory.CreateDirectory(ImagesDirectory);
             string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
@@ -53,7 +48,7 @@ namespace courseWork_project
             string oldTestTitleTransliterated = DataDecoder.TransliterateToEnglish(oldTestTitle);
             string newTestTitleTransliterated = DataDecoder.TransliterateToEnglish(newTestTitle);
 
-            (string[], bool) allImagesTuple = GetAllImages();
+            (string[], bool) allImagesTuple = GetImageDirectoryFiles();
             if (!allImagesTuple.Item2) return;
 
             foreach (string currentImageRelativePath in allImagesTuple.Item1)
@@ -83,7 +78,7 @@ namespace courseWork_project
         /// <param name="testTitle">Title of test to delete related to images (not transliterated is also allowed)</param>
         public static void ImagesCleanupByTitle(string testTitle)
         {
-            (string[], bool) allImagesTuple = GetAllImages();
+            (string[], bool) allImagesTuple = GetImageDirectoryFiles();
             if (!allImagesTuple.Item2) return;
 
             string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testTitle);

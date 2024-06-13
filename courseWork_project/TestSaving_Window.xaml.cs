@@ -219,20 +219,20 @@ namespace courseWork_project
         /// </summary>
         private void SaveDataAndGoToMain()
         {
-            if (!InputIsCorrect()) return;
+            if (!InputIsCorrect())
+            {
+                return;
+            }
             // Saving encoded into lines test data to a file-database
-            List<string> listToWrite = DataEncoder.EncodeAndReturnLines(testMetadata, questionsToSave);
+            Test testToSave = new Test(questionsToSave, testMetadata);
+            List<string> testDataLines = testToSave.EncodeToLines();
             FileWriter fileWriter = new FileWriter(testMetadata.testTitle);
-            fileWriter.WriteListInFileByLines(listToWrite);
-            // Updating list of existing databases in corresponding text file
-            FileReader fileReader = new FileReader();
-            List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
+            fileWriter.WriteListLineByLine(testDataLines);
+            // Append new test's title to list of existing
+            string tranliteratedTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
+            fileWriter = new FileWriter();
+            fileWriter.AppendLineToFile(tranliteratedTestTitle);
 
-            string tranliteratedCurrTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
-            allTestsList.Add(tranliteratedCurrTestTitle);
-
-            fileWriter = new FileWriter(fileReader.DirectoryPath, fileReader.FilePath);
-            fileWriter.WriteListInFileByLines(allTestsList);
             // Copying all images to a corresponding image folder-database
             foreach(ImageManager.ImageMetadata currentImageInfo in imageMetadatas)
             {
@@ -240,7 +240,7 @@ namespace courseWork_project
                 bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex - 1].hasLinkedImage;
                 if (imageNeedsMovement)
                 {
-                    string imageName = $"{tranliteratedCurrTestTitle}-{currentImageInfo.questionIndex}";
+                    string imageName = $"{tranliteratedTestTitle}-{currentImageInfo.questionIndex}";
                     CopyImageToFolder(currentImageInfo.imagePath, imageName);
                 }
             }

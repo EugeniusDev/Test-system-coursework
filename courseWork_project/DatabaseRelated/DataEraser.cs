@@ -19,23 +19,15 @@ namespace courseWork_project.DatabaseRelated
             imageMetadatas.ForEach(img => EraseImage(img));
         }
 
-        /// <summary>
-        /// Deletes a directory-database of given test
-        /// </summary>
-        /// <remarks>Deletes directory recursively, including all files in it</remarks>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
         public static void EraseTestFolderByTitle(string testTitle)
         {
             FileReader reader = new FileReader(testTitle);
             if (reader.FullPathExists())
             {
-                Directory.Delete(reader.DirectoryPath, true);
+                Directory.Delete(reader.DirectoryName, true);
             }
         }
-        /// <summary>
-        /// Deletes an image from directory-database
-        /// </summary>
-        /// <param name="imageMetadata">Structure with image's info</param>
+
         public static void EraseImage(ImageManager.ImageMetadata imageMetadata)
         {
             if (File.Exists(imageMetadata.imagePath))
@@ -53,10 +45,7 @@ namespace courseWork_project.DatabaseRelated
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
-        /// <summary>
-        /// Deletes given test's passing data
-        /// </summary>
-        /// <param name="testTitle">Test title, not transliterated is also allowed</param>
+
         public static void EraseTestPassingDataByTitle(string testTitle)
         {
             string pathOfTestsDirectory = Properties.Settings.Default.testResultsDirectory;

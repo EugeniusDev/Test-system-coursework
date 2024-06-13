@@ -36,7 +36,7 @@ namespace courseWork_project
             InitializeComponent();
             // Getting list of existing tests
             FileReader fileReader = new FileReader();
-            transliteratedTestTitles = fileReader.UpdateListOfExistingTestsPaths();
+            transliteratedTestTitles = fileReader.GetExistingTestTitles();
 
             testItems = new ObservableCollection<TestItem>();
             TestsInfoTextblock.Text = (transliteratedTestTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
@@ -88,10 +88,7 @@ namespace courseWork_project
                 DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
 
                 // Updating list of transliterated test titles
-                FileReader fileReader = new FileReader();
-                List<string> allTestsList = fileReader.UpdateListOfExistingTestsPaths();
-                FileWriter fileWriter = new FileWriter();
-                fileWriter.WriteListInFileByLines(allTestsList);
+                UpdateListOfExistingTests();
 
                 Test testToEdit = new Test(questionsToEdit, infoOfTestToEdit);
                 List<ImageManager.ImageMetadata> emptyImages = new List<ImageManager.ImageMetadata>();
@@ -100,6 +97,16 @@ namespace courseWork_project
                 Close();
             }
         }
+
+        private void UpdateListOfExistingTests()
+        {
+            FileReader fileReader = new FileReader();
+            List<string> existingTestsTitles = fileReader.GetExistingTestTitles();
+
+            FileWriter fileWriter = new FileWriter();
+            fileWriter.WriteListLineByLine(existingTestsTitles);
+        }
+
         /// <summary>
         /// Handling pressed button of type ResultsButton
         /// </summary>
@@ -114,7 +121,7 @@ namespace courseWork_project
                 // TODO less abstraction level than needed, make it the problem of reader
                 string pathOfResultsDirectory = Properties.Settings.Default.testResultsDirectory;
                 FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
-                List<string> currTestResultsList = fileReader.ReadAndReturnLines();
+                List<string> currTestResultsList = fileReader.GetFileContentInLines();
                 // Empty list means no one tried to pass the test yet
                 if(currTestResultsList.Count == 0)
                 {

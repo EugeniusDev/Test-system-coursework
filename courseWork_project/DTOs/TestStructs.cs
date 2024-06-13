@@ -6,11 +6,8 @@ namespace courseWork_project
     /// <summary>
     /// Class-container for test-related structures
     /// </summary>
-    public static partial class TestStructs
+    public static class TestStructs
     {
-        /// <summary>
-        /// Structure of question of a test
-        /// </summary>
         public struct QuestionMetadata
         {
             public string question;
@@ -18,18 +15,29 @@ namespace courseWork_project
             public List<int> correctVariantsIndeces;
             public bool hasLinkedImage;
         }
-        /// <summary>
-        /// General test's info structure
-        /// </summary>
+        public readonly static QuestionMetadata EmptyQuestionMetadata = new QuestionMetadata
+        {
+            variants = new List<string>(),
+            correctVariantsIndeces = new List<int>()
+        };
+
         public struct TestMetadata
         {
             public string testTitle;
             public DateTime lastEditedTime;
-            /// <summary>
-            /// Tiemr value
-            /// </summary>
-            /// <remarks>0, if no restrictions in time</remarks>
+
+            // 0, if no restrictions in time
             public int timerValue;
         }
+
+        /// <summary>
+        /// TestMetadata with sample data
+        /// </summary>
+        public readonly static TestMetadata EmptyTestMetadata = new TestMetadata()
+        {
+            testTitle = "empty",
+            lastEditedTime = DateTime.Now,
+            timerValue = 0
+        };
     }
 }

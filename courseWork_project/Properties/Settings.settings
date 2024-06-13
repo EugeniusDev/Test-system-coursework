@@ -14,8 +14,14 @@
     <Setting Name="imagesDirectory" Type="System.String" Scope="Application">
       <Value Profile="(Default)">images</Value>
     </Setting>
-    <Setting Name="maxQuestionsAllowed" Type="System.Int32" Scope="Application">
+    <Setting Name="questionsLimit" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="variantsLimit" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
+    <Setting Name="dataSeparator" Type="System.Char" Scope="Application">
+      <Value Profile="(Default)">₴</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -62,9 +62,27 @@ namespace courseWork_project.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int maxQuestionsAllowed {
+        public int questionsLimit {
             get {
-                return ((int)(this["maxQuestionsAllowed"]));
+                return ((int)(this["questionsLimit"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int variantsLimit {
+            get {
+                return ((int)(this["variantsLimit"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("₴")]
+        public char dataSeparator {
+            get {
+                return ((char)(this["dataSeparator"]));
             }
         }
     }
