@@ -49,12 +49,13 @@ namespace courseWork_project
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
-        bool askForClosingComfirmation = true;
+        bool isWindowClosingConfirmationRequired = true;
         /// <summary>
         /// Used to determine if test is not empty
         /// </summary>
         readonly bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
+
 
         public TestTaking_Window(Test testToPass, string userName)
         {
@@ -64,9 +65,8 @@ namespace courseWork_project
                 MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 WindowCaller.ShowMain();
-                askForClosingComfirmation = false;
                 loadedSuccessfully = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
                 return;
             }
 
@@ -172,9 +172,9 @@ namespace courseWork_project
             fileWriter.AppendNewTestPassingData(testToPass.TestMetadata, currentResult);
 
             WindowCaller.ShowMain();
-            askForClosingComfirmation = false;
-            Close();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
+
         /// <summary>
         /// Updates visibility of all changeable GUI elements
         /// </summary>
@@ -364,8 +364,7 @@ namespace courseWork_project
             if (result.Equals(MessageBoxResult.Yes))
             {
                 WindowCaller.ShowMain();
-                askForClosingComfirmation = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
             // If user did not confirmed the redirection, resume timer
             timer.Start();
@@ -449,10 +448,10 @@ namespace courseWork_project
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // If closing confirmation is not needed, just close the window
-            if (!askForClosingComfirmation) return;
-
-            e.GetClosingConfirmation();
+            if (isWindowClosingConfirmationRequired)
+            {
+                e.GetClosingConfirmation();
+            }
         }
     }
 }

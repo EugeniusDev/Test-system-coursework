@@ -1,7 +1,9 @@
 ﻿using courseWork_project.DatabaseRelated;
+using courseWork_project.DataManipulation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,28 +24,48 @@ namespace courseWork_project
     /// <remarks>MainWindow.xaml is used as main menu</remarks>
     public partial class MainWindow : Window
     {
-        /// <summary>
-        /// ObservableCollection for ListView
-        /// </summary>
         private readonly ObservableCollection<TestItem> testItems;
-
         private readonly List<string> transliteratedTestTitles;
-
-        bool isWindowClosingConfirmationRequired = true;
+        private bool isWindowClosingConfirmationRequired = true;
 
         public MainWindow()
         {
             InitializeComponent();
-            // Getting list of existing tests
+
+            UpdateListOfExistingTests();
             FileReader fileReader = new FileReader();
             transliteratedTestTitles = fileReader.GetExistingTestTitles();
 
+            DisplayTestsInfo();
             testItems = new ObservableCollection<TestItem>();
-            TestsInfoTextblock.Text = (transliteratedTestTitles.Count == 0) ? "Немає створених тестів" : "Список тестів:";
             TestsListView.ItemsSource = testItems;
             DisplayTestsFromTitles(transliteratedTestTitles);
         }
 
+        private void DisplayTestsInfo()
+        {
+            TestsInfoTextblock.Text = (transliteratedTestTitles.Count == 0) ? "Немає створених тестів" 
+                : "Список тестів:";
+        }
+
+        public void DisplayTestsFromTitles(List<string> transliteratedTestTitles)
+        {
+            foreach (string transTitle in transliteratedTestTitles)
+            {
+                TestStructs.TestMetadata testMetadata = DataDecoder.GetTestMetadataByTitle(transTitle);
+                AddNewListViewRow(testMetadata.testTitle);
+            }
+        }
+
+        private void AddNewListViewRow(string testTitle)
+        {
+            TestItem newItem = new TestItem
+            {
+                TestTitle = testTitle
+            };
+
+            testItems.Add(newItem);
+        }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             e.OpenHelpCenterOnF1();
@@ -57,48 +79,36 @@ namespace courseWork_project
         private void Create_button_Click(object sender, RoutedEventArgs e)
         {
             WindowCaller.ShowTestChangeCreatingMode();
-            isWindowClosingConfirmationRequired = false;
-            Close();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
 
-        private void Taking_Button_Click(object sender, RoutedEventArgs e)
+        private void Passing_Button_Click(object sender, RoutedEventArgs e)
         {
             TestItem selectedItem = new TestItem();
             if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
-                Test testToPass = new Test(DataDecoder.GetQuestionMetadatasByTitle(selectedItem.TestTitle),
-                    DataDecoder.GetTestMetadataByTitle(selectedItem.TestTitle));
+                Test testToPass = DataDecoder.GetTestByTestItem(selectedItem);
+                // Prompt for username before passing test
                 WindowCaller.ShowNameEntry(testToPass);
-                isWindowClosingConfirmationRequired = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
-        /// <summary>
-        /// Handling pressed button of type EditButton
-        /// </summary>
-        /// <remarks>Opens TestSaving_Window in editing mode</remarks>
+
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             TestItem selectedItem = new TestItem();
             if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
-                List<TestStructs.QuestionMetadata> questionsToEdit = DataDecoder.GetQuestionMetadatasByTitle(selectedItem.TestTitle);
-                TestStructs.TestMetadata infoOfTestToEdit = DataDecoder.GetTestMetadataByTitle(selectedItem.TestTitle);
-
                 DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
 
-                // Updating list of transliterated test titles
-                UpdateListOfExistingTests();
-
-                Test testToEdit = new Test(questionsToEdit, infoOfTestToEdit);
+                Test testToEdit = DataDecoder.GetTestByTestItem(selectedItem);
                 List<ImageManager.ImageMetadata> emptyImages = new List<ImageManager.ImageMetadata>();
                 WindowCaller.ShowTestSavingEditingMode(testToEdit, emptyImages);
-                isWindowClosingConfirmationRequired = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
 
-        private void UpdateListOfExistingTests()
+        private static void UpdateListOfExistingTests()
         {
             FileReader fileReader = new FileReader();
             List<string> existingTestsTitles = fileReader.GetExistingTestTitles();
@@ -107,206 +117,137 @@ namespace courseWork_project
             fileWriter.WriteListLineByLine(existingTestsTitles);
         }
 
-        /// <summary>
-        /// Handling pressed button of type ResultsButton
-        /// </summary>
-        /// <remarks>Shows results of selected test's passings in MessageBox</remarks>
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
             TestItem selectedItem = new TestItem();
             if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
-                string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(selectedItem.TestTitle);
-                // Getting up-to-date list of data about passing selected test
-                // TODO less abstraction level than needed, make it the problem of reader
-                string pathOfResultsDirectory = Properties.Settings.Default.testResultsDirectory;
-                FileReader fileReader = new FileReader(pathOfResultsDirectory, $"{transliteratedTestTitle}.txt");
-                List<string> currTestResultsList = fileReader.GetFileContentInLines();
-                // Empty list means no one tried to pass the test yet
-                if(currTestResultsList.Count == 0)
-                {
-                    MessageBox.Show("Обраний тест ще ніким не було пройдено", "Історія проходжень тесту порожня");
-                    return;
-                }
-                // Forming the output
-                string resultsToShow = $"Результати проходжень тесту:\n";
-                foreach(string result in currTestResultsList)
-                {
-                    resultsToShow = string.Concat(resultsToShow, $"{result}\n");
-                }
-                MessageBox.Show(resultsToShow, "Історія проходжень тесту");
+                List<string> selectedTestResults = DataDecoder
+                    .GetTestResultsByTitle(selectedItem.TestTitle);
+                ShowTestResults(selectedTestResults);
             }
         }
-        /// <summary>
-        /// Handling pressed button of type DeleteButton
-        /// </summary>
+
+        private static void ShowTestResults(List<string> selectedTestResults)
+        {
+            if (selectedTestResults.Count == 0)
+            {
+                MessageBox.Show("Обраний тест ще ніким не було пройдено",
+                    "Історія проходжень тесту порожня");
+                return;
+            }
+
+            MessageBox.Show(FormTestResultsOutput(selectedTestResults),
+                "Історія проходжень тесту");
+        }
+
+        private static string FormTestResultsOutput(List<string> selectedTestResults)
+        {
+            StringBuilder results = new StringBuilder("Результати проходжень тесту:\n");
+            foreach (string result in selectedTestResults)
+            {
+                results.AppendLine(result);
+            }
+
+            return results.ToString();
+        }
+
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             TestItem selectedItem = new TestItem();
-            if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
+            bool validTestSelected = GuiObjectsFinder
+                .TryGetTestItemFromValidAncestor(sender, ref selectedItem);
+            if (validTestSelected && TestDeletionConfirmed(selectedItem))
             {
-                string confirmationString = $"Ви видалите тест \"{selectedItem.TestTitle}\". Ви справді хочете це зробити?";
-                MessageBoxResult result = MessageBox.Show(confirmationString,
-                    "Підтвердження видалення тесту", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result.Equals(MessageBoxResult.Yes))
-                {
-                    // Deleting selected test's related data
-                    DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
-                    DataEraser.EraseTestPassingDataByTitle(selectedItem.TestTitle);
-                    ImageManager.ImagesCleanupByTitle(selectedItem.TestTitle);
-                    // Reloading MainWindow to update the list of tests
-                    WindowCaller.ShowMain();
-                    isWindowClosingConfirmationRequired = false;
-                    Close();
-                }
+                DataEraser.EraseTestByTestItem(selectedItem);
+                ReloadMainWindow();
             }
         }
 
-        public void DisplayTestsFromTitles(List<string> existingTestsTitles)
+        private static bool TestDeletionConfirmed(TestItem selectedItem)
         {
-            foreach (string testTitleTransliterated in existingTestsTitles)
-            {
-                string notTransliteratedTitle = DataDecoder.GetTestMetadataByTitle(testTitleTransliterated)
-                    .testTitle;
-                AddNewListViewRow(notTransliteratedTitle);
-            }
-        }
-        /// <summary>
-        /// Adds new ListView row with given test title
-        /// </summary>
-        /// <param name="testTitle">Not transliterated test title</param>
-        private void AddNewListViewRow(string testTitle)
-        {
-            TestItem newItem = new TestItem
-            {
-                TestTitle = testTitle
-            };
+            string confirmationPrompt = $"Ви видалите тест \"{selectedItem.TestTitle}\". " +
+                $"Ви справді хочете це зробити?";
+            MessageBoxResult result = MessageBox.Show(confirmationPrompt,
+                "Підтвердження видалення тесту", 
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            testItems.Add(newItem);
+            return result.Equals(MessageBoxResult.Yes);
         }
-        /// <summary>
-        /// Handling window closing event
-        /// </summary>
+
+        private void ReloadMainWindow()
+        {
+            WindowCaller.ShowMain();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // If closing confirmation is not needed, just close the window
-            if (!isWindowClosingConfirmationRequired) return;
-
-            e.GetClosingConfirmation();
+            if (isWindowClosingConfirmationRequired)
+            {
+                e.GetClosingConfirmation();
+            }
         }
 
-        private void TestMetadataSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TestGroupOptionsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortTests(TestMetadataSortOptions.SelectedIndex, transliteratedTestTitles);
+            Grouper.ShowTestsGroup((TestGroupOption)TestGroupOptionsSelector.SelectedIndex, 
+                transliteratedTestTitles);
         }
-        private void QuestionMetadataSortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QuestionGroupOptionsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Sorter.SortQuestions(QuestionMetadataSortOptions.SelectedIndex, transliteratedTestTitles);
+            Grouper.ShowQuestionsGroup((QuestionGroupOption)QuestionGroupOptionsSelector.SelectedIndex, 
+                transliteratedTestTitles);
         }
 
-        private void TestMetadataGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TestSortOptionsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupTests(TestMetadataGroupOptions.SelectedIndex, transliteratedTestTitles);
+            Sorter.ShowSortedTests((TestSortOption)TestSortOptionsSelector.SelectedIndex,
+                transliteratedTestTitles);
         }
-        private void QuestionMetadataGroupOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QuestionSortOptionsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Grouper.GroupQuestions(QuestionMetadataGroupOptions.SelectedIndex, transliteratedTestTitles);
+            Sorter.ShowSortedQuestions((QuestionSortOption)QuestionSortOptionsSelector.SelectedIndex,
+                transliteratedTestTitles);
         }
-        /// <summary>
-        /// Handling click in QuestionMetadatas search field
-        /// </summary>
+
         private void QuestionSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             QuestionSearchBox.Text = string.Empty;
             QuestionSearchBox.Foreground = new SolidColorBrush(Colors.Black);
         }
-        /// <summary>
-        /// Handling click in variants search field
-        /// </summary>
+
         private void VariantSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             VariantSearchBox.Text = string.Empty;
             VariantSearchBox.Foreground = new SolidColorBrush(Colors.Black);
         }
-        /// <summary>
-        /// Handling click on SearchQuestion_button
-        /// </summary>
+
         private void SearchQuestion_button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                string questionToSearch = QuestionSearchBox.Text;
-                bool fieldIsEmptyOrDefault = questionToSearch == string.Empty || string.Compare(questionToSearch, "Пошук запитання тесту") == 0;
-                if (fieldIsEmptyOrDefault)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                foreach(string testTitle in transliteratedTestTitles)
-                {
-                    List<TestStructs.QuestionMetadata> currentQuestionMetadata = DataDecoder.GetQuestionMetadatasByTitle(testTitle);
-                    TestStructs.QuestionMetadata foundQuestion = currentQuestionMetadata.Find(a => string.Compare(a.question.ToLower(), questionToSearch.ToLower()) == 0);
-                    // If a structure with required title is found
-                    if (foundQuestion.question != null)
-                    {
-                        // Forming output
-                        string foundTestTitle = DataDecoder.GetTestMetadataByTitle(testTitle).testTitle;
-                        MessageBox.Show($"Введене запитання знайдено в тесті \"{foundTestTitle}\":\n"
-                        + $"Запитання: {foundQuestion.question}; "
-                        + $"Всього варіантів: {foundQuestion.variants.Count}; "
-                        + $"Правильних варіантів: {foundQuestion.correctVariantsIndeces.Count}\n",
-                        "Результат пошуку запитання тесту");
-                        return;
-                    }
-                }
-
-                MessageBox.Show($"Запитання \"{questionToSearch}\" не знайдено. Перевірте правильність написання та спробуйте ще раз",
-                    "Результат пошуку запитання тесту");
+                string fieldValue = QuestionSearchBox.Text;
+                Searcher.ValidateInputForField(fieldValue, "запитання");
+                Searcher.ShowQuestionSearchingResults(fieldValue, transliteratedTestTitles);
             }
-            catch(ArgumentNullException)
+            catch (ArgumentException ex)
             {
-                MessageBox.Show("Будь ласка, заповніть поле пошуку запитання тесту");
+                MessageBox.Show(ex.Message);
             }
         }
-        /// <summary>
-        /// Handling click on SearchVariant_button
-        /// </summary>
+
         private void SearchVariant_button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                string variantToSearch = VariantSearchBox.Text;
-                bool fieldIsEmptyOrDefault = variantToSearch == string.Empty || string.Compare(variantToSearch, "Пошук запитання тесту") == 0;
-                if (fieldIsEmptyOrDefault)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                foreach (string testTitle in transliteratedTestTitles)
-                {
-                    List<TestStructs.QuestionMetadata> currentTestQuestions = DataDecoder.GetQuestionMetadatasByTitle(testTitle);
-                    foreach(TestStructs.QuestionMetadata currentQuestion in currentTestQuestions)
-                    {
-                        foreach(string variant in currentQuestion.variants)
-                        {
-                            if (string.Compare(variant.ToLower(), variantToSearch.ToLower()) == 0){
-                                // If searched variant was found, form the output
-                                string foundVariantTestTitle = DataDecoder.GetTestMetadataByTitle(testTitle).testTitle;
-                                MessageBox.Show($"Введений варіант знайдено в тесті \"{foundVariantTestTitle}\",\n"
-                                + $"в запитанні \"{currentQuestion.question}\"",
-                                "Результат пошуку запитання тесту");
-                                return;
-                            }
-                        }
-                    }
-                }
-                // If searched variant was not found
-                MessageBox.Show($"Запитання \"{variantToSearch}\" не знайдено. Перевірте правильність написання та спробуйте ще раз",
-                    "Результат пошуку запитання тесту");
+                string fieldValue = VariantSearchBox.Text;
+                Searcher.ValidateInputForField(fieldValue, "варіанту");
+                Searcher.ShowVariantSearchingResults(fieldValue, transliteratedTestTitles);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentException ex)
             {
-                MessageBox.Show("Будь ласка, заповніть поле пошуку запитання тесту");
+                MessageBox.Show(ex.Message);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace courseWork_project
 
         public static bool GetClosingConfirmation(this CancelEventArgs cancelEventArgs, string additionalPrependMessage = "")
         {
-            MessageBoxResult result = MessageBox.Show($"{additionalPrependMessage}Ви справді хочете закрити програму?",
+            MessageBoxResult result = MessageBox.Show($"{additionalPrependMessage}Ви справді хочете закрити вікно?",
                 "Підтвердження закриття вікна", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.No))
@@ -28,6 +28,12 @@ namespace courseWork_project
             }
 
             return true;
+        }
+
+        public static void CloseWindowAndDisableConfirmationPrompt(this Window windowToClose, ref bool confirmationRequiredVariable)
+        {
+            confirmationRequiredVariable = false;
+            windowToClose.Close();
         }
     }
 }

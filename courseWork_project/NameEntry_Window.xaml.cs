@@ -17,7 +17,7 @@ namespace courseWork_project
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
-        bool askForClosingComfirmation = true;
+        bool isWindowClosingConfirmationRequired = true;
 
         public NameEntry_Window(Test testToPass)
         {
@@ -86,9 +86,9 @@ namespace courseWork_project
         private void GoToMainWindow()
         {
             WindowCaller.ShowMain();
-            askForClosingComfirmation = false;
-            Close();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
+
         /// <summary>
         /// Attempts to open TestTaking_Window
         /// </summary>
@@ -103,23 +103,20 @@ namespace courseWork_project
                 if (fieldIsEmptyOrDefault) throw new ArgumentNullException();
 
                 WindowCaller.ShowTestTaking(testToPass, userName);
-                askForClosingComfirmation = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
             catch (ArgumentNullException)
             {
                 MessageBox.Show("Введіть ім'я перед тим, як розпочати тест");
             }
         }
-        /// <summary>
-        /// Handling window closing event
-        /// </summary>
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // If closing confirmation is not needed, just close the window
-            if (!askForClosingComfirmation) return;
-            
-            e.GetClosingConfirmation();
+            if (isWindowClosingConfirmationRequired)
+            {
+                e.GetClosingConfirmation();
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
     /// <summary>
     /// Enum for types of tests grouping
     /// </summary>
-    public enum TestGroupTypes
+    public enum TestGroupOption
     {
         TIMER_EXISTANCE,
         EDITED_TODAY,
@@ -13,7 +13,7 @@
     /// <summary>
     /// Enum for types of QuestionMetadatas grouping
     /// </summary>
-    public enum QuestionGroupTypes
+    public enum QuestionGroupOption
     {
         WITH_IMAGE,
         ALL_VARIANTS_CORRECT
@@ -24,7 +24,7 @@
     /// <summary>
     /// Enum for types of tests sorting
     /// </summary>
-    public enum TestSortTypes
+    public enum TestSortOption
     {
         BY_DATE,
         BY_TIMER,
@@ -34,7 +34,7 @@
     /// <summary>
     /// Enum for types of QuestionMetadatas sorting
     /// </summary>
-    public enum QuestionSortTypes
+    public enum QuestionSortOption
     {
         BY_VARIANTS_COUNT,
         BY_CORRECT_COUNT,

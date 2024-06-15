@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -10,6 +11,7 @@ namespace courseWork_project
     /// </summary>
     public static class DataDecoder
     {
+        #region Transliteration
         private static readonly Dictionary<char, string> transliterationTable = new Dictionary<char, string>
         {
             {'а', "a"}, {'б', "b"}, {'в', "v"}, {'г', "g"}, {'д', "d"}, {'е', "e"},
@@ -21,10 +23,15 @@ namespace courseWork_project
             {'\"', "_"}, {'/', "_"}, {'\\', "_"}, {'|', "_"}, {'?', "_"}, {'*', "_"}
         };
         private static readonly char separator = Properties.Settings.Default.dataSeparator;
+        private const int indexOfTestMetadataLine = 0;
+        private const int requiredLinesCount = 2;
 
         public static string TransliterateToEnglish(this string inputString)
         {
-            if (inputString is null) return string.Empty;
+            if (inputString is null)
+            {
+                return string.Empty;
+            }
 
             if (inputString.IsTransliterated())
             {
@@ -46,7 +53,8 @@ namespace courseWork_project
         {
             return !transliterationTable.Keys.Any(character => testTitle.Contains(character));
         }
-
+        #endregion
+        #region QuestionMetadata related
         public static List<TestStructs.QuestionMetadata> GetAllQuestionsByTestTitles(List<string> transliteratedTitles)
         {
             List<TestStructs.QuestionMetadata> allExistingQuestions = new List<TestStructs.QuestionMetadata>();
@@ -111,17 +119,51 @@ namespace courseWork_project
 
         private static List<string> GetQuestionMetadataLines(string testTitle)
         {
-            List<string> wholeTestData = GetWholeTestData(testTitle);
-            if (wholeTestData.Count < 2)
-            {
-                throw new FormatException();
-            }
+            List<string> wholeTestData = GetValidTestData(testTitle);
 
-            wholeTestData.RemoveAt(0);
+            wholeTestData.RemoveAt(indexOfTestMetadataLine);
+
+            return wholeTestData;
+        }
+        #endregion
+        #region Test aspects in general
+        private static List<string> GetValidTestData(string testTitle)
+        {
+            FileReader reader = new FileReader(testTitle);
+            List<string> wholeTestData = reader.GetFileContentInLines();
+            ValidateWholeTestData(wholeTestData);
 
             return wholeTestData;
         }
 
+        private static void ValidateWholeTestData(List<string> wholeTestData)
+        {
+            if (wholeTestData.Count < requiredLinesCount)
+            {
+                throw new FormatException();
+            }
+        }
+
+        public static Test GetTestByTestItem(TestItem selectedItem)
+        {
+            return GetTestByTitle(selectedItem.TestTitle);
+        }
+
+        public static Test GetTestByTitle(string testTitle)
+        {
+            return new Test(GetQuestionMetadatasByTitle(testTitle),
+                GetTestMetadataByTitle(testTitle));
+        }
+
+        private static readonly string resultsDirectoryName = Properties.Settings.Default.testResultsDirectory;
+        public static List<string> GetTestResultsByTitle(string testTitle)
+        {
+            FileReader fileReader = new FileReader(testTitle);
+            fileReader.SetDirectoryName(resultsDirectoryName);
+            return fileReader.GetFileContentInLines();
+        }
+        #endregion
+        #region TestMetadata related
         public static List<TestStructs.TestMetadata> GetAllTestMetadatasByTitles(List<string> transliteratedTitles)
         {
             List<TestStructs.TestMetadata> listToReturn = new List<TestStructs.TestMetadata>();
@@ -152,13 +194,9 @@ namespace courseWork_project
 
         private static string GetTestMetadataLine(string testTitle)
         {
-            List<string> wholeTestData = GetWholeTestData(testTitle);
-            if (wholeTestData.Count == 0)
-            {
-                throw new FormatException();
-            }
+            List<string> wholeTestData = GetValidTestData(testTitle);
 
-            string testMetadataLine = wholeTestData[0];
+            string testMetadataLine = wholeTestData[indexOfTestMetadataLine];
             return testMetadataLine;
         }
         
@@ -170,13 +208,14 @@ namespace courseWork_project
                 throw new FormatException();
             }
 
-            if (!int.TryParse(stringToSplit[2], out int timerValue))
-            {
-                timerValue = 0;
-            }
             if (!DateTime.TryParse(stringToSplit[1], out DateTime editingDate))
             {
                 editingDate = DateTime.Now;
+            }
+
+            if (!int.TryParse(stringToSplit[2], out int timerValue))
+            {
+                timerValue = 0;
             }
 
             return new TestStructs.TestMetadata()
@@ -186,13 +225,39 @@ namespace courseWork_project
                 timerValue = timerValue
             };
         }
-
-        private static List<string> GetWholeTestData(string testTitle)
+        #endregion
+        #region ImageMetadata related
+        public static ImageManager.ImageMetadata ParseToImageMetadata(this string fileName)
         {
-            FileReader reader = new FileReader(testTitle);
-            List<string> wholeTestData = reader.GetFileContentInLines();
+            ImageManager.ImageMetadata imageMetadata = ImageManager.EmptyImageMetadata;
+            if (fileName.TryRetrieveValidQuestionIndex(ref imageMetadata.questionIndex))
+            {
+                imageMetadata.imagePath = Path.GetFullPath(fileName);
+            }
 
-            return wholeTestData;
+            return imageMetadata;
         }
+
+        private static bool TryRetrieveValidQuestionIndex(this string fileName, ref int linkedQuestionIndex)
+        {
+            int lastHyphenIndex = fileName.LastIndexOf('-');
+            int lastDotIndex = fileName.LastIndexOf('.');
+            if (!ImageFilenameIsValid(lastHyphenIndex, lastDotIndex))
+            {
+                return false;
+            }
+
+            int firstDigitIndex = lastHyphenIndex + 1;
+            int lengthOfQuestionIndex = lastDotIndex - firstDigitIndex;
+            string supposedQuestionIndex = fileName.Substring(firstDigitIndex, lengthOfQuestionIndex);
+
+            return int.TryParse(supposedQuestionIndex, out linkedQuestionIndex);
+        }
+
+        private static bool ImageFilenameIsValid(int lastHyphenIndex, int lastDotIndex)
+        {
+            return lastHyphenIndex > 0 && lastDotIndex > 0 && lastHyphenIndex < lastDotIndex;
+        }
+        #endregion
     }
 }

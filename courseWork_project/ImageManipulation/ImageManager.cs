@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows.Media.Effects;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace courseWork_project
 {
@@ -11,51 +15,115 @@ namespace courseWork_project
             public int questionIndex;
         }
 
+        public static readonly ImageMetadata EmptyImageMetadata = new ImageMetadata()
+        {
+            imagePath = string.Empty,
+            questionIndex = -1
+        };
         public static string ImagesDirectory { get { return Properties.Settings.Default.imagesDirectory; } }
-        /// <summary>
-        /// Moves an image from old path to a new one
-        /// </summary>
-        /// <param name="currentImagePath">Current path of an image</param>
-        /// <param name="wantedImageTitle">New filename (path) of an image</param>
-        public static void CopyImageToFolder(string currentImagePath, string wantedImageTitle)
+
+        public static void CopyToDatabaseDirectoryWithNameOf(this ImageMetadata imageMetadata, string transliteratedTestTitle)
+        {
+            string newImageName = DataEncoder.GetConventionalImageName(transliteratedTestTitle, imageMetadata);
+            string oldImagePath = imageMetadata.imagePath;
+            EnsureImageDirectoryExists();
+            string relativePath = GetNewRelativePath(oldImagePath, newImageName);
+            File.Copy(oldImagePath, relativePath, true);
+        }
+
+        public static void TryDeleteImage(ImageMetadata deprecatedImageMetadata)
+        {
+            if (ImageIsInDirectoryDatabase(deprecatedImageMetadata))
+            {
+                try
+                {
+                    File.Delete(deprecatedImageMetadata.imagePath);
+                }
+                catch
+                {
+                    // Not critical for application work
+                }
+            }
+        }
+
+        private static void EnsureImageDirectoryExists()
         {
             Directory.CreateDirectory(ImagesDirectory);
+        }
+        
+        private static string GetNewRelativePath(string currentImagePath, string newImageName)
+        {
             string fileExtension = Path.GetExtension(currentImagePath);
-            string relativePath = Path.Combine(ImagesDirectory, 
-                string.Concat(wantedImageTitle, fileExtension));
-
-            File.Copy(currentImagePath, relativePath, true);
+            string relativePath = Path.Combine(ImagesDirectory,
+                string.Concat(newImageName, fileExtension));
+            return relativePath;
         }
-        /// <summary>
-        /// Provides all data about all images in database-directory
-        /// </summary>
-        /// <returns>Tuple from array of relative paths and bool value that shows if array is empty</returns>
-        public static (string[] imagePaths, bool imagesExist) GetImageDirectoryFiles()
-        {
-            Directory.CreateDirectory(ImagesDirectory);
-            string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
 
-            bool imagesExist = allImagesPaths.Length != 0;
-            return (allImagesPaths, imagesExist);
+        public static List<ImageMetadata> GetRelatedImages(this Test test)
+        {
+            List<string> imageDirectoryFiles = GetImageDirectoryFiles();
+            if (imageDirectoryFiles.Count == 0)
+            {
+                return new List<ImageMetadata>();
+            }
+
+            List<ImageMetadata> imagesToReturn = new List<ImageMetadata>();
+            foreach (string currentFileName in imageDirectoryFiles)
+            {
+                if (!IsFilenameRelatedToTest(currentFileName, test))
+                {
+                    continue;
+                }
+
+                ImageMetadata imageMetadata = currentFileName.ParseToImageMetadata();
+                if (!imageMetadata.Equals(EmptyImageMetadata))
+                {
+                    imagesToReturn.Add(imageMetadata);
+                }
+            }
+
+            return imagesToReturn;
         }
-        /// <summary>
-        /// Renames (moves) all images according to a new test title value
-        /// </summary>
-        /// <param name="oldTestTitle">Old test title (not transliterated is also allowed)</param>
-        /// <param name="newTestTitle">New test title (not transliterated is also allowed)</param>
-        public static void RenameImagesByTitles(string oldTestTitle, string newTestTitle)
+
+        public static List<string> GetImageDirectoryFiles()
         {
-            string oldTestTitleTransliterated = DataDecoder.TransliterateToEnglish(oldTestTitle);
-            string newTestTitleTransliterated = DataDecoder.TransliterateToEnglish(newTestTitle);
+            EnsureImageDirectoryExists();
+            return Directory.GetFiles(ImagesDirectory).ToList();
+        }
 
-            (string[], bool) allImagesTuple = GetImageDirectoryFiles();
-            if (!allImagesTuple.Item2) return;
+        public static bool IsFilenameRelatedToTest(string fileName, Test test)
+        {
+            string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(test.TestMetadata.testTitle);
+            return fileName.Contains(transliteratedTestTitle);
+        }
 
-            foreach (string currentImageRelativePath in allImagesTuple.Item1)
+        public static bool IsImageInCorrectPlace(ImageMetadata imageMetadata, Test test)
+        {
+            return IsFilenameRelatedToTest(imageMetadata.imagePath, test)
+                && ImageIsInDirectoryDatabase(imageMetadata);
+        }
+
+        private static bool ImageIsInDirectoryDatabase(ImageMetadata imageMetadata)
+        {
+            string imageDirectories = Path.GetDirectoryName(imageMetadata.imagePath);
+            string firstLevelImageDirectory = Path.GetFileName(imageDirectories
+                .Trim(Path.DirectorySeparatorChar));
+            return firstLevelImageDirectory.Equals(ImagesDirectory);
+        }
+        // TODO delete this dead code
+        public static void MoveImagesUsingTitles(string oldTransliteratedTitle, string newTransliteratedTitle)
+        {
+            List<string> imageDirectoryFiles = GetImageDirectoryFiles();
+            if (imageDirectoryFiles.Count == 0)
+            {
+                return;
+            }
+
+            foreach (string currentImageRelativePath in imageDirectoryFiles)
             {
                 string imageDirectory = Path.GetFileName(Path.GetDirectoryName(currentImageRelativePath));
-                bool containsOldTestTitle = currentImageRelativePath.Contains(oldTestTitleTransliterated);
-                string newImageRelativePath = currentImageRelativePath.Replace(oldTestTitleTransliterated, newTestTitleTransliterated);
+                bool containsOldTestTitle = currentImageRelativePath.Contains(oldTransliteratedTitle);
+                string newImageRelativePath = currentImageRelativePath.Replace(oldTransliteratedTitle, newTransliteratedTitle);
                 bool isInDatabaseDirectory = string.Compare(imageDirectory, ImagesDirectory) == 0;
                 if (containsOldTestTitle && isInDatabaseDirectory)
                 {
@@ -72,24 +140,10 @@ namespace courseWork_project
                 }
             }
         }
-        /// <summary>
-        /// Deletes all images of specified test (deprecated)
-        /// </summary>
-        /// <param name="testTitle">Title of test to delete related to images (not transliterated is also allowed)</param>
-        public static void ImagesCleanupByTitle(string testTitle)
-        {
-            (string[], bool) allImagesTuple = GetImageDirectoryFiles();
-            if (!allImagesTuple.Item2) return;
 
-            string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testTitle);
-            foreach (string currentImageRelativePath in allImagesTuple.Item1)
-            {
-                bool containsTestTitle = currentImageRelativePath.Contains(transliteratedTestTitle);
-                if (containsTestTitle)
-                {
-                    File.Delete(currentImageRelativePath);
-                }
-            }
+        public static void TryDeleteImages(List<ImageMetadata> images)
+        {
+            images.ForEach(TryDeleteImage);
         }
     }
 }

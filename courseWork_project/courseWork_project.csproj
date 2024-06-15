@@ -89,13 +89,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DatabaseRelated\DataDecoder.cs" />
-    <Compile Include="DatabaseRelated\DataEncoder.cs" />
-    <Compile Include="DatabaseRelated\DataEraser.cs" />
-    <Compile Include="DatabaseRelated\FileReader.cs" />
-    <Compile Include="DatabaseRelated\FileWriter.cs" />
-    <Compile Include="DataOutputManipulation\Grouper.cs" />
-    <Compile Include="DatabaseRelated\DatabaseManager.cs" />
+    <Compile Include="DataManipulation\DataDecoder.cs" />
+    <Compile Include="DataManipulation\DataEncoder.cs" />
+    <Compile Include="DataManipulation\Searcher.cs" />
+    <Compile Include="FilesManipulation\DataEraser.cs" />
+    <Compile Include="FilesManipulation\FileReader.cs" />
+    <Compile Include="FilesManipulation\FileWriter.cs" />
+    <Compile Include="DataManipulation\Grouper.cs" />
+    <Compile Include="FilesManipulation\DatabaseManager.cs" />
     <Compile Include="DTOs\Test.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GuiManipulation\GuiObjectsFinder.cs" />
@@ -105,12 +106,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DefaultImage.resx</DependentUpon>
     </Compile>
-    <Compile Include="ImageManipulation\ImageListFormer.cs" />
     <Compile Include="ImageManipulation\ImageManager.cs" />
     <Compile Include="NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataOutputManipulation\Sorter.cs" />
+    <Compile Include="DataManipulation\Sorter.cs" />
     <Compile Include="DTOs\TestStructs.cs" />
     <Compile Include="TestChange_Window.xaml.cs">
       <DependentUpon>TestChange_Window.xaml</DependentUpon>

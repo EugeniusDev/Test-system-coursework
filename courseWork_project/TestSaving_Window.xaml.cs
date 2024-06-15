@@ -53,7 +53,7 @@ namespace courseWork_project
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
-        bool askForClosingComfirmation = true;
+        bool isWindowClosingConfirmationRequired = true;
         /// <summary>
         /// TestSaving_Window creating mode constructor
         /// </summary>
@@ -150,8 +150,7 @@ namespace courseWork_project
                 UpdateTitleIfChanged();
                 Test testToEdit = new Test(questionsToSave, testMetadata);
                 WindowCaller.ShowTestChangeEditingMode(testToEdit, imageMetadatas, indexOfElementToEdit);
-                askForClosingComfirmation = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
         /// <summary>
@@ -165,8 +164,8 @@ namespace courseWork_project
             {
                 if (imageMetadatas.Count == 0)
                 {
-                    ImageListFormer imageListFormer = new ImageListFormer();
-                    imageMetadatas = imageListFormer.GetImageList(testMetadata.testTitle, questionsToSave);
+                    Test test = new Test(questionsToSave, testMetadata);
+                    imageMetadatas = test.GetRelatedImages();
                 }
 
                 for (int i  = 0; i < questionsToSave.Count; i++)
@@ -180,7 +179,7 @@ namespace courseWork_project
                             imageMetadatas.Remove(imageToDelete);
                             if (!isCreatingMode)
                             {
-                                DataEraser.EraseImage(imageToDelete);
+                                TryDeleteImage(imageToDelete);
                             }
                         }
                         break;
@@ -206,14 +205,14 @@ namespace courseWork_project
                 UpdateTitleIfChanged();
                 Test testToEdit = new Test(questionsToSave, testMetadata);
                 WindowCaller.ShowTestChangeEditingMode(testToEdit, imageMetadatas, questionsToSave.Count);
-                askForClosingComfirmation = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
             if (e.Key == Key.Enter)
             {
                 SaveDataAndGoToMain();
             }
         }
+
         /// <summary>
         /// Creates database, writes data in it and returns to MainWindow
         /// </summary>
@@ -229,19 +228,22 @@ namespace courseWork_project
             FileWriter fileWriter = new FileWriter(testMetadata.testTitle);
             fileWriter.WriteListLineByLine(testDataLines);
             // Append new test's title to list of existing
-            string tranliteratedTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
+            string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
             fileWriter = new FileWriter();
-            fileWriter.AppendLineToFile(tranliteratedTestTitle);
+            fileWriter.AppendLineToFile(transliteratedTestTitle);
 
             // Copying all images to a corresponding image folder-database
-            foreach(ImageManager.ImageMetadata currentImageInfo in imageMetadatas)
+            foreach(ImageManager.ImageMetadata imageMetadata in imageMetadatas)
             {
-                if (questionsToSave.Count < currentImageInfo.questionIndex) break;
-                bool imageNeedsMovement = questionsToSave[currentImageInfo.questionIndex - 1].hasLinkedImage;
-                if (imageNeedsMovement)
+                if (questionsToSave.Count < imageMetadata.questionIndex)
                 {
-                    string imageName = $"{tranliteratedTestTitle}-{currentImageInfo.questionIndex}";
-                    CopyImageToFolder(currentImageInfo.imagePath, imageName);
+                    // TODO try to erase image, remove this metadata
+                    break;
+                }
+
+                if (!IsImageInCorrectPlace(imageMetadata, testToSave))
+                {
+                    imageMetadata.CopyToDatabaseDirectoryWithNameOf(transliteratedTestTitle);
                 }
             }
 
@@ -249,27 +251,32 @@ namespace courseWork_project
             MessageBox.Show("Тест успішно збережено");
 
             WindowCaller.ShowMain();
-            askForClosingComfirmation = false;
-            Close();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
+
         /// <summary>
         /// Changes test title in paths of images and resets(deletes) old test passing data
         /// </summary>
         public void UpdateTitleIfChanged()
         {
-            bool titleChanged = string.Compare(transliterOldTestTitle,
-                    DataDecoder.TransliterateToEnglish(testMetadata.testTitle)) != 0
-                    && transliterOldTestTitle != string.Empty;
+            string supposedNewTransliterTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
+            bool titleChanged = string.Compare(transliterOldTestTitle, 
+                supposedNewTransliterTestTitle) != 0
+                && transliterOldTestTitle != string.Empty;
             if (titleChanged)
             {
-                // Renaming all the images
-                string transliteratedNewTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
-                ImageManager.RenameImagesByTitles(transliterOldTestTitle, transliteratedNewTestTitle);
-                foreach (ImageManager.ImageMetadata currImageInfo in imageMetadatas)
+                for(int i = 0; i < imageMetadatas.Count; i++)
                 {
-                    if (currImageInfo.imagePath.Contains(transliterOldTestTitle))
+                    if (imageMetadatas[i].imagePath.Contains(transliterOldTestTitle))
                     {
-                        currImageInfo.imagePath.Replace(transliterOldTestTitle, transliteratedNewTestTitle);
+                        ImageManager.ImageMetadata deprecatedImageMetadata = imageMetadatas[i];
+                        imageMetadatas[i] = new ImageManager.ImageMetadata()
+                        {
+                            imagePath = deprecatedImageMetadata.imagePath.Replace(transliterOldTestTitle, supposedNewTransliterTestTitle),
+                            questionIndex = deprecatedImageMetadata.questionIndex
+                        };
+                        deprecatedImageMetadata.CopyToDatabaseDirectoryWithNameOf(supposedNewTransliterTestTitle);
+                        TryDeleteImage(deprecatedImageMetadata);
                     }
                 }
 
@@ -336,19 +343,17 @@ namespace courseWork_project
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // If closing confirmation is not needed, just close the window
-            if (!askForClosingComfirmation) return;
-            string additionalMessage = "Дані тесту буде втрачено. ";
-
-            if (e.GetClosingConfirmation(additionalMessage))
+            if (isWindowClosingConfirmationRequired)
             {
-                if (isCreatingMode)
+                string additionalMessage = "Дані тесту буде втрачено. ";
+
+                if (e.GetClosingConfirmation(additionalMessage))
                 {
-                    DataEraser.EraseTestCreatingMode(testMetadata);
-                }
-                else
-                {
-                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
+                    DataEraser.EraseTestDatabases(testMetadata);
+                    if (!isCreatingMode)
+                    {
+                        TryDeleteImages(imageMetadatas);
+                    }
                 }
             }
         }

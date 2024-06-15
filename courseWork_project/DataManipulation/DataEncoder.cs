@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using static courseWork_project.TestStructs;
 
@@ -47,6 +48,12 @@ namespace courseWork_project
         {
             return stringToRemoveFrom.Contains(separator) ? 
                 stringToRemoveFrom.Replace(separator.ToString(), "") : stringToRemoveFrom;
+        }
+
+        public static string GetConventionalImageName(string tranliteratedTestTitle, ImageManager.ImageMetadata imageMetadata)
+        {
+            string imageExtension = Path.GetExtension(imageMetadata.imagePath);
+            return $"{tranliteratedTestTitle}-{imageMetadata.questionIndex}{imageExtension}";
         }
     }
 }

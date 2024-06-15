@@ -36,11 +36,11 @@ namespace courseWork_project
         /// <summary>
         /// Used to determine if window closing confirmation is needed
         /// </summary>
-        bool askForClosingComfirmation = true;
+        bool isWindowClosingConfirmationRequired = true;
         /// <summary>
         /// List of ImageInfos scheduled for deletion
         /// </summary>
-        private readonly List<ImageManager.ImageMetadata> imagesToDelete = new List<ImageManager.ImageMetadata>();
+        private readonly List<ImageManager.ImageMetadata> imagesScheduledToDelete = new List<ImageManager.ImageMetadata>();
 
         public TestChange_Window()
         {
@@ -62,9 +62,7 @@ namespace courseWork_project
             testMetadata = testToChange.TestMetadata;
             if (imageSources.Count == 0)
             {
-                // If images list is empty, try to get them from the database
-                ImageListFormer imageListFormer = new ImageListFormer();
-                imageMetadatas = imageListFormer.GetImageList(testMetadata.testTitle, questionMetadatas);
+                imageMetadatas = testToChange.GetRelatedImages();
             }
             else
             {
@@ -403,20 +401,22 @@ namespace courseWork_project
                 "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result.Equals(MessageBoxResult.Yes))
             {
-                if (isCreatingMode)
-                {
-                    DataEraser.EraseTestCreatingMode(testMetadata);
-                }
-                else
-                {
-                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
-                }
+                EraseCurrentTestData();
 
                 WindowCaller.ShowMain();
-                askForClosingComfirmation = false;
-                Close();
+                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
+
+        private void EraseCurrentTestData()
+        {
+            DataEraser.EraseTestDatabases(testMetadata);
+            if (!isCreatingMode)
+            {
+                ImageManager.TryDeleteImages(imageMetadatas);
+            }
+        }
+
         /// <summary>
         /// Saves current test question, creates/displays the next
         /// </summary>
@@ -454,8 +454,7 @@ namespace courseWork_project
                 WindowCaller.ShowTestSavingEditingMode(testToSave, imageMetadatas);
             }
 
-            askForClosingComfirmation = false;
-            Close();
+            this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
         /// <summary>
         /// Puts current test's question list in GUI
@@ -492,22 +491,14 @@ namespace courseWork_project
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Deleting all images scheduled for deletion
-            imagesToDelete.ForEach(img => DataEraser.EraseImage(img));
-            imagesToDelete.Clear();
+            // TODO make method for these two lines
+            ImageManager.TryDeleteImages(imagesScheduledToDelete);
+            imagesScheduledToDelete.Clear();
 
-            if (!askForClosingComfirmation) return;
-
-            if (e.GetClosingConfirmation())
+            if (isWindowClosingConfirmationRequired
+                && e.GetClosingConfirmation())
             {
-                if (isCreatingMode)
-                {
-                    DataEraser.EraseTestCreatingMode(testMetadata);
-                }
-                else
-                {
-                    DataEraser.EraseTestEditingMode(testMetadata, imageMetadatas);
-                }
+                    EraseCurrentTestData();
             }
         }
         /// <summary>
@@ -555,7 +546,7 @@ namespace courseWork_project
                 if (!isCreatingMode && questionMetadatas.Count >= currentQuestionIndex
                     && questionMetadatas[currentQuestionIndex - 1].hasLinkedImage)
                 {
-                    imagesToDelete.Add(imageToDelete);
+                    imagesScheduledToDelete.Add(imageToDelete);
                     TestStructs.QuestionMetadata questionToUpdate = questionMetadatas[currentQuestionIndex - 1];
                     questionToUpdate.hasLinkedImage = false;
                     questionMetadatas.Insert(currentQuestionIndex - 1, questionToUpdate);

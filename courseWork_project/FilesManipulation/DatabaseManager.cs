@@ -38,9 +38,14 @@ namespace courseWork_project
         public void UpdateDatabasePathByTitle(string newTestTitle)
         {
             string transliteratedTitle = newTestTitle.TransliterateToEnglish();
-            DirectoryName = transliteratedTitle;
+            SetDirectoryName(transliteratedTitle);
             FileName = $"{transliteratedTitle}.txt";
             FullPath = Path.Combine(DirectoryName, FileName);
+        }
+
+        public void SetDirectoryName(string newDirectoryName)
+        {
+            DirectoryName = newDirectoryName;
         }
     }
 }
