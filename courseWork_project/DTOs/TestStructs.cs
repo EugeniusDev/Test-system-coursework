@@ -27,7 +27,7 @@ namespace courseWork_project
             public DateTime lastEditedTime;
 
             // 0, if no restrictions in time
-            public int timerValue;
+            public int timerValueInMinutes;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace courseWork_project
         {
             testTitle = "empty",
             lastEditedTime = DateTime.Now,
-            timerValue = 0
+            timerValueInMinutes = 0
         };
     }
 }

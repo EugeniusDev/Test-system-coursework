@@ -92,5 +92,22 @@ namespace courseWork_project.GuiManipulation
             return dockPanel;
         }
         #endregion
+
+        public static Button MakeVariantButton(string variantText)
+        {
+            return new Button
+            {
+                Content = variantText,
+                Foreground = new SolidColorBrush(Colors.Black),
+                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                FontSize = 24,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ToolTip = "Клацніть, щоб обрати цей варіант",
+                Margin = new Thickness(3),
+                MinWidth = 200,
+                MaxWidth = 260
+            };
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace courseWork_project
             switch (groupingOption)
             {
                 case TestGroupOption.TIMER_EXISTANCE:
-                    groupOfTests = testsToGroup.FindAll(a => a.timerValue != 0);
+                    groupOfTests = testsToGroup.FindAll(a => a.timerValueInMinutes != 0);
                     break;
                 case TestGroupOption.EDITED_TODAY:
                     groupOfTests = testsToGroup
@@ -56,7 +56,7 @@ namespace courseWork_project
             {
                 groupingResult.AppendLine($"Назва: {currentTestMetadatas.testTitle}; " +
                     $"Дата: {currentTestMetadatas.lastEditedTime}; " +
-                    $"Таймер: {currentTestMetadatas.timerValue} хв\n");
+                    $"Таймер: {currentTestMetadatas.timerValueInMinutes} хв\n");
             }
 
             return groupingResult.ToString();

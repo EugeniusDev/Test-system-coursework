@@ -10,7 +10,7 @@ namespace courseWork_project
     /// <remarks>HelpCenter_Window (user manual) is called from any other window</remarks>
     public partial class HelpCenter_Window : Window
     {
-        private readonly Dictionary<MainWindowManuals, string> mainWindowManualMessages =
+        private static readonly Dictionary<MainWindowManuals, string> mainWindowManualMessages =
             new Dictionary<MainWindowManuals, string>()
         {
             { MainWindowManuals.TEST_CREATING, "Щоб створити новий тест, клацніть на кнопку " +
@@ -47,7 +47,7 @@ namespace courseWork_project
                     "\"Видалити\" в списку тестів навпроти бажаного до видалення тесту. Далі необхідно " +
                     "підтвердити бажання видалення обраного тесту."}
         };
-        private readonly Dictionary<TestPassingManuals, string> testPassingManualMessages =
+        private static readonly Dictionary<TestPassingManuals, string> testPassingManualMessages =
             new Dictionary<TestPassingManuals, string>()
             {
                 { TestPassingManuals.TEST_BEGIN, "Як розпочати тест?\nВведіть Ваше ім'я в поле " +
@@ -71,7 +71,7 @@ namespace courseWork_project
                     "кнопку \"Завершити проходження тесту\", що знаходиться в центрі нижньої частини " +
                     "вікна проходження тесту."}
             };
-        private readonly Dictionary<TestChangeManuals, string> testChangeManualMessages =
+        private static readonly Dictionary<TestChangeManuals, string> testChangeManualMessages =
             new Dictionary<TestChangeManuals, string>()
             {
                 { TestChangeManuals.QUESTION_ENTRY, "Для задання чи редагування запитання користуйтеся " +
@@ -103,7 +103,7 @@ namespace courseWork_project
                     " вікна проходження тесту і підтвердьте бажання переходу до головної сторінки." +
                     " Зауважте, що ця дія призведе до втрати даних тесту." }
             };
-        private readonly Dictionary<TestSavingManuals, string> testSavingManualMessages =
+        private static readonly Dictionary<TestSavingManuals, string> testSavingManualMessages =
             new Dictionary<TestSavingManuals, string>()
 
             {

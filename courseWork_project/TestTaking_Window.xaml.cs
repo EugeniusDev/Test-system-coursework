@@ -1,6 +1,5 @@
-﻿using System;
+﻿using courseWork_project.GuiManipulation;
 using System.Collections.Generic;
-using System.IO;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,47 +18,37 @@ namespace courseWork_project
     {
         private readonly Test testToPass;
 
-        private int currentQuestionIndex = 1;
+        private int currentQuestionIndex = 0;
         private int correctAnswersCount = 0;
         /// <summary>
         /// Prompted name of a user who takes a test
         /// </summary>
         private readonly string userName;
-        /// <summary>
-        /// Used to determine if a variant was selected
-        /// </summary>
-        private bool buttonClicked = false;
-        /// <summary>
-        /// Used for operating with images if they exist
-        /// </summary>
-        private readonly string transliteratedTestTitle;
-        /// <summary>
-        /// Button-bool dictionary used for determining correct variants
-        /// </summary>
-        /// <remarks>Changes while passing through QuestionMetadatas</remarks>
-        private readonly Dictionary<Button, bool> variantsDict = new Dictionary<Button, bool>();
-        /// <summary>
-        /// Used for controlling a timer
-        /// </summary>
+        private bool isCurrentVariantChosen = false;
+        private readonly Dictionary<Button, bool> variants = new Dictionary<Button, bool>();
         private int timeLimitInSeconds = 0;
-        /// <summary>
-        /// Timer object
-        /// </summary>
         private readonly Timer timer = new Timer();
-        /// <summary>
-        /// Used to determine if window closing confirmation is needed
-        /// </summary>
-        bool isWindowClosingConfirmationRequired = true;
-        /// <summary>
-        /// Used to determine if test is not empty
-        /// </summary>
-        readonly bool loadedSuccessfully = true;
+        private bool isWindowClosingConfirmationRequired = true;
+        private bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
-
 
         public TestTaking_Window(Test testToPass, string userName)
         {
-            // If there are no QuestionMetadatas in the test, close the window
+            CheckTestDataValidity(testToPass);
+
+            this.testToPass = testToPass;
+            this.userName = userName;
+            timeLimitInSeconds = testToPass.TestMetadata.timerValueInMinutes * 60;
+
+            InitializeComponent();
+
+            PromptUserToConfirmStart(testToPass);
+            DisplayFollowingQuestion();
+            SetUpTimer();
+        }
+
+        private void CheckTestDataValidity(Test testToPass)
+        {
             if (testToPass.QuestionMetadatas.Count == 0)
             {
                 MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
@@ -67,390 +56,351 @@ namespace courseWork_project
                 WindowCaller.ShowMain();
                 loadedSuccessfully = false;
                 this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
-                return;
             }
+        }
 
-            this.testToPass = testToPass;
-            transliteratedTestTitle = DataDecoder.TransliterateToEnglish(testToPass.TestMetadata.testTitle);
-            this.userName = userName;
-
-            InitializeComponent();
-
-            // Displaying general info about test before an attempt of passing it
+        private void PromptUserToConfirmStart(Test testToPass)
+        {
             string generalInfoForMessageBox = $"Тест \"{testToPass.TestMetadata.testTitle}\"" +
                 $"\nКількість запитань: {testToPass.QuestionMetadatas.Count}\n";
-            timeLimitInSeconds = testToPass.TestMetadata.timerValue * 60;
-            bool noTimeLimits = timeLimitInSeconds == 0;
-            generalInfoForMessageBox =  noTimeLimits ?
+
+            generalInfoForMessageBox = IsTimeUnlimited() ?
                 string.Concat(generalInfoForMessageBox, "Час проходження необмежений")
-                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: {testToPass.TestMetadata.timerValue} хв");
-            generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
-                "\nДеякі запитання можуть мати декілька правильних варіантів відповідей");
-            generalInfoForMessageBox = string.Concat(generalInfoForMessageBox, 
+                : string.Concat(generalInfoForMessageBox, $"Часу на проходження: " +
+                $"{testToPass.TestMetadata.timerValueInMinutes} хв");
+
+            generalInfoForMessageBox = string.Concat(generalInfoForMessageBox,
+                "\nДеякі запитання можуть мати декілька правильних варіантів відповідей" +
                 "\nВи розпочнете спробу проходження тесту, коли закриєте це вікно");
             MessageBox.Show(generalInfoForMessageBox, "Інформація про тест");
+        }
 
-            ShowQuestionAtIndex(0);
-            // If there are no limitations, timer does not work
-            if (noTimeLimits)
+        private bool IsTimeUnlimited()
+        {
+            return timeLimitInSeconds == 0;
+        }
+
+        private void DisplayFollowingQuestion()
+        {
+            ClearElementsData();
+            DisplayVariantsAndUpdateUI(testToPass.QuestionMetadatas[currentQuestionIndex]);
+            currentQuestionIndex++;
+        }
+
+        private void ClearElementsData()
+        {
+            QuestionText.Text = string.Empty;
+            wrapPanelOfVariants.Children.Clear();
+            variants.Clear();
+        }
+
+        public void DisplayVariantsAndUpdateUI(TestStructs.QuestionMetadata questionMetadata)
+        {
+            QuestionText.Text = questionMetadata.question;
+            int tempIndexOfCorrectVariant = 0;
+            foreach (string variant in questionMetadata.variants)
+            {
+                bool variantIsCorrect = questionMetadata.correctVariantsIndeces.Contains(tempIndexOfCorrectVariant);
+                AddNewVariant(variant, variantIsCorrect);
+                tempIndexOfCorrectVariant++;
+            }
+
+            UpdateUI();
+        }
+
+        private void AddNewVariant(string variantText, bool isVariantCorrect)
+        {
+            Button button = SampleGuiElementsFactory.MakeVariantButton(variantText);
+            button.Click += VariantButton_Click;
+            variants.Add(button, isVariantCorrect);
+            wrapPanelOfVariants.Children.Add(button);
+        }
+
+        private void SetUpTimer()
+        {
+            if (IsTimeUnlimited())
             {
                 Timer_TextBlock.Text = string.Empty;
                 Timer_TextBlock.Visibility = Visibility.Collapsed;
                 return;
             }
-            // Initial timer value (time limit itself)
-            Timer_TextBlock.Text = $"{timeLimitInSeconds / 60}:{timeLimitInSeconds % 60}";
-            // Initialization and start of a timer
+
+            UpdateTimerText();
             timer.Interval = 1000;
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
-        /// <summary>
-        /// Called by a timer every second
-        /// </summary>
+
+        private void UpdateTimerText()
+        {
+            Timer_TextBlock.Text = $"{timeLimitInSeconds / 60}:{timeLimitInSeconds % 60}";
+        }
+
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             timeLimitInSeconds--;
-            // If time is up, stop the timer and the test taking and show the results
+
             if(timeLimitInSeconds == 0)
             {
-                timer.Stop();
-                string resultsOfTest = FormResultsOfTest();
-                MessageBox.Show($"Час вичерпано!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    EndTestAndSaveResults(resultsOfTest);
+                    TryToFinishTest($"Час вичерпано!");
                 });
             }
             Timer_TextBlock.Dispatcher.Invoke(() =>
             {
-                Timer_TextBlock.Text = $"{timeLimitInSeconds / 60}:{timeLimitInSeconds % 60}";
+                UpdateTimerText();
             }
             );
         }
-        /// <summary>
-        /// Handling pressed BackToMain_Button
-        /// </summary>
-        /// <remarks>Calls TryOpenMainWindow</remarks>
-        private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
+
+        private void StopTimer()
         {
             timer.Stop();
-            GoToMainWithConfimation();
         }
-        /// <summary>
-        /// Handling pressed NextQuestion_Button
-        /// </summary>
-        /// <remarks>Calls GoToNextQuestion</remarks>
-        private void NextQuestion_Button_Click(object sender, RoutedEventArgs e)
-        {
-            GoToNextQuestion();
-        }
-        /// <summary>
-        /// Handling pressed EndTest_Button
-        /// </summary>
-        /// <remarks>Calls TryToFinishTheTest</remarks
-        private void EndTest_Button_Click(object sender, RoutedEventArgs e)
-        {
-            TryToFinishTheTest();
-        }
-        /// <summary>
-        /// Forms results of test passing
-        /// </summary>
-        /// <returns>String with results info</returns>
-        private string FormResultsOfTest()
-        {
-            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.QuestionMetadatas.Count}";
-            return resultsToReturn;
-        }
-        /// <summary>
-        /// Updates results list of current test and opens MainWindow
-        /// </summary>
-        /// <param name="currentResult">String with current test's passing results</param>
-        private void EndTestAndSaveResults(string currentResult)
-        {
-            FileWriter fileWriter = new FileWriter();
-            fileWriter.AppendNewTestPassingData(testToPass.TestMetadata, currentResult);
 
+        private void BackToMain_Button_Click(object sender, RoutedEventArgs e)
+        {
+            PromptMainWindowRedirectionConfirmation();
+        }
+
+        private void PromptMainWindowRedirectionConfirmation()
+        {
+            if (IsMainWindowRedirectionConfirmed())
+            {
+                StopTimer();
+                GoToMainWindow();
+            }
+        }
+
+        private bool IsMainWindowRedirectionConfirmed()
+        {
+            string confirmationString = "Натиснувши \"Так\", ви перейдете на головну сторінку, втративши дані" +
+                " проходження тесту. Ви справді хочете це зробити?";
+            MessageBoxResult result = MessageBox.Show(confirmationString,
+                "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            return result.Equals(MessageBoxResult.Yes);
+        }
+
+        private void GoToMainWindow()
+        {
             WindowCaller.ShowMain();
             this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
 
-        /// <summary>
-        /// Updates visibility of all changeable GUI elements
-        /// </summary>
-        private void UpdateGUI()
+        private void NextQuestion_Button_Click(object sender, RoutedEventArgs e)
         {
-            CurrentQuestion_Text.Text = $"{currentQuestionIndex}/{testToPass.QuestionMetadatas.Count}";
+            GoToNextQuestion();
+        }
 
-            if (currentQuestionIndex == testToPass.QuestionMetadatas.Count)
+        private void GoToNextQuestion()
+        {
+            if (!isCurrentVariantChosen)
+            {
+                MessageBox.Show("Оберіть варіант відповіді, який вважаєте правильним");
+                return;
+            }
+
+            if (testToPass.QuestionMetadatas.Count > currentQuestionIndex)
+            {
+                ResetAbilityToChooseVariant();
+                DisplayFollowingQuestion();
+            }
+        }
+
+        private void ResetAbilityToChooseVariant()
+        {
+            isCurrentVariantChosen = false;
+        }
+
+        private void EndTest_Button_Click(object sender, RoutedEventArgs e)
+        {
+            TryToFinishTest();
+        }
+
+        private void UpdateUI()
+        {
+            UpdateCurrentQuestionText();
+            UpdateButtonsVisibility();
+            UpdateImageAppearance();
+        }
+
+        private void UpdateCurrentQuestionText()
+        {
+            CurrentQuestion_Text.Text = $"{GetOrginalQuesitonNumber()}/{testToPass.QuestionMetadatas.Count}";
+        }
+
+        private int GetOrginalQuesitonNumber()
+        {
+            return currentQuestionIndex + 1;
+        }
+
+        private void UpdateButtonsVisibility()
+        {
+            if (GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
-            }
-            else NextQuestion_Button.Visibility = Visibility.Visible;
-
-            if (currentQuestionIndex == testToPass.QuestionMetadatas.Count)
-            {
                 EndTest_Button.Visibility = Visibility.Visible;
             }
+            else NextQuestion_Button.Visibility = Visibility.Visible;
         }
-        /// <summary>
-        /// Updates image of current question (if such is linked)
-        /// </summary>
+
         private void UpdateImageAppearance()
         {
-            try
+            ImageManager.ImageMetadata imageMetadata = ImageManager.GetImageForQuestionAtIndex(testToPass, currentQuestionIndex);
+            if (!imageMetadata.Equals(EmptyImageMetadata))
             {
-                string[] allImagesPaths = Directory.GetFiles(ImagesDirectory);
-                if (allImagesPaths.Length == 0) throw new ArgumentNullException();
+                BitmapImage imageBitmap = GetBitmapImage(imageMetadata);
+                IllustrationImage.Source = imageBitmap;
 
-                foreach (string currentImagePath in allImagesPaths)
-                {
-                    // Finding required image from images folder
-                    if (testToPass.QuestionMetadatas[currentQuestionIndex-1].hasLinkedImage
-                        && currentImagePath.Contains($"{transliteratedTestTitle}-{currentQuestionIndex}"))
-                    {
-                        // Displaying found image
-                        string absoluteImagePath = Path.GetFullPath(currentImagePath);
-                        BitmapImage foundImageBitmap = new BitmapImage();
-                        foundImageBitmap.BeginInit();
-                        foundImageBitmap.UriSource = new Uri(absoluteImagePath, UriKind.Absolute);
-                        foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        foundImageBitmap.EndInit();
-                        IllustrationImage.Source = foundImageBitmap;
-
-                        QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
-                        ViewboxWithImage.Visibility = Visibility.Visible;
-                        IllustrationImage.Visibility = Visibility.Visible;
-                        return;
-                    }
-                }
-            }
-            catch(ArgumentNullException)
-            {
-                MessageBox.Show("На жаль, картинку не знайдено");
-            }
-        }
-        /// <summary>
-        /// Erases data from QuestionText, WrapPanel, Button-bool dictionary
-        /// </summary>
-        private void ClearElementsData()
-        {
-            QuestionText.Text = string.Empty;
-            wrapPanelOfVariants.Children.Clear();
-            variantsDict.Clear();
-        }
-        /// <summary>
-        /// Displays a question from a list at given index
-        /// </summary>
-        /// <param name="indexOfElementToReturnTo">Index of question (values from 0 to 9)</param>
-        private void ShowQuestionAtIndex(int indexOfElementToReturnTo)
-        {
-            currentQuestionIndex = ++indexOfElementToReturnTo;
-            ClearElementsData();
-            UpdateGUI();
-            GetListAndPutItInGUI(testToPass.QuestionMetadatas);
-        }
-        /// <summary>
-        /// Adds answer variant with specified values
-        /// </summary>
-        /// <param name="variantText">Text of answer variant</param>
-        /// <param name="isCorrect">Is the variant correct?</param>
-        private void AddNewVariant(string variantText, bool isCorrect)
-        {
-            Button button = new Button
-            {
-                Content = variantText,
-                Foreground = new SolidColorBrush(Colors.Black),
-                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                ToolTip = "Клацніть, щоб обрати цей варіант",
-                Margin = new Thickness(3),
-                MinWidth = 200,
-                MaxWidth = 260
-            };
-            button.Click += VariantButton_Click;
-            variantsDict.Add(button, isCorrect);
-            wrapPanelOfVariants.Children.Add(button);
-        }
-        /// <summary>
-        /// Checking and color-marking choice of user
-        /// </summary>
-        private void VariantButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (buttonClicked) return;
-
-            buttonClicked = true;
-
-            Button clickedButton = (Button)sender;
-            string clickedButtonContent = clickedButton.Content.ToString();
-            // Changing focus on other buttons for convenient Enter usage (depends on question index)
-            if(currentQuestionIndex != testToPass.QuestionMetadatas.Count)
-            {
-                NextQuestion_Button.Focus();
+                QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
+                ViewboxWithImage.Visibility = Visibility.Visible;
+                IllustrationImage.Visibility = Visibility.Visible;
             }
             else
             {
-                EndTest_Button.Focus();
+                QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
+                ViewboxWithImage.Visibility = Visibility.Collapsed;
+                IllustrationImage.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void VariantButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isCurrentVariantChosen)
+            {
+                return;
             }
 
-            foreach(var buttonBoolPair in variantsDict)
+            isCurrentVariantChosen = true;
+
+            if (IsClickedVariantCorrect((Button)sender))
             {
-                string currButtonContent = buttonBoolPair.Key.Content.ToString();
-                if (string.Compare(currButtonContent, clickedButtonContent) == 0)
+                correctAnswersCount++;
+            }
+
+            MakeKeyboardNavigationPossible();
+            ColorMarkVariants();
+        }
+
+        private bool IsClickedVariantCorrect(Button clickedVariantButton)
+        {
+            string clickedVariant = clickedVariantButton.Content.ToString();
+            foreach (var buttonBoolPair in variants)
+            {
+                string currentVariant = buttonBoolPair.Key.Content.ToString();
+                if (currentVariant.Equals(clickedVariant))
                 {
-                    buttonBoolPair.Key.Background = new SolidColorBrush(Colors.DarkRed);
-                    buttonBoolPair.Key.Foreground = new SolidColorBrush(Colors.White);
-
-                    bool isSelectedVariandCorrect = buttonBoolPair.Value;
-                    if (isSelectedVariandCorrect)
-                    {
-                        correctAnswersCount++;
-                    }
-
-                    break;
+                    return buttonBoolPair.Value;
                 }
             }
 
-            ShowCorrectAnswers();
+            return false;
         }
-        /// <summary>
-        /// Changes colors of buttons of variants according to their correctness
-        /// </summary>
-        private void ShowCorrectAnswers()
+
+        private void MakeKeyboardNavigationPossible()
         {
-            foreach (var currVariant in variantsDict)
+            if (CurrentQuestionIsLast())
             {
-                if (currVariant.Value)
+                EndTest_Button.Focus();
+            }
+            else
+            {
+                NextQuestion_Button.Focus();
+            }
+        }
+
+        private bool CurrentQuestionIsLast()
+        {
+            return GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count;
+        }
+
+        private void ColorMarkVariants()
+        {
+            foreach (var currVariant in variants)
+            {
+                bool variantIsCorrect = currVariant.Value;
+                if (variantIsCorrect)
                 {
                     currVariant.Key.Background = new SolidColorBrush(Colors.DarkGreen);
                     currVariant.Key.Foreground = new SolidColorBrush(Colors.White);
                 }
+                else
+                {
+                    currVariant.Key.Background = new SolidColorBrush(Colors.DarkRed);
+                    currVariant.Key.Foreground = new SolidColorBrush(Colors.White);
+                }
             }
         }
-        /// <summary>
-        /// Handling pressed keyboard keys
-        /// </summary>
-        /// <remarks>F1 - user manual;
-        /// Esc - previous window;
-        /// Enter - next question/end test passing attempt</remarks>
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             e.OpenHelpCenterOnF1();
             if (e.Key == Key.Escape)
             {
-                GoToMainWithConfimation();
+                PromptMainWindowRedirectionConfirmation();
             }
+
             if(e.Key == Key.Enter)
             {
-                if (currentQuestionIndex != testToPass.QuestionMetadatas.Count)
+                if (CurrentQuestionIsLast())
                 {
-                    GoToNextQuestion();
+                    TryToFinishTest();
                     return;
                 }
 
-                TryToFinishTheTest();
+                GoToNextQuestion();
             }
         }
-        /// <summary>
-        /// User must to confirm going to MainWindow
-        /// </summary>
-        private void GoToMainWithConfimation()
+
+        private void TryToFinishTest(string customDescription = "")
         {
-            string confirmationString = "Натиснувши \"Так\", ви перейдете на головну сторінку, втративши дані проходження тесту. Ви справді хочете це зробити?";
-            MessageBoxResult result = MessageBox.Show(confirmationString,
-                "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result.Equals(MessageBoxResult.Yes))
-            {
-                WindowCaller.ShowMain();
-                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
-            }
-            // If user did not confirmed the redirection, resume timer
-            timer.Start();
-        }
-        /// <summary>
-        /// Shows results of passing attempt and calls method for their saving
-        /// </summary>
-        private void TryToFinishTheTest()
-        {
-            try
-            {
-                if (!buttonClicked)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                timer.Stop();
-
-                string resultsOfTest = FormResultsOfTest();
-                MessageBox.Show($"Тест \"{testToPass.TestMetadata.testTitle}\" пройдено!\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
-
-                EndTestAndSaveResults(resultsOfTest);
-            }
-            catch (ArgumentNullException)
+            if (!isCurrentVariantChosen)
             {
                 MessageBox.Show("Оберіть варіант відповіді, який вважаєте правильним");
+                return;
             }
+
+            StopTimer();
+
+            string testEndingDescription = GetTestEndingDescription(customDescription);
+            string resultsOfTest = GetResultsOfTest();
+            MessageBox.Show($"{testEndingDescription}" +
+                $"\nРезультати тестування:\n{resultsOfTest}", "Результати проходження тесту");
+
+            SaveResults(resultsOfTest);
+            GoToMainWindow();
         }
-        /// <summary>
-        /// Displays next question if such exist
-        /// </summary>
-        private void GoToNextQuestion()
+
+        private string GetTestEndingDescription(string customDescription)
         {
-            try
-            {
-                if (!buttonClicked)
-                {
-                    throw new ArgumentNullException();
-                }
-                if (testToPass.QuestionMetadatas.Count > currentQuestionIndex)
-                {
-                    buttonClicked = false;
-                    currentQuestionIndex++;
-                    ShowQuestionAtIndex(currentQuestionIndex - 1);
-                }
-            }
-            catch (ArgumentNullException)
-            {
-                MessageBox.Show("Оберіть варіант відповіді, який вважаєте правильним");
-            }
+            string defaultDescription = $"Тест \"{testToPass.TestMetadata.testTitle}\" успішно пройдено!";
+            return IsCustomDescriptionAssigned(customDescription) ? customDescription
+                : defaultDescription;
         }
-        /// <summary>
-        /// Puts QuestionMetadatas structure in GUI
-        /// </summary>
-        /// <param name="questions">List of QuestionMetadatas</param>
-        public void GetListAndPutItInGUI(List<TestStructs.QuestionMetadata> questions)
+
+        private static bool IsCustomDescriptionAssigned(string customDescription)
         {
-            TestStructs.QuestionMetadata currentQuestion = questions[currentQuestionIndex - 1];
-            ViewboxWithImage.Visibility = Visibility.Collapsed;
-            IllustrationImage.Visibility = Visibility.Collapsed;
-            QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
-
-            if (currentQuestion.hasLinkedImage)
-            {
-                UpdateImageAppearance();
-            }
-
-            QuestionText.Text = currentQuestion.question;
-            int tempIndexOfCorrectVariant = 0;
-            foreach (string variant in currentQuestion.variants)
-            {
-                bool variantIsCorrect = currentQuestion.correctVariantsIndeces.Contains(tempIndexOfCorrectVariant);
-                AddNewVariant(variant, variantIsCorrect);
-                tempIndexOfCorrectVariant++;
-            }
-
-            UpdateGUI();
+            return !string.IsNullOrEmpty(customDescription);
         }
-        /// <summary>
-        /// Handling window closing event
-        /// </summary>
+
+        private string GetResultsOfTest()
+        {
+            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.QuestionMetadatas.Count}";
+            return resultsToReturn;
+        }
+
+        private void SaveResults(string currentResult)
+        {
+            FileWriter fileWriter = new FileWriter();
+            fileWriter.AppendNewTestPassingData(testToPass.TestMetadata, currentResult);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (isWindowClosingConfirmationRequired)
             {
-                e.GetClosingConfirmation();
+                e.GetClosingConfirmation("Дані проходження тесту буде втрачено! ");
             }
         }
     }

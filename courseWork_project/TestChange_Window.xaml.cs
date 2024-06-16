@@ -519,7 +519,7 @@ namespace courseWork_project
                 ImageManager.ImageMetadata currentImageInfo = new ImageManager.ImageMetadata
                 {
                     questionIndex = currentQuestionIndex,
-                    imagePath = selectedFilePath
+                    path = selectedFilePath
                 };
                 PushImageSource(currentImageInfo);
                 // Displaying chosen image
@@ -593,7 +593,7 @@ namespace courseWork_project
             {
                 BitmapImage foundImageBitmap = new BitmapImage();
                 foundImageBitmap.BeginInit();
-                foundImageBitmap.UriSource = new Uri(foundImage.imagePath, UriKind.RelativeOrAbsolute);
+                foundImageBitmap.UriSource = new Uri(foundImage.path, UriKind.RelativeOrAbsolute);
                 foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
                 foundImageBitmap.EndInit();
                 IllustrationImage.Source = foundImageBitmap;

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Media.Effects;
-using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Media.Imaging;
 
 namespace courseWork_project
 {
@@ -10,14 +10,14 @@ namespace courseWork_project
     {
         public struct ImageMetadata
         {
-            public string imagePath;
+            public string path;
             // Index of question to which image is linked to
             public int questionIndex;
         }
 
         public static readonly ImageMetadata EmptyImageMetadata = new ImageMetadata()
         {
-            imagePath = string.Empty,
+            path = string.Empty,
             questionIndex = -1
         };
         public static string ImagesDirectory { get { return Properties.Settings.Default.imagesDirectory; } }
@@ -25,7 +25,7 @@ namespace courseWork_project
         public static void CopyToDatabaseDirectoryWithNameOf(this ImageMetadata imageMetadata, string transliteratedTestTitle)
         {
             string newImageName = DataEncoder.GetConventionalImageName(transliteratedTestTitle, imageMetadata);
-            string oldImagePath = imageMetadata.imagePath;
+            string oldImagePath = imageMetadata.path;
             EnsureImageDirectoryExists();
             string relativePath = GetNewRelativePath(oldImagePath, newImageName);
             File.Copy(oldImagePath, relativePath, true);
@@ -37,7 +37,7 @@ namespace courseWork_project
             {
                 try
                 {
-                    File.Delete(deprecatedImageMetadata.imagePath);
+                    File.Delete(deprecatedImageMetadata.path);
                 }
                 catch
                 {
@@ -99,51 +99,74 @@ namespace courseWork_project
 
         public static bool IsImageInCorrectPlace(ImageMetadata imageMetadata, Test test)
         {
-            return IsFilenameRelatedToTest(imageMetadata.imagePath, test)
+            return IsFilenameRelatedToTest(imageMetadata.path, test)
                 && ImageIsInDirectoryDatabase(imageMetadata);
         }
 
         private static bool ImageIsInDirectoryDatabase(ImageMetadata imageMetadata)
         {
-            string imageDirectories = Path.GetDirectoryName(imageMetadata.imagePath);
+            string imageDirectories = Path.GetDirectoryName(imageMetadata.path);
             string firstLevelImageDirectory = Path.GetFileName(imageDirectories
                 .Trim(Path.DirectorySeparatorChar));
             return firstLevelImageDirectory.Equals(ImagesDirectory);
         }
         // TODO delete this dead code
-        public static void MoveImagesUsingTitles(string oldTransliteratedTitle, string newTransliteratedTitle)
+        //public static void MoveImagesUsingTitles(string oldTransliteratedTitle, string newTransliteratedTitle)
+        //{
+        //    List<string> imageDirectoryFiles = GetImageDirectoryFiles();
+        //    if (imageDirectoryFiles.Count == 0)
+        //    {
+        //        return;
+        //    }
+
+        //    foreach (string currentImageRelativePath in imageDirectoryFiles)
+        //    {
+        //        string imageDirectory = Path.GetFileName(Path.GetDirectoryName(currentImageRelativePath));
+        //        bool containsOldTestTitle = currentImageRelativePath.Contains(oldTransliteratedTitle);
+        //        string newImageRelativePath = currentImageRelativePath.Replace(oldTransliteratedTitle, newTransliteratedTitle);
+        //        bool isInDatabaseDirectory = string.Compare(imageDirectory, ImagesDirectory) == 0;
+        //        if (containsOldTestTitle && isInDatabaseDirectory)
+        //        {
+        //            if (File.Exists(newImageRelativePath))
+        //            {
+        //                File.Delete(newImageRelativePath);
+        //            }
+
+        //            File.Move(currentImageRelativePath, newImageRelativePath);
+        //        }
+        //        else if (containsOldTestTitle)
+        //        {
+        //            File.Copy(currentImageRelativePath, newImageRelativePath, true);
+        //        }
+        //    }
+        //}
+
+        public static ImageMetadata GetImageForQuestionAtIndex(this Test test, int indexOfQuestion)
         {
-            List<string> imageDirectoryFiles = GetImageDirectoryFiles();
-            if (imageDirectoryFiles.Count == 0)
+            List<ImageMetadata> testImages = test.GetRelatedImages();
+            string transliteratedTestTitle = test.TestMetadata.testTitle.TransliterateToEnglish();
+            ImageMetadata supposedImage = testImages.Find(img => img.path.Contains($"{transliteratedTestTitle}-{indexOfQuestion}."));
+            if (supposedImage.Equals(default(ImageMetadata)))
             {
-                return;
+                return EmptyImageMetadata;
             }
 
-            foreach (string currentImageRelativePath in imageDirectoryFiles)
-            {
-                string imageDirectory = Path.GetFileName(Path.GetDirectoryName(currentImageRelativePath));
-                bool containsOldTestTitle = currentImageRelativePath.Contains(oldTransliteratedTitle);
-                string newImageRelativePath = currentImageRelativePath.Replace(oldTransliteratedTitle, newTransliteratedTitle);
-                bool isInDatabaseDirectory = string.Compare(imageDirectory, ImagesDirectory) == 0;
-                if (containsOldTestTitle && isInDatabaseDirectory)
-                {
-                    if (File.Exists(newImageRelativePath))
-                    {
-                        File.Delete(newImageRelativePath);
-                    }
-
-                    File.Move(currentImageRelativePath, newImageRelativePath);
-                }
-                else if (containsOldTestTitle)
-                {
-                    File.Copy(currentImageRelativePath, newImageRelativePath, true);
-                }
-            }
+            return supposedImage;
         }
 
         public static void TryDeleteImages(List<ImageMetadata> images)
         {
             images.ForEach(TryDeleteImage);
+        }
+
+        public static BitmapImage GetBitmapImage(ImageMetadata imageMetadata)
+        {
+            BitmapImage foundImageBitmap = new BitmapImage();
+            foundImageBitmap.BeginInit();
+            foundImageBitmap.UriSource = new Uri(imageMetadata.path, UriKind.RelativeOrAbsolute);
+            foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
+            foundImageBitmap.EndInit();
+            return foundImageBitmap;
         }
     }
 }

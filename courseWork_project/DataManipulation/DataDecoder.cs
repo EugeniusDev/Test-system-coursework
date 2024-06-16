@@ -222,7 +222,7 @@ namespace courseWork_project
             {
                 testTitle = stringToSplit[0],
                 lastEditedTime = editingDate,
-                timerValue = timerValue
+                timerValueInMinutes = timerValue
             };
         }
         #endregion
@@ -232,7 +232,7 @@ namespace courseWork_project
             ImageManager.ImageMetadata imageMetadata = ImageManager.EmptyImageMetadata;
             if (fileName.TryRetrieveValidQuestionIndex(ref imageMetadata.questionIndex))
             {
-                imageMetadata.imagePath = Path.GetFullPath(fileName);
+                imageMetadata.path = Path.GetFullPath(fileName);
             }
 
             return imageMetadata;

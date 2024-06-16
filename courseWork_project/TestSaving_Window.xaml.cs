@@ -65,9 +65,9 @@ namespace courseWork_project
             this.questionsToSave = questionsToSave;
             imageMetadatas = imagesToSave;
             // There are no time limitations by default
-            testMetadata.timerValue = 0;
+            testMetadata.timerValueInMinutes = 0;
             InitializeComponent();
-            TimerInputBox.Text = testMetadata.timerValue.ToString();
+            TimerInputBox.Text = testMetadata.timerValueInMinutes.ToString();
 
             questionItems = new ObservableCollection<QuestionItem>();
             QuestionsListView.ItemsSource = questionItems;
@@ -84,7 +84,7 @@ namespace courseWork_project
             transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
             imageMetadatas = imagesToSave;
             InitializeComponent();
-            TimerInputBox.Text = testMetadata.timerValue.ToString();
+            TimerInputBox.Text = testMetadata.timerValueInMinutes.ToString();
 
             TestTitleBlock.Foreground = new SolidColorBrush(Colors.Black);
             TestTitleBlock.Text = testMetadata.testTitle;
@@ -267,12 +267,12 @@ namespace courseWork_project
             {
                 for(int i = 0; i < imageMetadatas.Count; i++)
                 {
-                    if (imageMetadatas[i].imagePath.Contains(transliterOldTestTitle))
+                    if (imageMetadatas[i].path.Contains(transliterOldTestTitle))
                     {
                         ImageManager.ImageMetadata deprecatedImageMetadata = imageMetadatas[i];
                         imageMetadatas[i] = new ImageManager.ImageMetadata()
                         {
-                            imagePath = deprecatedImageMetadata.imagePath.Replace(transliterOldTestTitle, supposedNewTransliterTestTitle),
+                            path = deprecatedImageMetadata.path.Replace(transliterOldTestTitle, supposedNewTransliterTestTitle),
                             questionIndex = deprecatedImageMetadata.questionIndex
                         };
                         deprecatedImageMetadata.CopyToDatabaseDirectoryWithNameOf(supposedNewTransliterTestTitle);
@@ -296,7 +296,7 @@ namespace courseWork_project
                 bool timerIsEmpty = string.IsNullOrWhiteSpace(TimerInputBox.Text);
                 if (titleBlockIsNotSet || timerIsEmpty) throw new ArgumentNullException();
 
-                bool timerIsSetWrong = !int.TryParse(TimerInputBox.Text, out testMetadata.timerValue) || int.Parse(TimerInputBox.Text) < 0;
+                bool timerIsSetWrong = !int.TryParse(TimerInputBox.Text, out testMetadata.timerValueInMinutes) || int.Parse(TimerInputBox.Text) < 0;
                 if (timerIsSetWrong) throw new FormatException();
 
                 testMetadata.lastEditedTime = DateTime.Now;

@@ -27,7 +27,7 @@ namespace courseWork_project
         {
             return $"{testMetadata.testTitle}{separator}" +
                 $"{testMetadata.lastEditedTime}{separator}" +
-                $"{testMetadata.timerValue}";
+                $"{testMetadata.timerValueInMinutes}";
         }
 
         private static string EncodeQuestionMetadata(QuestionMetadata questionMetadata)
@@ -52,7 +52,7 @@ namespace courseWork_project
 
         public static string GetConventionalImageName(string tranliteratedTestTitle, ImageManager.ImageMetadata imageMetadata)
         {
-            string imageExtension = Path.GetExtension(imageMetadata.imagePath);
+            string imageExtension = Path.GetExtension(imageMetadata.path);
             return $"{tranliteratedTestTitle}-{imageMetadata.questionIndex}{imageExtension}";
         }
     }

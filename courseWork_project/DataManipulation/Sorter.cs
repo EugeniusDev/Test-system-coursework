@@ -32,8 +32,8 @@ namespace courseWork_project
                     .CompareTo(a.lastEditedTime));
                     break;
                 case TestSortOption.BY_TIMER:
-                    allTests.Sort((a, b) => a.timerValue
-                    .CompareTo(b.timerValue));
+                    allTests.Sort((a, b) => a.timerValueInMinutes
+                    .CompareTo(b.timerValueInMinutes));
                     break;
                 case TestSortOption.BY_QUESTIONS_COUNT:
                     allTests.Sort((a, b) =>
@@ -64,7 +64,7 @@ namespace courseWork_project
                     .Count;
                 sortResults.AppendLine($"Назва: {testMetadata.testTitle}; " +
                     $"Дата: {testMetadata.lastEditedTime}; " +
-                    $"Таймер: {testMetadata.timerValue} хв; " +
+                    $"Таймер: {testMetadata.timerValueInMinutes} хв; " +
                     $"Кількість запитань: {questionsCount}\n");
             }
 
