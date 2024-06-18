@@ -164,7 +164,7 @@ namespace courseWork_project
         public static List<string> GetTestResultsByTitle(string testTitle)
         {
             FileReader fileReader = new FileReader(testTitle);
-            fileReader.SetDirectoryName(resultsDirectoryName);
+            fileReader.UpdateDirectoryName(resultsDirectoryName);
             return fileReader.GetFileContentInLines();
         }
         #endregion

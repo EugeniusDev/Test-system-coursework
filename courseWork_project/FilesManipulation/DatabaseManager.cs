@@ -38,14 +38,14 @@ namespace courseWork_project
         public void UpdateDatabasePathByTitle(string newTestTitle)
         {
             string transliteratedTitle = newTestTitle.TransliterateToEnglish();
-            SetDirectoryName(transliteratedTitle);
             FileName = $"{transliteratedTitle}.txt";
-            FullPath = Path.Combine(DirectoryName, FileName);
+            UpdateDirectoryName(transliteratedTitle);
         }
 
-        public void SetDirectoryName(string newDirectoryName)
+        public void UpdateDirectoryName(string newDirectoryName)
         {
             DirectoryName = newDirectoryName;
+            FullPath = Path.Combine(DirectoryName, FileName);
         }
     }
 }
