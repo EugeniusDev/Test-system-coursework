@@ -7,11 +7,8 @@ using System.Windows.Media;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using System.IO;
 using System.Linq;
 using courseWork_project.DatabaseRelated;
-using courseWork_project.ImageManipulation;
-using System.Drawing;
 using courseWork_project.GuiManipulation;
 
 namespace courseWork_project
@@ -559,26 +556,7 @@ namespace courseWork_project
         /// </summary>
         private void ReturnDefaultImage()
         {
-            Bitmap defaultImage = DefaultImage.default_image;
-            // Convert Bitmap to BitmapImage
-            BitmapImage bitmapImage = null;
-            using (MemoryStream memory = new MemoryStream())
-            {
-                // Save Bitmap to memory stream
-                defaultImage.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-
-                // Rewind the stream
-                memory.Position = 0;
-
-                // Create BitmapImage
-                bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                // This is important to prevent file locks
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
-            IllustrationImage.Source = bitmapImage;
+            IllustrationImage.Source = ImageManager.DefaultBitmapImage();
         }
         /// <summary>
         /// Updates what image to display at current question

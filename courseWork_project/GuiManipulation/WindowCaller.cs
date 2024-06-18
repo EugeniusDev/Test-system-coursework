@@ -23,9 +23,10 @@ namespace courseWork_project
             TestChange_Window testChange_Window = new TestChange_Window();
             testChange_Window.Show();
         }
+        // TODO remove "+1" as it is temporary solution before fix
         public static void ShowTestChangeEditingMode(Test testToEdit, List<ImageMetadata> imagesList, int indexOfElementToEdit)
         {
-            TestChange_Window testChange_Window = new TestChange_Window(testToEdit, imagesList, indexOfElementToEdit);
+            TestChange_Window testChange_Window = new TestChange_Window(testToEdit, imagesList, indexOfElementToEdit+1);
             testChange_Window.Show();
         }
 

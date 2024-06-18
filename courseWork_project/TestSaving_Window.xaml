@@ -61,7 +61,7 @@
         <TextBox Style="{StaticResource TextBoxes}"
                 Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
                 FontSize="36" FontWeight="ExtraBold" MinWidth="450" MinHeight="66" MaxWidth="360"
-                x:Name="TestTitleBlock" GotFocus="TestTitleBlock_GotFocus" LostFocus="TestTitleBlock_LostFocus"
+                x:Name="TestTitleBox" GotFocus="TestTitleBlock_GotFocus" LostFocus="TestTitleBlock_LostFocus"
                 Text="Введіть назву тесту" ToolTip="Введіть/відредагуйте назву тесту"/>
         <StackPanel             
             Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2"

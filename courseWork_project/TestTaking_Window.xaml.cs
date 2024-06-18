@@ -20,24 +20,27 @@ namespace courseWork_project
 
         private int currentQuestionIndex = 0;
         private int correctAnswersCount = 0;
-        /// <summary>
-        /// Prompted name of a user who takes a test
-        /// </summary>
-        private readonly string userName;
+        private readonly string testPasserUserName;
         private bool isCurrentVariantChosen = false;
         private readonly Dictionary<Button, bool> variants = new Dictionary<Button, bool>();
+
         private int timeLimitInSeconds = 0;
         private readonly Timer timer = new Timer();
+
         private bool isWindowClosingConfirmationRequired = true;
         private bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
         public TestTaking_Window(Test testToPass, string userName)
         {
-            CheckTestDataValidity(testToPass);
+            if (!IsTestDataValid(testToPass))
+            {
+                loadedSuccessfully = false;
+                GoToMainWindow();
+            }
 
             this.testToPass = testToPass;
-            this.userName = userName;
+            testPasserUserName = userName;
             timeLimitInSeconds = testToPass.TestMetadata.timerValueInMinutes * 60;
 
             InitializeComponent();
@@ -47,16 +50,16 @@ namespace courseWork_project
             SetUpTimer();
         }
 
-        private void CheckTestDataValidity(Test testToPass)
+        private static bool IsTestDataValid(Test testToPass)
         {
             if (testToPass.QuestionMetadatas.Count == 0)
             {
                 MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                WindowCaller.ShowMain();
-                loadedSuccessfully = false;
-                this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
+                return false;
             }
+
+            return true;
         }
 
         private void PromptUserToConfirmStart(Test testToPass)
@@ -106,6 +109,53 @@ namespace courseWork_project
             }
 
             UpdateUI();
+        }
+
+        private void UpdateUI()
+        {
+            UpdateCurrentQuestionText();
+            UpdateButtonsVisibility();
+            UpdateImageAppearance();
+        }
+
+        private void UpdateCurrentQuestionText()
+        {
+            CurrentQuestion_Text.Text = $"{GetOrginalQuesitonNumber()}/{testToPass.QuestionMetadatas.Count}";
+        }
+
+        private int GetOrginalQuesitonNumber()
+        {
+            return currentQuestionIndex + 1;
+        }
+
+        private void UpdateButtonsVisibility()
+        {
+            if (GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count)
+            {
+                NextQuestion_Button.Visibility = Visibility.Collapsed;
+                EndTest_Button.Visibility = Visibility.Visible;
+            }
+            else NextQuestion_Button.Visibility = Visibility.Visible;
+        }
+
+        private void UpdateImageAppearance()
+        {
+            ImageManager.ImageMetadata imageMetadata = ImageManager.GetImageForQuestionAtIndex(testToPass, currentQuestionIndex);
+            if (!imageMetadata.Equals(EmptyImageMetadata))
+            {
+                BitmapImage imageBitmap = GetBitmapImageByMetadata(imageMetadata);
+                IllustrationImage.Source = imageBitmap;
+
+                QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
+                ViewboxWithImage.Visibility = Visibility.Visible;
+                IllustrationImage.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
+                ViewboxWithImage.Visibility = Visibility.Collapsed;
+                IllustrationImage.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void AddNewVariant(string variantText, bool isVariantCorrect)
@@ -216,53 +266,6 @@ namespace courseWork_project
         private void EndTest_Button_Click(object sender, RoutedEventArgs e)
         {
             TryToFinishTest();
-        }
-
-        private void UpdateUI()
-        {
-            UpdateCurrentQuestionText();
-            UpdateButtonsVisibility();
-            UpdateImageAppearance();
-        }
-
-        private void UpdateCurrentQuestionText()
-        {
-            CurrentQuestion_Text.Text = $"{GetOrginalQuesitonNumber()}/{testToPass.QuestionMetadatas.Count}";
-        }
-
-        private int GetOrginalQuesitonNumber()
-        {
-            return currentQuestionIndex + 1;
-        }
-
-        private void UpdateButtonsVisibility()
-        {
-            if (GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count)
-            {
-                NextQuestion_Button.Visibility = Visibility.Collapsed;
-                EndTest_Button.Visibility = Visibility.Visible;
-            }
-            else NextQuestion_Button.Visibility = Visibility.Visible;
-        }
-
-        private void UpdateImageAppearance()
-        {
-            ImageManager.ImageMetadata imageMetadata = ImageManager.GetImageForQuestionAtIndex(testToPass, currentQuestionIndex);
-            if (!imageMetadata.Equals(EmptyImageMetadata))
-            {
-                BitmapImage imageBitmap = GetBitmapImage(imageMetadata);
-                IllustrationImage.Source = imageBitmap;
-
-                QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
-                ViewboxWithImage.Visibility = Visibility.Visible;
-                IllustrationImage.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
-                ViewboxWithImage.Visibility = Visibility.Collapsed;
-                IllustrationImage.Visibility = Visibility.Collapsed;
-            }
         }
 
         private void VariantButton_Click(object sender, RoutedEventArgs e)
@@ -386,7 +389,7 @@ namespace courseWork_project
 
         private string GetResultsOfTest()
         {
-            string resultsToReturn = $"{userName}: {correctAnswersCount}/{testToPass.QuestionMetadatas.Count}";
+            string resultsToReturn = $"{testPasserUserName}: {correctAnswersCount}/{testToPass.QuestionMetadatas.Count}";
             return resultsToReturn;
         }
 

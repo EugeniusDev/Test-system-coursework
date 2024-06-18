@@ -39,6 +39,5 @@ namespace courseWork_project.DatabaseRelated
             EraseTestDatabases(testToDelete.TestMetadata);
             ImageManager.TryDeleteImages(imagesToDelete);
         }
-
     }
 }

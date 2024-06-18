@@ -1,5 +1,7 @@
-﻿using System;
+﻿using courseWork_project.ImageManipulation;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Media.Imaging;
@@ -159,7 +161,7 @@ namespace courseWork_project
             images.ForEach(TryDeleteImage);
         }
 
-        public static BitmapImage GetBitmapImage(ImageMetadata imageMetadata)
+        public static BitmapImage GetBitmapImageByMetadata(ImageMetadata imageMetadata)
         {
             BitmapImage foundImageBitmap = new BitmapImage();
             foundImageBitmap.BeginInit();
@@ -167,6 +169,30 @@ namespace courseWork_project
             foundImageBitmap.CacheOption = BitmapCacheOption.OnLoad;
             foundImageBitmap.EndInit();
             return foundImageBitmap;
+        }
+
+        public static BitmapImage DefaultBitmapImage()
+        {
+            Bitmap defaultImage = DefaultImage.default_image;
+            // Convert Bitmap to BitmapImage
+            BitmapImage bitmapImage = null;
+            using (MemoryStream memory = new MemoryStream())
+            {
+                // Save Bitmap to memory stream
+                defaultImage.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                // Rewind the stream
+                memory.Position = 0;
+
+                bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                // This is important to prevent file locks
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
+
+            return bitmapImage;
         }
     }
 }

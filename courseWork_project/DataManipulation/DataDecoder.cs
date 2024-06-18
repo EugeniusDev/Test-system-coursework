@@ -24,7 +24,7 @@ namespace courseWork_project
         };
         private static readonly char separator = Properties.Settings.Default.dataSeparator;
         private const int indexOfTestMetadataLine = 0;
-        private const int requiredLinesCount = 2;
+        private const int minimumRequiredLinesCount = 2;
 
         public static string TransliterateToEnglish(this string inputString)
         {
@@ -75,7 +75,8 @@ namespace courseWork_project
                 List<string> questionMetadataLines = GetQuestionMetadataLines(testTitle);
                 foreach (string line in questionMetadataLines)
                 {
-                    TestStructs.QuestionMetadata currentMetadata = line.ParseToQuestionMetadata();
+                    TestStructs.QuestionMetadata currentMetadata = new TestStructs.QuestionMetadata();
+                    currentMetadata = line.ParseToQuestionMetadata();
                     formedQuestionsList.Add(currentMetadata);
                 }
             }
@@ -90,10 +91,14 @@ namespace courseWork_project
 
         private static TestStructs.QuestionMetadata ParseToQuestionMetadata(this string input)
         {
-            TestStructs.QuestionMetadata questionMetadata = TestStructs.EmptyQuestionMetadata;
+            TestStructs.QuestionMetadata questionMetadata = new TestStructs.QuestionMetadata();
+            questionMetadata.variants = new List<string>();
+            questionMetadata.correctVariantsIndeces = new List<int>();
+
             string[] splitLine = input.Split(new char[]{ separator }, StringSplitOptions.RemoveEmptyEntries);
             questionMetadata.question = splitLine[0];
-            for (int i = 1; i < splitLine.Length - 1; i++)
+            int imageInfoIndex = splitLine.Length - 1;
+            for (int i = 1; i < imageInfoIndex; i++)
             {
                 bool currentPartIsInt = int.TryParse(splitLine[i], out int correctAnswerIndex)
                     && splitLine[i].Length == 1;
@@ -107,7 +112,7 @@ namespace courseWork_project
                 }
             }
 
-            if (!bool.TryParse(splitLine[splitLine.Length - 1], out bool imageIsLinked))
+            if (!bool.TryParse(splitLine[imageInfoIndex], out bool imageIsLinked))
             {
                 imageIsLinked = false;
             }
@@ -138,7 +143,7 @@ namespace courseWork_project
 
         private static void ValidateWholeTestData(List<string> wholeTestData)
         {
-            if (wholeTestData.Count < requiredLinesCount)
+            if (wholeTestData.Count < minimumRequiredLinesCount)
             {
                 throw new FormatException();
             }
