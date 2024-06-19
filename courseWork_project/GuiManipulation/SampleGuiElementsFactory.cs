@@ -1,7 +1,5 @@
-﻿using System.Diagnostics.SymbolStore;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace courseWork_project.GuiManipulation
 {
@@ -13,8 +11,8 @@ namespace courseWork_project.GuiManipulation
             TextBox textBox = new TextBox
             {
                 Text = variantText,
-                Foreground = new SolidColorBrush(Colors.Black),
-                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                Foreground = ColorBrushes.Black,
+                Background = ColorBrushes.VariantBackground,
                 FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -98,8 +96,8 @@ namespace courseWork_project.GuiManipulation
             return new Button
             {
                 Content = variantText,
-                Foreground = new SolidColorBrush(Colors.Black),
-                Background = (Brush)new BrushConverter().ConvertFrom("#fff0f0"),
+                Foreground = ColorBrushes.Black,
+                Background = ColorBrushes.VariantBackground,
                 FontSize = 24,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,

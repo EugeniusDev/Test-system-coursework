@@ -4,8 +4,6 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using static courseWork_project.ImageManager;
 
 namespace courseWork_project
@@ -120,17 +118,17 @@ namespace courseWork_project
 
         private void UpdateCurrentQuestionText()
         {
-            CurrentQuestion_Text.Text = $"{GetOrginalQuesitonNumber()}/{testToPass.QuestionMetadatas.Count}";
+            CurrentQuestion_Text.Text = $"{GetOrginalQuestionNumber()}/{testToPass.QuestionMetadatas.Count}";
         }
 
-        private int GetOrginalQuesitonNumber()
+        private int GetOrginalQuestionNumber()
         {
             return currentQuestionIndex + 1;
         }
 
         private void UpdateButtonsVisibility()
         {
-            if (GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count)
+            if (GetOrginalQuestionNumber() == testToPass.QuestionMetadatas.Count)
             {
                 NextQuestion_Button.Visibility = Visibility.Collapsed;
                 EndTest_Button.Visibility = Visibility.Visible;
@@ -140,21 +138,31 @@ namespace courseWork_project
 
         private void UpdateImageAppearance()
         {
-            ImageManager.ImageMetadata imageMetadata = ImageManager.GetImageForQuestionAtIndex(testToPass, currentQuestionIndex);
-            if (!imageMetadata.Equals(EmptyImageMetadata))
-            {
-                BitmapImage imageBitmap = GetBitmapImageByMetadata(imageMetadata);
-                IllustrationImage.Source = imageBitmap;
-
-                QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
-                ViewboxWithImage.Visibility = Visibility.Visible;
-                IllustrationImage.Visibility = Visibility.Visible;
-            }
-            else
+            if (IsLinkedImageDefault(testToPass.QuestionMetadatas[currentQuestionIndex]))
             {
                 QuestionText.HorizontalAlignment = HorizontalAlignment.Center;
                 ViewboxWithImage.Visibility = Visibility.Collapsed;
                 IllustrationImage.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                string pathToCurrentImage = testToPass.QuestionMetadatas[currentQuestionIndex]
+                    .linkedImagePath;
+                try
+                {
+                    IllustrationImage.Source = GetBitmapImageByPath(pathToCurrentImage);
+                }
+                catch
+                {
+                    MessageBox.Show("Вказаної раніше картинки не існує або її було переміщено",
+                        "Помилка завантаження картинки"
+                        , MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                QuestionText.HorizontalAlignment = HorizontalAlignment.Left;
+                ViewboxWithImage.Visibility = Visibility.Visible;
+                IllustrationImage.Visibility = Visibility.Visible;
             }
         }
 
@@ -315,7 +323,7 @@ namespace courseWork_project
 
         private bool CurrentQuestionIsLast()
         {
-            return GetOrginalQuesitonNumber() == testToPass.QuestionMetadatas.Count;
+            return GetOrginalQuestionNumber() == testToPass.QuestionMetadatas.Count;
         }
 
         private void ColorMarkVariants()
@@ -325,13 +333,13 @@ namespace courseWork_project
                 bool variantIsCorrect = currVariant.Value;
                 if (variantIsCorrect)
                 {
-                    currVariant.Key.Background = new SolidColorBrush(Colors.DarkGreen);
-                    currVariant.Key.Foreground = new SolidColorBrush(Colors.White);
+                    currVariant.Key.Background = ColorBrushes.DarkGreen;
+                    currVariant.Key.Foreground = ColorBrushes.White;
                 }
                 else
                 {
-                    currVariant.Key.Background = new SolidColorBrush(Colors.DarkRed);
-                    currVariant.Key.Foreground = new SolidColorBrush(Colors.White);
+                    currVariant.Key.Background = ColorBrushes.DarkRed;
+                    currVariant.Key.Foreground = ColorBrushes.White;
                 }
             }
         }

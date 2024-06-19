@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Windows;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Клас, методи якого розкодовують інформацію з бази даних та формують потрібну структуру даних
-    /// </summary>
     public static class DataDecoder
     {
         #region Transliteration
@@ -75,14 +70,12 @@ namespace courseWork_project
                 List<string> questionMetadataLines = GetQuestionMetadataLines(testTitle);
                 foreach (string line in questionMetadataLines)
                 {
-                    TestStructs.QuestionMetadata currentMetadata = new TestStructs.QuestionMetadata();
-                    currentMetadata = line.ParseToQuestionMetadata();
+                    TestStructs.QuestionMetadata currentMetadata = line.ParseToQuestionMetadata();
                     formedQuestionsList.Add(currentMetadata);
                 }
             }
             catch (FormatException)
             {
-                MessageBox.Show("Помилка! Дані з бази даних некоректні!");
                 return formedQuestionsList;
             }
 
@@ -91,11 +84,14 @@ namespace courseWork_project
 
         private static TestStructs.QuestionMetadata ParseToQuestionMetadata(this string input)
         {
-            TestStructs.QuestionMetadata questionMetadata = new TestStructs.QuestionMetadata();
-            questionMetadata.variants = new List<string>();
-            questionMetadata.correctVariantsIndeces = new List<int>();
+            TestStructs.QuestionMetadata questionMetadata = new TestStructs.QuestionMetadata
+            {
+                variants = new List<string>(),
+                correctVariantsIndeces = new List<int>(),
+                linkedImagePath = ImageManager.DefaultPath
+            };
 
-            string[] splitLine = input.Split(new char[]{ separator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] splitLine = input.Split(separator);
             questionMetadata.question = splitLine[0];
             int imageInfoIndex = splitLine.Length - 1;
             for (int i = 1; i < imageInfoIndex; i++)
@@ -112,12 +108,7 @@ namespace courseWork_project
                 }
             }
 
-            if (!bool.TryParse(splitLine[imageInfoIndex], out bool imageIsLinked))
-            {
-                imageIsLinked = false;
-            }
-
-            questionMetadata.hasLinkedImage = imageIsLinked;
+            questionMetadata.linkedImagePath = splitLine[imageInfoIndex];
 
             return questionMetadata;
         }
@@ -156,8 +147,8 @@ namespace courseWork_project
 
         public static Test GetTestByTitle(string testTitle)
         {
-            return new Test(GetQuestionMetadatasByTitle(testTitle),
-                GetTestMetadataByTitle(testTitle));
+            return new Test(GetTestMetadataByTitle(testTitle),
+                GetQuestionMetadatasByTitle(testTitle));
         }
 
         private static readonly string resultsDirectoryName = Properties.Settings.Default.testResultsDirectory;
@@ -192,7 +183,6 @@ namespace courseWork_project
             }
             catch (FormatException)
             {
-                MessageBox.Show("Помилка! Дані з бази даних некоректні!");
                 return TestStructs.EmptyTestMetadata;
             }
         }
@@ -207,7 +197,7 @@ namespace courseWork_project
         
         private static TestStructs.TestMetadata ParseToTestMetadata(this string input)
         {
-            string[] stringToSplit = input.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] stringToSplit = input.Split(separator);
             if (stringToSplit.Length != 3)
             {
                 throw new FormatException();
@@ -229,39 +219,6 @@ namespace courseWork_project
                 lastEditedTime = editingDate,
                 timerValueInMinutes = timerValue
             };
-        }
-        #endregion
-        #region ImageMetadata related
-        public static ImageManager.ImageMetadata ParseToImageMetadata(this string fileName)
-        {
-            ImageManager.ImageMetadata imageMetadata = ImageManager.EmptyImageMetadata;
-            if (fileName.TryRetrieveValidQuestionIndex(ref imageMetadata.questionIndex))
-            {
-                imageMetadata.path = Path.GetFullPath(fileName);
-            }
-
-            return imageMetadata;
-        }
-
-        private static bool TryRetrieveValidQuestionIndex(this string fileName, ref int linkedQuestionIndex)
-        {
-            int lastHyphenIndex = fileName.LastIndexOf('-');
-            int lastDotIndex = fileName.LastIndexOf('.');
-            if (!ImageFilenameIsValid(lastHyphenIndex, lastDotIndex))
-            {
-                return false;
-            }
-
-            int firstDigitIndex = lastHyphenIndex + 1;
-            int lengthOfQuestionIndex = lastDotIndex - firstDigitIndex;
-            string supposedQuestionIndex = fileName.Substring(firstDigitIndex, lengthOfQuestionIndex);
-
-            return int.TryParse(supposedQuestionIndex, out linkedQuestionIndex);
-        }
-
-        private static bool ImageFilenameIsValid(int lastHyphenIndex, int lastDotIndex)
-        {
-            return lastHyphenIndex > 0 && lastDotIndex > 0 && lastHyphenIndex < lastDotIndex;
         }
         #endregion
     }

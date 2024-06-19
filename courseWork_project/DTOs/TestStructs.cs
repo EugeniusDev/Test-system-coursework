@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Class-container for test-related structures
-    /// </summary>
     public static class TestStructs
     {
         public struct QuestionMetadata
@@ -13,7 +10,7 @@ namespace courseWork_project
             public string question;
             public List<string> variants;
             public List<int> correctVariantsIndeces;
-            public bool hasLinkedImage;
+            public string linkedImagePath;
         }
 
         public struct TestMetadata

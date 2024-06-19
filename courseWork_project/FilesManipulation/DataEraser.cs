@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 namespace courseWork_project.DatabaseRelated
 {
@@ -34,10 +33,7 @@ namespace courseWork_project.DatabaseRelated
         public static void EraseTestByTestItem(TestItem selectedItem)
         {
             Test testToDelete = DataDecoder.GetTestByTestItem(selectedItem);
-            List<ImageManager.ImageMetadata> imagesToDelete = testToDelete.GetRelatedImages();
-
             EraseTestDatabases(testToDelete.TestMetadata);
-            ImageManager.TryDeleteImages(imagesToDelete);
         }
     }
 }

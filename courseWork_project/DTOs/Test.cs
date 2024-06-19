@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
+using static courseWork_project.TestStructs;
 
 namespace courseWork_project
 {
     public class Test
     {
-        public List<TestStructs.QuestionMetadata> QuestionMetadatas { get; private set; }
-        public TestStructs.TestMetadata TestMetadata { get; private set; }
-
-        public Test(List<TestStructs.QuestionMetadata> questionMetadatas, TestStructs.TestMetadata testMetadata)
+        public TestMetadata TestMetadata { get; private set; }
+        public List<QuestionMetadata> QuestionMetadatas { get; private set; }
+        public Test(TestMetadata testMetadata, List<QuestionMetadata> questionMetadatas)
         {
-            QuestionMetadatas = questionMetadatas;
             TestMetadata = testMetadata;
+            QuestionMetadatas = questionMetadatas;
         }
     }
 }

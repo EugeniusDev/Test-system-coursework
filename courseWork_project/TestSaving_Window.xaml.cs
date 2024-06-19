@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Collections.ObjectModel;
-using static courseWork_project.ImageManager;
 using courseWork_project.DatabaseRelated;
-using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 
 namespace courseWork_project
@@ -25,7 +22,6 @@ namespace courseWork_project
     public partial class TestSaving_Window : Window
     {
         private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
-        private List<ImageManager.ImageMetadata> imageMetadatas;
         private TestStructs.TestMetadata testMetadata = TestStructs.EmptyTestMetadata;
         private readonly string transliterOldTestTitle = string.Empty;
 
@@ -39,11 +35,10 @@ namespace courseWork_project
         /// </summary>
         /// <param name="questionsToSave">List of QuestionMetadatas of the test</param>
         /// <param name="imagesToSave">List of data about images</param>
-        public TestSaving_Window(List<TestStructs.QuestionMetadata> questionsToSave, List<ImageManager.ImageMetadata> imagesToSave)
+        public TestSaving_Window(List<TestStructs.QuestionMetadata> questionsToSave)
         {
             isCreatingMode = true;
             this.questionMetadatas = questionsToSave;
-            imageMetadatas = imagesToSave;
 
             InitializeComponent();
 
@@ -79,13 +74,12 @@ namespace courseWork_project
         /// <summary>
         /// TestSaving_Window editing mode constructor
         /// </summary>
-        public TestSaving_Window(Test testToSave, List<ImageManager.ImageMetadata> imagesToSave)
+        public TestSaving_Window(Test testToSave)
         {
             isCreatingMode = false;
             questionMetadatas = testToSave.QuestionMetadatas;
             testMetadata = testToSave.TestMetadata;
             transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
-            imageMetadatas = imagesToSave;
 
             InitializeComponent();
 
@@ -96,7 +90,7 @@ namespace courseWork_project
 
         private void UpdateTestTitleUI(string newText = "")
         {
-            TestTitleBox.Foreground = new SolidColorBrush(Colors.Black);
+            TestTitleBox.Foreground = ColorBrushes.Black;
             TestTitleBox.Text = newText;
         }
 
@@ -118,7 +112,7 @@ namespace courseWork_project
             if (IsTextBoxEmpty(TestTitleBox))
             {
                 TestTitleBox.Text = "Введіть назву тесту";
-                TestTitleBox.Foreground = new SolidColorBrush(Colors.DarkGray);
+                TestTitleBox.Foreground = ColorBrushes.DarkGray;
             }
         }
 
@@ -139,10 +133,9 @@ namespace courseWork_project
                 return;
             }
 
-            Test testToSave = new Test(questionMetadatas, testMetadata);
+            Test testToSave = new Test(testMetadata, questionMetadatas);
             EncodeAndSaveTest(testToSave);
             AppendNewTestToListOfExisting(testToSave);
-            CopyImagesToDatabaseDirectory(testToSave);
             UpdateTitleRelatedDataIfChanged();
 
             MessageBox.Show("Тест успішно збережено");
@@ -181,18 +174,6 @@ namespace courseWork_project
             string transliteratedTestTitle = DataDecoder.TransliterateToEnglish(test.TestMetadata.testTitle);
             FileWriter fileWriter = new FileWriter();
             fileWriter.AppendLineToFile(transliteratedTestTitle);
-        }
-
-        private void CopyImagesToDatabaseDirectory(Test testToSave)
-        {
-            foreach (ImageManager.ImageMetadata imageMetadata in imageMetadatas)
-            {
-                if (!IsImageInCorrectPlace(imageMetadata, testToSave))
-                {
-                    string transliteratedTestTitle = testToSave.TestMetadata.testTitle.TransliterateToEnglish();
-                    imageMetadata.CopyToDatabaseDirectoryWithNameOf(transliteratedTestTitle);
-                }
-            }
         }
 
         private void GoToMainWindow()
@@ -247,8 +228,8 @@ namespace courseWork_project
 
         private void EditTestOnQuestionAtIndex(int indexOfElementToEdit)
         {
-            Test testToEdit = new Test(questionMetadatas, testMetadata);
-            WindowCaller.ShowTestChangeEditingMode(testToEdit, imageMetadatas, indexOfElementToEdit);
+            Test testToEdit = new Test(testMetadata, questionMetadatas);
+            WindowCaller.ShowTestChangeEditingMode(testToEdit, indexOfElementToEdit);
             this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
 
@@ -258,28 +239,13 @@ namespace courseWork_project
             QuestionItem questionItemToDelete = new QuestionItem();
             if (GuiObjectsFinder.TryGetQuestionItemFromValidAncestor(sender, ref questionItemToDelete))
             {
-                if (imageMetadatas.Count == 0)
-                {
-                    Test test = new Test(questionMetadatas, testMetadata);
-                    imageMetadatas = test.GetRelatedImages();
-                }
-
                 for (int i  = 0; i < questionMetadatas.Count; i++)
                 {
                     // TODO GetIndexOfChosenQuestion here instead
                     if (string.Compare(questionMetadatas[i].question, questionItemToDelete.Question) == 0)
                     {
                         questionMetadatas.RemoveAt(i);
-                        // TODO get rid of this complicated image stuff and replace it with list of images in Test
-                        ImageManager.ImageMetadata imageToDelete = imageMetadatas.Find(x => x.questionIndex == i);
-                        if (!imageToDelete.Equals(default(ImageManager.ImageMetadata)))
-                        {
-                            imageMetadatas.Remove(imageToDelete);
-                            if (!isCreatingMode)
-                            {
-                                TryDeleteImage(imageToDelete);
-                            }
-                        }
+
                         break;
                     }
                 }
@@ -317,32 +283,13 @@ namespace courseWork_project
             return questionMetadatas.Count - 1;
         }
 
-        /// <summary>
-        /// Changes test title in paths of images and resets(deletes) old test passing data
-        /// </summary>
         public void UpdateTitleRelatedDataIfChanged()
         {
             string supposedNewTransliterTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
-            bool titleChanged = string.Compare(transliterOldTestTitle, 
-                supposedNewTransliterTestTitle) != 0
+            bool titleChanged = string.Compare(transliterOldTestTitle, supposedNewTransliterTestTitle) != 0
                 && transliterOldTestTitle != string.Empty;
             if (titleChanged)
             {
-                for(int i = 0; i < imageMetadatas.Count; i++)
-                {
-                    if (imageMetadatas[i].path.Contains(transliterOldTestTitle))
-                    {
-                        ImageManager.ImageMetadata deprecatedImageMetadata = imageMetadatas[i];
-                        imageMetadatas[i] = new ImageManager.ImageMetadata()
-                        {
-                            path = deprecatedImageMetadata.path.Replace(transliterOldTestTitle, supposedNewTransliterTestTitle),
-                            questionIndex = deprecatedImageMetadata.questionIndex
-                        };
-                        deprecatedImageMetadata.CopyToDatabaseDirectoryWithNameOf(supposedNewTransliterTestTitle);
-                        TryDeleteImage(deprecatedImageMetadata);
-                    }
-                }
-
                 DataEraser.EraseTestPassingDataByTitle(transliterOldTestTitle);
             }
         }
@@ -372,10 +319,6 @@ namespace courseWork_project
                 if (e.GetClosingConfirmation(additionalMessage))
                 {
                     DataEraser.EraseTestDatabases(testMetadata);
-                    if (!isCreatingMode)
-                    {
-                        TryDeleteImages(imageMetadatas);
-                    }
                 }
             }
         }

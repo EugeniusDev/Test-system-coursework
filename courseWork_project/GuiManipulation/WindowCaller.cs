@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using static courseWork_project.ImageManager;
 using static courseWork_project.TestStructs;
 
 namespace courseWork_project
@@ -24,20 +23,20 @@ namespace courseWork_project
             testChange_Window.Show();
         }
         // TODO remove "+1" as it is temporary solution before fix
-        public static void ShowTestChangeEditingMode(Test testToEdit, List<ImageMetadata> imagesList, int indexOfElementToEdit)
+        public static void ShowTestChangeEditingMode(Test testToEdit, int indexOfElementToEdit)
         {
-            TestChange_Window testChange_Window = new TestChange_Window(testToEdit, imagesList, indexOfElementToEdit+1);
+            TestChange_Window testChange_Window = new TestChange_Window(testToEdit, indexOfElementToEdit);
             testChange_Window.Show();
         }
 
-        public static void ShowTestSavingCreatingMode(List<QuestionMetadata> questionsToSave, List<ImageMetadata> imagesToSave)
+        public static void ShowTestSavingCreatingMode(List<QuestionMetadata> questionsToSave)
         {
-            TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToSave, imagesToSave);
+            TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToSave);
             testSaving_Window.Show();
         }
-        public static void ShowTestSavingEditingMode(Test testToEdit, List<ImageMetadata> imageInfos)
+        public static void ShowTestSavingEditingMode(Test testToEdit)
         {
-            TestSaving_Window testSaving_Window = new TestSaving_Window(testToEdit, imageInfos);
+            TestSaving_Window testSaving_Window = new TestSaving_Window(testToEdit);
             testSaving_Window.Show();
         }
 

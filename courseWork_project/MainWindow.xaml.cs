@@ -7,7 +7,6 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace courseWork_project
 {
@@ -31,7 +30,6 @@ namespace courseWork_project
         public MainWindow()
         {
             InitializeComponent();
-
             UpdateListOfExistingTests();
             FileReader fileReader = new FileReader();
             transliteratedTestTitles = fileReader.GetExistingTestTitles();
@@ -99,11 +97,10 @@ namespace courseWork_project
             TestItem selectedItem = new TestItem();
             if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
+                Test testToEdit = DataDecoder.GetTestByTestItem(selectedItem);
                 DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
 
-                Test testToEdit = DataDecoder.GetTestByTestItem(selectedItem);
-                List<ImageManager.ImageMetadata> emptyImages = new List<ImageManager.ImageMetadata>();
-                WindowCaller.ShowTestSavingEditingMode(testToEdit, emptyImages);
+                WindowCaller.ShowTestSavingEditingMode(testToEdit);
                 this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
@@ -214,13 +211,13 @@ namespace courseWork_project
         private void QuestionSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             QuestionSearchBox.Text = string.Empty;
-            QuestionSearchBox.Foreground = new SolidColorBrush(Colors.Black);
+            QuestionSearchBox.Foreground = ColorBrushes.Black;
         }
 
         private void VariantSearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             VariantSearchBox.Text = string.Empty;
-            VariantSearchBox.Foreground = new SolidColorBrush(Colors.Black);
+            VariantSearchBox.Foreground = ColorBrushes.Black;
         }
 
         private void SearchQuestion_button_Click(object sender, RoutedEventArgs e)

@@ -83,7 +83,8 @@ namespace courseWork_project
             List<TestStructs.QuestionMetadata> groupOfQuestions = new List<TestStructs.QuestionMetadata>();
             if (groupingOption.Equals(QuestionGroupOption.WITH_IMAGE))
             {
-                groupOfQuestions = questionsToGroup.FindAll(a => a.hasLinkedImage);
+                groupOfQuestions = questionsToGroup.FindAll(a => 
+                    !ImageManager.IsLinkedImageDefault(a));
             }
             else if (groupingOption.Equals(QuestionGroupOption.ALL_VARIANTS_CORRECT))
             {
@@ -107,13 +108,13 @@ namespace courseWork_project
                 groupingResult.AppendLine($"Запитання: {questionMetadata.question}; " +
                     $"Всього варіантів: {questionMetadata.variants.Count}; " +
                     $"Правильних варіантів: {questionMetadata.correctVariantsIndeces.Count}; ");
-                if (questionMetadata.hasLinkedImage)
+                if (ImageManager.IsLinkedImageDefault(questionMetadata))
                 {
-                    groupingResult.Append("Містить ілюстрацію\n");
+                    groupingResult.Append("Не містить ілюстрацію\n");
                 }
                 else
                 {
-                    groupingResult.Append("Не містить ілюстрацію\n");
+                    groupingResult.Append("Містить ілюстрацію\n");
                 }
             }
 

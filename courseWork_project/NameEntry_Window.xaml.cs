@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace courseWork_project
 {
@@ -31,7 +30,7 @@ namespace courseWork_project
 
         private void UsernameTextBlock_GotFocus(object sender, RoutedEventArgs e)
         {
-            UsernameTextBlock.Foreground = new SolidColorBrush(Colors.Black);
+            UsernameTextBlock.Foreground = ColorBrushes.Black;
             if (FieldContainsDefaultText() || IsFieldEmpty())
             {
                 UsernameTextBlock.Text = string.Empty;
@@ -50,7 +49,7 @@ namespace courseWork_project
 
         private void UsernameTextBlock_LostFocus(object sender, RoutedEventArgs e)
         {
-            UsernameTextBlock.Foreground = new SolidColorBrush(Colors.DarkGray);
+            UsernameTextBlock.Foreground = ColorBrushes.DarkGray;
             if (IsFieldEmpty())
             {
                 UsernameTextBlock.Text = "Введіть ім'я тут";

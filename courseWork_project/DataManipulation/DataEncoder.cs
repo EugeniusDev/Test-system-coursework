@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using static courseWork_project.TestStructs;
 
@@ -32,28 +31,22 @@ namespace courseWork_project
 
         private static string EncodeQuestionMetadata(QuestionMetadata questionMetadata)
         {
-            string encodedMetadata = ReplaceSplitCharacterWithRepresentation(questionMetadata.question);
+            string encodedMetadata = RemoveSplitCharacter(questionMetadata.question);
             encodedMetadata = string.Concat(encodedMetadata, separator);
             encodedMetadata = string.Concat(encodedMetadata, string.Join(separator.ToString(), 
-                questionMetadata.variants.Select(variant => variant.ReplaceSplitCharacterWithRepresentation())));
+                questionMetadata.variants.Select(variant => variant.RemoveSplitCharacter())));
             encodedMetadata = string.Concat(encodedMetadata, separator);
             encodedMetadata = string.Concat(encodedMetadata, string.Join(separator.ToString(), 
                 questionMetadata.correctVariantsIndeces.Select(index => index.ToString())));
-            encodedMetadata = string.Concat(encodedMetadata, $"{separator}{questionMetadata.hasLinkedImage}");
+            encodedMetadata = string.Concat(encodedMetadata, $"{separator}{questionMetadata.linkedImagePath}");
             
             return encodedMetadata;
         }
 
-        private static string ReplaceSplitCharacterWithRepresentation(this string stringToRemoveFrom)
+        private static string RemoveSplitCharacter(this string stringToRemoveFrom)
         {
             return stringToRemoveFrom.Contains(separator) ? 
                 stringToRemoveFrom.Replace(separator.ToString(), "") : stringToRemoveFrom;
-        }
-
-        public static string GetConventionalImageName(string tranliteratedTestTitle, ImageManager.ImageMetadata imageMetadata)
-        {
-            string imageExtension = Path.GetExtension(imageMetadata.path);
-            return $"{tranliteratedTestTitle}-{imageMetadata.questionIndex}{imageExtension}";
         }
     }
 }
