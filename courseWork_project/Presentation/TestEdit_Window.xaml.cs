@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System.Linq;
 using courseWork_project.DatabaseRelated;
 using courseWork_project.GuiManipulation;
+using courseWork_project.Common.StaticResources;
 
 namespace courseWork_project
 {
@@ -35,13 +36,13 @@ namespace courseWork_project
         /// <summary>
         /// Editing mode constructor
         /// </summary>
-        /// <param name="indexOfElementToEdit">Index of question to edit (0-9)</param>
-        public TestEdit_Window(Test testToChange, int indexOfElementToEdit)
+        /// <param name="indexOfQuestionToEdit">Index of question to edit (0-9)</param>
+        public TestEdit_Window(Test testToChange, int indexOfQuestionToEdit)
         {
             isCreatingMode = false;
             questionMetadatas = testToChange.QuestionMetadatas;
             testMetadata = testToChange.TestMetadata;
-
+            currentQuestionIndex = indexOfQuestionToEdit;
             InitializeComponent();
 
             ShowCurrentQuestion();
@@ -92,12 +93,12 @@ namespace courseWork_project
                 return;
             }
 
-            TextBox textBox = SampleGuiElementsFactory.MakeVariantTextbox(variantText);
-            CheckBox checkBox = SampleGuiElementsFactory.MakeVariantCheckbox(isVariantCorrect);
+            TextBox textBox = UiElementsFactory.MakeVariantTextbox(variantText);
+            CheckBox checkBox = UiElementsFactory.MakeVariantCheckbox(isVariantCorrect);
             HangCheckingEvents(checkBox);
 
             variantComponents.Add(textBox, checkBox);
-            DockPanel dockPanel = SampleGuiElementsFactory.MakeVariantDockpanel(textBox, checkBox);
+            DockPanel dockPanel = UiElementsFactory.MakeVariantDockpanel(textBox, checkBox);
             variantsPanel.Children.Add(dockPanel);
         }
 
@@ -265,25 +266,25 @@ namespace courseWork_project
         {
             if (!AreAllTextboxesFilled())
             {
-                MessageBox.Show("Будь ласка, заповніть всі поля");
+                MessageBoxes.ShowWarning("Будь ласка, заповніть всі потрібні поля");
                 return false;
             }
 
             if (variantsPanel.Children.Count < 2)
             {
-                MessageBox.Show("Необхідно заповнити як мінімум 2 варіанти");
+                MessageBoxes.ShowWarning("Необхідно заповнити як мінімум 2 варіанти");
                 return false;
             }
 
             if (correctVariantsIndeces.Count == 0)
             {
-                MessageBox.Show("Позначте хоча б один варіант відповіді як правильний");
+                MessageBoxes.ShowWarning("Позначте хоча б один варіант відповіді як правильний");
                 return false;
             }
 
             if (!IsVariantsInputValid())
             {
-                MessageBox.Show("Використовуйте не тільки цифри для заповнення варіантів");
+                MessageBoxes.ShowWarning("Використовуйте не тільки цифри для заповнення варіантів");
                 return false;
             }
 
@@ -372,11 +373,10 @@ namespace courseWork_project
 
         private static bool IsMainWindowRedirectionConfirmed()
         {
-            string confirmationString = "Всі дані цього тесту втратяться, коли ви перейдете на" +
-                " головну сторінку. Ви справді хочете це зробити?";
-            MessageBoxResult result = MessageBox.Show(confirmationString,
-                "Підтвердження переходу на головну сторінку",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult result = MessageBoxes.ShowConfirmationPrompt("Натиснувши \"Так\", " +
+                "ви перейдете на головну сторінку, втративши всі дані цього тесту. " +
+                "Ви справді хочете це зробити?",
+                "Підтвердження переходу на головну сторінку");
             return result.Equals(MessageBoxResult.Yes);
         }
 
@@ -460,9 +460,6 @@ namespace courseWork_project
                 return;
             }
 
-            // TODO test if this call is required
-            //ResetImageSourcesToDefault();
-
             ShowTestSavingWindow();
             this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
@@ -515,7 +512,7 @@ namespace courseWork_project
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (isWindowClosingConfirmationRequired
-                && e.GetClosingConfirmation())
+                && e.TryGetClosingConfirmation("Ви втратите всі дані цього тесту. "))
             {
                 EraseCurrentTestData();
             }
@@ -544,9 +541,7 @@ namespace courseWork_project
             }
             catch
             {
-                MessageBox.Show("Вказаної раніше картинки не існує або її було переміщено",
-                        "Помилка завантаження картинки"
-                        , MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBoxes.ShowError("Вказаної раніше картинки не існує або її було переміщено");
                 ResetImageSourcesToDefault();
                 if (CurrentQuestionExistsInList())
                 {

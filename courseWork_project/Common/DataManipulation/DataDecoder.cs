@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace courseWork_project
@@ -203,7 +204,8 @@ namespace courseWork_project
                 throw new FormatException();
             }
 
-            if (!DateTime.TryParse(stringToSplit[1], out DateTime editingDate))
+            if (!DateTime.TryParse(stringToSplit[1], CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out DateTime editingDate))
             {
                 editingDate = DateTime.Now;
             }

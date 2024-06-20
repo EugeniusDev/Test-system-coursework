@@ -23,7 +23,7 @@ namespace courseWork_project
         {
             testTitle = string.Empty,
             lastEditedTime = DateTime.Now,
-            // no restrictions in time by default
+            // No restrictions in time by default
             timerValueInMinutes = 0
         };
     }

@@ -43,7 +43,7 @@
     }
     #endregion
 
-    #region HelpCenter_Window related
+    #region UserManuals_Window related
     /// <summary>
     /// Enum for MainMenu_Window related manuals
     /// </summary>

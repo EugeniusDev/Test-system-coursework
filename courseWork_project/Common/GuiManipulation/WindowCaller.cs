@@ -7,51 +7,51 @@ namespace courseWork_project
     {
         public static void ShowMain()
         {
-            MainMenu_Window mainWindow = new MainMenu_Window();
-            mainWindow.Show();
+            MainMenu_Window mainMenu = new MainMenu_Window();
+            mainMenu.Show();
         }
 
         public static void ShowHelpCenter()
         {
-            UserManuals_Window helpCenter = new UserManuals_Window();
-            helpCenter.Show();
+            UserManuals_Window userManual = new UserManuals_Window();
+            userManual.Show();
         }
 
         public static void ShowTestChangeCreatingMode()
         {
-            TestEdit_Window testEditWindow = new TestEdit_Window();
-            testEditWindow.Show();
+            TestEdit_Window testEdit = new TestEdit_Window();
+            testEdit.Show();
         }
-        // TODO remove "+1" as it is temporary solution before fix
+
         public static void ShowTestChangeEditingMode(Test testToEdit, int indexOfElementToEdit)
         {
-            TestEdit_Window testEditWindow = new TestEdit_Window(testToEdit, indexOfElementToEdit);
-            testEditWindow.Show();
+            TestEdit_Window testEdit = new TestEdit_Window(testToEdit, indexOfElementToEdit);
+            testEdit.Show();
         }
 
         public static void ShowTestSavingCreatingMode(List<QuestionMetadata> questionsToSave)
         {
-            TestSave_Window testSaving_Window = new TestSave_Window(questionsToSave);
-            testSaving_Window.Show();
+            TestSave_Window testSave = new TestSave_Window(questionsToSave);
+            testSave.Show();
         }
         public static void ShowTestSavingEditingMode(Test testToEdit)
         {
-            TestSave_Window testSaving_Window = new TestSave_Window(testToEdit);
-            testSaving_Window.Show();
+            TestSave_Window testSave = new TestSave_Window(testToEdit);
+            testSave.Show();
         }
 
-        public static void ShowNameEntry(Test testToPass)
+        public static void ShowUsernamePrompt(Test testToPass)
         {
-            NameEntry_Window nameEntry_Window = new NameEntry_Window(testToPass);
-            nameEntry_Window.Show();
+            PromptUsername_Window usernameWindow = new PromptUsername_Window(testToPass);
+            usernameWindow.Show();
         }
 
         public static void ShowTestTaking(Test testToPass, string userName)
         {
-            TestPass_Window testTaking_Window = new TestPass_Window(testToPass, userName);
-            if (testTaking_Window.LoadedSuccessfully)
+            TestPass_Window testPass = new TestPass_Window(testToPass, userName);
+            if (testPass.LoadedSuccessfully)
             {
-                testTaking_Window.Show();
+                testPass.Show();
             }
         }
     }

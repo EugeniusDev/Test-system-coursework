@@ -3,9 +3,8 @@ using System.Windows.Controls;
 
 namespace courseWork_project.GuiManipulation
 {
-    internal static class SampleGuiElementsFactory
+    internal static class UiElementsFactory
     {
-        #region Editable variant stuff
         public static TextBox MakeVariantTextbox(string variantText)
         {
             TextBox textBox = new TextBox
@@ -89,7 +88,6 @@ namespace courseWork_project.GuiManipulation
 
             return dockPanel;
         }
-        #endregion
 
         public static Button MakeVariantButton(string variantText)
         {

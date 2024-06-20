@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using courseWork_project.DatabaseRelated;
 using System.Windows.Controls;
+using courseWork_project.Common.StaticResources;
 
 namespace courseWork_project
 {
@@ -21,24 +22,17 @@ namespace courseWork_project
     /// <remarks>TestSave_Window is used to save created/edited test into database</remarks>
     public partial class TestSave_Window : Window
     {
-        private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
-        private TestStructs.TestMetadata testMetadata = TestStructs.EmptyTestMetadata;
+        private const string defaultTestTitle = "Введіть назву тесту";
         private readonly string transliterOldTestTitle = string.Empty;
-
+        private TestStructs.TestMetadata testMetadata = TestStructs.EmptyTestMetadata;
+        private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
         private ObservableCollection<QuestionItem> questionItems;
 
-        private readonly bool isCreatingMode;
         bool isWindowClosingConfirmationRequired = true;
 
-        /// <summary>
-        /// TestSave_Window creating mode constructor
-        /// </summary>
-        /// <param name="questionsToSave">List of QuestionMetadatas of the test</param>
-        /// <param name="imagesToSave">List of data about images</param>
         public TestSave_Window(List<TestStructs.QuestionMetadata> questionsToSave)
         {
-            isCreatingMode = true;
-            this.questionMetadatas = questionsToSave;
+            questionMetadatas = questionsToSave;
 
             InitializeComponent();
 
@@ -72,20 +66,13 @@ namespace courseWork_project
         }
 
         /// <summary>
-        /// TestSave_Window editing mode constructor
+        /// In case TestMetadata exists
         /// </summary>
-        public TestSave_Window(Test testToSave)
+        public TestSave_Window(Test testToSave) : this(testToSave.QuestionMetadatas)
         {
-            isCreatingMode = false;
-            questionMetadatas = testToSave.QuestionMetadatas;
             testMetadata = testToSave.TestMetadata;
             transliterOldTestTitle = DataDecoder.TransliterateToEnglish(testMetadata.testTitle);
-
-            InitializeComponent();
-
-            SetUpQuestionAndTimerUI();
             UpdateTestTitleUI(testMetadata.testTitle);
-            DisplayQuestionsFromMetadatas(questionMetadatas);
         }
 
         private void UpdateTestTitleUI(string newText = "")
@@ -104,14 +91,14 @@ namespace courseWork_project
 
         private bool IsTestTitleUiDefault()
         {
-            return TestTitleBox.Text.Equals("Введіть назву тесту");
+            return TestTitleBox.Text.Equals(defaultTestTitle);
         }
 
         private void TestTitleBlock_LostFocus(object sender, RoutedEventArgs e)
         {
             if (IsTextBoxEmpty(TestTitleBox))
             {
-                TestTitleBox.Text = "Введіть назву тесту";
+                TestTitleBox.Text = defaultTestTitle;
                 TestTitleBox.Foreground = ColorBrushes.DarkGray;
             }
         }
@@ -148,7 +135,7 @@ namespace courseWork_project
             bool timerIsEmpty = IsTextBoxEmpty(TimerInputBox);
             if (titleBlockIsNotSet || timerIsEmpty)
             {
-                MessageBox.Show("Будь ласка, заповніть всі потрібні поля");
+                MessageBoxes.ShowWarning("Будь ласка, заповніть всі потрібні поля");
                 return false;
             }
 
@@ -192,11 +179,11 @@ namespace courseWork_project
             QuestionItem questionItemToEdit = new QuestionItem();
             if (GuiObjectsFinder.TryGetQuestionItemFromValidAncestor(sender, ref questionItemToEdit))
             {
-                int indexOfElementToEdit = GetIndexOfChosenQuestion(questionItemToEdit);
-                if (QuestionIndexIsValid(indexOfElementToEdit))
+                int questionIndex = GetIndexOfChosenQuestion(questionItemToEdit);
+                if (QuestionIndexIsValid(questionIndex))
                 {
                     UpdateTitleRelatedDataIfChanged();
-                    EditTestOnQuestionAtIndex(indexOfElementToEdit);
+                    EditTestOnQuestionAtIndex(questionIndex);
                 }
             }
         }
@@ -218,8 +205,7 @@ namespace courseWork_project
         {
             if (indexOfQuestion == -1)
             {
-                MessageBox.Show("Обране запитання не знайдено", "Помилка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBoxes.ShowError("Обране запитання не знайдено");
                 return false;
             }
 
@@ -233,24 +219,17 @@ namespace courseWork_project
             this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
         }
 
-        // TODO remake image manipulation entirely and remake this method
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             QuestionItem questionItemToDelete = new QuestionItem();
             if (GuiObjectsFinder.TryGetQuestionItemFromValidAncestor(sender, ref questionItemToDelete))
             {
-                for (int i  = 0; i < questionMetadatas.Count; i++)
+                int questionIndex = GetIndexOfChosenQuestion(questionItemToDelete);
+                if (QuestionIndexIsValid(questionIndex))
                 {
-                    // TODO GetIndexOfChosenQuestion here instead
-                    if (string.Compare(questionMetadatas[i].question, questionItemToDelete.Question) == 0)
-                    {
-                        questionMetadatas.RemoveAt(i);
-
-                        break;
-                    }
+                    questionMetadatas.RemoveAt(questionIndex);
+                    questionItems.Remove(questionItemToDelete);
                 }
-
-                questionItems.Remove(questionItemToDelete);
             }
         }
         /// <summary>
@@ -306,20 +285,16 @@ namespace courseWork_project
                 }
             }
 
-            MessageBox.Show("Некоректний ввід у поле таймера. Необхідно ввести число >= 0");
-            return true;
+            MessageBoxes.ShowWarning("Некоректний ввід у поле таймера. Необхідно ввести число >= 0");
+            return false;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (isWindowClosingConfirmationRequired)
+            if (isWindowClosingConfirmationRequired 
+                && e.TryGetClosingConfirmation("Всі дані цього тесту буде втрачено. "))
             {
-                string additionalMessage = "Дані тесту буде втрачено. ";
-
-                if (e.GetClosingConfirmation(additionalMessage))
-                {
-                    DataEraser.EraseTestDatabases(testMetadata);
-                }
+                DataEraser.EraseTestDatabases(testMetadata);
             }
         }
     }

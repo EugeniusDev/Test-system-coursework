@@ -1,4 +1,5 @@
-﻿using courseWork_project.DatabaseRelated;
+﻿using courseWork_project.Common.StaticResources;
+using courseWork_project.DatabaseRelated;
 using courseWork_project.DataManipulation;
 using System;
 using System.Collections.Generic;
@@ -84,7 +85,7 @@ namespace courseWork_project
             {
                 Test testToPass = DataDecoder.GetTestByTestItem(selectedItem);
                 // Prompt for username before passing test
-                WindowCaller.ShowNameEntry(testToPass);
+                WindowCaller.ShowUsernamePrompt(testToPass);
                 this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
             }
         }
@@ -95,7 +96,7 @@ namespace courseWork_project
             if (GuiObjectsFinder.TryGetTestItemFromValidAncestor(sender, ref selectedItem))
             {
                 Test testToEdit = DataDecoder.GetTestByTestItem(selectedItem);
-                DataEraser.EraseTestFolderByTitle(selectedItem.TestTitle);
+                DataEraser.EraseTestFolderByTitle(testToEdit.TestMetadata.testTitle);
 
                 WindowCaller.ShowTestSavingEditingMode(testToEdit);
                 this.CloseWindowAndDisableConfirmationPrompt(ref isWindowClosingConfirmationRequired);
@@ -126,8 +127,7 @@ namespace courseWork_project
         {
             if (selectedTestResults.Count == 0)
             {
-                MessageBox.Show("Обраний тест ще ніким не було пройдено",
-                    "Історія проходжень тесту порожня");
+                MessageBoxes.ShowInformation("Обраний тест ще ніким не було пройдено");
                 return;
             }
 
@@ -160,12 +160,9 @@ namespace courseWork_project
 
         private static bool TestDeletionConfirmed(TestItem selectedItem)
         {
-            string confirmationPrompt = $"Ви видалите тест \"{selectedItem.TestTitle}\". " +
-                $"Ви справді хочете це зробити?";
-            MessageBoxResult result = MessageBox.Show(confirmationPrompt,
-                "Підтвердження видалення тесту", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
+            MessageBoxResult result = MessageBoxes.ShowConfirmationPrompt($"Ви видалите тест " +
+                $"\"{selectedItem.TestTitle}\". Ви справді хочете це зробити?",
+                "Підтвердження видалення тесту");
             return result.Equals(MessageBoxResult.Yes);
         }
 
@@ -179,7 +176,7 @@ namespace courseWork_project
         {
             if (isWindowClosingConfirmationRequired)
             {
-                e.GetClosingConfirmation();
+                e.TryGetClosingConfirmation("Ви завершите роботу програми. ");
             }
         }
 

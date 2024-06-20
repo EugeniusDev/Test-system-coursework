@@ -1,4 +1,5 @@
-﻿using courseWork_project.GuiManipulation;
+﻿using courseWork_project.Common.StaticResources;
+using courseWork_project.GuiManipulation;
 using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
@@ -22,7 +23,7 @@ namespace courseWork_project
         private readonly Timer timer = new Timer();
 
         private bool isWindowClosingConfirmationRequired = true;
-        private bool loadedSuccessfully = true;
+        private readonly bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
         public TestPass_Window(Test testToPass, string userName)
@@ -48,8 +49,7 @@ namespace courseWork_project
         {
             if (testToPass.QuestionMetadatas.Count == 0)
             {
-                MessageBox.Show("Схоже, всі запитання тесту було видалено", "Помилка проходження тесту",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBoxes.ShowError("Схоже, всі запитання тесту було видалено");
                 return false;
             }
 
@@ -150,9 +150,7 @@ namespace courseWork_project
                 }
                 catch
                 {
-                    MessageBox.Show("Вказаної раніше картинки не існує або її було переміщено",
-                        "Помилка завантаження картинки"
-                        , MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBoxes.ShowError("Вказаної раніше картинки не існує або її було переміщено");
                     return;
                 }
 
@@ -164,7 +162,7 @@ namespace courseWork_project
 
         private void AddNewVariant(string variantText, bool isVariantCorrect)
         {
-            Button button = SampleGuiElementsFactory.MakeVariantButton(variantText);
+            Button button = UiElementsFactory.MakeVariantButton(variantText);
             button.Click += VariantButton_Click;
             variants.Add(button, isVariantCorrect);
             wrapPanelOfVariants.Children.Add(button);
@@ -229,11 +227,10 @@ namespace courseWork_project
 
         private bool IsMainWindowRedirectionConfirmed()
         {
-            string confirmationString = "Натиснувши \"Так\", ви перейдете на головну сторінку, втративши дані" +
-                " проходження тесту. Ви справді хочете це зробити?";
-            MessageBoxResult result = MessageBox.Show(confirmationString,
-                "Підтвердження переходу на головну сторінку", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            return result.Equals(MessageBoxResult.Yes);
+            MessageBoxResult promptResult = MessageBoxes.ShowConfirmationPrompt("Натиснувши \"Так\", " +
+                "ви перейдете на головну сторінку, втративши дані проходження. Ви справді хочете це зробити?",
+                "Підтвердження переходу на головну сторінку");
+            return promptResult.Equals(MessageBoxResult.Yes);
         }
 
         private void GoToMainWindow()
@@ -251,7 +248,7 @@ namespace courseWork_project
         {
             if (!isCurrentVariantChosen)
             {
-                MessageBox.Show("Оберіть варіант відповіді, який вважаєте правильним");
+                MessageBoxes.ShowWarning("Оберіть варіант відповіді, який вважаєте правильним");
                 return;
             }
 
@@ -364,7 +361,7 @@ namespace courseWork_project
         {
             if (!isCurrentVariantChosen)
             {
-                MessageBox.Show("Оберіть варіант відповіді, який вважаєте правильним");
+                MessageBoxes.ShowWarning("Оберіть варіант відповіді, який вважаєте правильним");
                 return;
             }
 
@@ -407,7 +404,7 @@ namespace courseWork_project
         {
             if (isWindowClosingConfirmationRequired)
             {
-                e.GetClosingConfirmation("Дані проходження тесту буде втрачено! ");
+                e.TryGetClosingConfirmation("Дані проходження тесту буде втрачено! ");
             }
         }
     }

@@ -14,7 +14,7 @@ namespace courseWork_project
             }
         }
 
-        public static bool GetClosingConfirmation(this CancelEventArgs cancelEventArgs, string additionalPrependMessage = "")
+        public static bool TryGetClosingConfirmation(this CancelEventArgs cancelEventArgs, string additionalPrependMessage = "")
         {
             MessageBoxResult result = MessageBox.Show($"{additionalPrependMessage}Ви справді хочете закрити вікно?",
                 "Підтвердження закриття вікна", 

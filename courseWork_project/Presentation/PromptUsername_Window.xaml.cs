@@ -1,17 +1,15 @@
-﻿using System.Windows;
+﻿using courseWork_project.Common.StaticResources;
+using System.Windows;
 using System.Windows.Input;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Interaction logic for NameEntry_Window.xaml
-    /// </summary>
-    /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestPass_Window</remarks>
-    public partial class NameEntry_Window : Window
+    public partial class PromptUsername_Window : Window
     {
+        private const string defaultUsernameText = "Введіть ім'я тут";
         private readonly Test testToPass;
 
-        public NameEntry_Window(Test testToPass)
+        public PromptUsername_Window(Test testToPass)
         {
             this.testToPass = testToPass;
             InitializeComponent();
@@ -39,7 +37,7 @@ namespace courseWork_project
 
         private bool FieldContainsDefaultText()
         {
-            return UsernameTextBlock.Text.Equals("Введіть ім'я тут");
+            return UsernameTextBlock.Text.Equals(defaultUsernameText);
         }
 
         private bool IsFieldEmpty()
@@ -52,7 +50,7 @@ namespace courseWork_project
             UsernameTextBlock.Foreground = ColorBrushes.DarkGray;
             if (IsFieldEmpty())
             {
-                UsernameTextBlock.Text = "Введіть ім'я тут";
+                UsernameTextBlock.Text = defaultUsernameText;
             }
         }
 
@@ -65,7 +63,7 @@ namespace courseWork_project
         {
             if (FieldContainsDefaultText() || IsFieldEmpty())
             {
-                MessageBox.Show("Введіть ім'я перед тим, як розпочати тест");
+                MessageBoxes.ShowWarning("Введіть ім'я перед тим, як розпочати тест");
                 return;
             }
 

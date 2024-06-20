@@ -89,7 +89,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Common\GuiManipulation\ColorBrushes.cs" />
+    <Compile Include="Common\StaticResources\ColorBrushes.cs" />
     <Compile Include="Common\DataManipulation\DataDecoder.cs" />
     <Compile Include="Common\DataManipulation\DataEncoder.cs" />
     <Compile Include="Common\DataManipulation\Searcher.cs" />
@@ -98,19 +98,20 @@
     <Compile Include="Common\FilesManipulation\FileWriter.cs" />
     <Compile Include="Common\DataManipulation\Grouper.cs" />
     <Compile Include="Common\FilesManipulation\DatabaseManager.cs" />
-    <Compile Include="Common\UserManualDictionaries.cs" />
+    <Compile Include="Common\StaticResources\MessageBoxes.cs" />
+    <Compile Include="Common\StaticResources\UserManualDictionaries.cs" />
     <Compile Include="Domain\Test.cs" />
-    <Compile Include="Common\Enums.cs" />
+    <Compile Include="Common\StaticResources\Enums.cs" />
     <Compile Include="Common\GuiManipulation\GuiObjectsFinder.cs" />
-    <Compile Include="Common\GuiManipulation\SampleGuiElementsFactory.cs" />
+    <Compile Include="Common\StaticResources\UiElementsFactory.cs" />
     <Compile Include="Common\ImageManipulation\DefaultImage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DefaultImage.resx</DependentUpon>
     </Compile>
     <Compile Include="Common\ImageManipulation\ImageManager.cs" />
-    <Compile Include="Presentation\NameEntry_Window.xaml.cs">
-      <DependentUpon>NameEntry_Window.xaml</DependentUpon>
+    <Compile Include="Presentation\PromptUsername_Window.xaml.cs">
+      <DependentUpon>PromptUsername_Window.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\DataManipulation\Sorter.cs" />
     <Compile Include="Domain\TestStructs.cs" />
@@ -144,7 +145,7 @@
       <DependentUpon>MainMenu_Window.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Presentation\NameEntry_Window.xaml">
+    <Page Include="Presentation\PromptUsername_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
