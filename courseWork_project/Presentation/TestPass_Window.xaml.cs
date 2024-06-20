@@ -8,11 +8,7 @@ using static courseWork_project.ImageManager;
 
 namespace courseWork_project
 {
-    /// <summary>
-    /// Interaction logic for TestTaking_Window.xaml
-    /// </summary>
-    /// <remarks>TestTaking_Window.xaml is used for tasking tests</remarks>
-    public partial class TestTaking_Window : Window
+    public partial class TestPass_Window : Window
     {
         private readonly Test testToPass;
 
@@ -29,7 +25,7 @@ namespace courseWork_project
         private bool loadedSuccessfully = true;
         public bool LoadedSuccessfully { get { return loadedSuccessfully; } }
 
-        public TestTaking_Window(Test testToPass, string userName)
+        public TestPass_Window(Test testToPass, string userName)
         {
             if (!IsTestDataValid(testToPass))
             {

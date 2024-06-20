@@ -1,4 +1,4 @@
-﻿using courseWork_project.ImageManipulation;
+﻿using courseWork_project.Common.ImageManipulation;
 using System;
 using System.Drawing;
 using System.IO;

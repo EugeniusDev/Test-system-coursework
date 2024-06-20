@@ -6,7 +6,7 @@ namespace courseWork_project
     /// <summary>
     /// Interaction logic for NameEntry_Window.xaml
     /// </summary>
-    /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestTaking_Window</remarks>
+    /// <remarks> NameEntry_Window.xaml is used to prompt user's name and to open TestPass_Window</remarks>
     public partial class NameEntry_Window : Window
     {
         private readonly Test testToPass;

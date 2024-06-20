@@ -7,36 +7,36 @@ namespace courseWork_project
     {
         public static void ShowMain()
         {
-            MainWindow mainWindow = new MainWindow();
+            MainMenu_Window mainWindow = new MainMenu_Window();
             mainWindow.Show();
         }
 
         public static void ShowHelpCenter()
         {
-            HelpCenter_Window helpCenter = new HelpCenter_Window();
+            UserManuals_Window helpCenter = new UserManuals_Window();
             helpCenter.Show();
         }
 
         public static void ShowTestChangeCreatingMode()
         {
-            TestChange_Window testChange_Window = new TestChange_Window();
-            testChange_Window.Show();
+            TestEdit_Window testEditWindow = new TestEdit_Window();
+            testEditWindow.Show();
         }
         // TODO remove "+1" as it is temporary solution before fix
         public static void ShowTestChangeEditingMode(Test testToEdit, int indexOfElementToEdit)
         {
-            TestChange_Window testChange_Window = new TestChange_Window(testToEdit, indexOfElementToEdit);
-            testChange_Window.Show();
+            TestEdit_Window testEditWindow = new TestEdit_Window(testToEdit, indexOfElementToEdit);
+            testEditWindow.Show();
         }
 
         public static void ShowTestSavingCreatingMode(List<QuestionMetadata> questionsToSave)
         {
-            TestSaving_Window testSaving_Window = new TestSaving_Window(questionsToSave);
+            TestSave_Window testSaving_Window = new TestSave_Window(questionsToSave);
             testSaving_Window.Show();
         }
         public static void ShowTestSavingEditingMode(Test testToEdit)
         {
-            TestSaving_Window testSaving_Window = new TestSaving_Window(testToEdit);
+            TestSave_Window testSaving_Window = new TestSave_Window(testToEdit);
             testSaving_Window.Show();
         }
 
@@ -48,7 +48,7 @@ namespace courseWork_project
 
         public static void ShowTestTaking(Test testToPass, string userName)
         {
-            TestTaking_Window testTaking_Window = new TestTaking_Window(testToPass, userName);
+            TestPass_Window testTaking_Window = new TestPass_Window(testToPass, userName);
             if (testTaking_Window.LoadedSuccessfully)
             {
                 testTaking_Window.Show();

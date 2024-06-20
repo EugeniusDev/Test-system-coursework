@@ -17,17 +17,14 @@ namespace courseWork_project
     {
         public string TestTitle { get; set; }
     }
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// <remarks>MainWindow.xaml is used as main menu</remarks>
-    public partial class MainWindow : Window
+
+    public partial class MainMenu_Window : Window
     {
         private readonly ObservableCollection<TestItem> testItems;
         private readonly List<string> transliteratedTestTitles;
         private bool isWindowClosingConfirmationRequired = true;
 
-        public MainWindow()
+        public MainMenu_Window()
         {
             InitializeComponent();
             UpdateListOfExistingTests();

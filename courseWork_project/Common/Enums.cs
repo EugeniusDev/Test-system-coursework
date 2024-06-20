@@ -45,7 +45,7 @@
 
     #region HelpCenter_Window related
     /// <summary>
-    /// Enum for MainWindow related manuals
+    /// Enum for MainMenu_Window related manuals
     /// </summary>
     public enum MainWindowManuals
     {
@@ -73,7 +73,7 @@
         TEST_END
     }
     /// <summary>
-    /// Enum for TestChange_Window related manuals
+    /// Enum for TestEdit_Window related manuals
     /// </summary>
     public enum TestChangeManuals
     {
@@ -88,7 +88,7 @@
         BACK_TO_MAIN
     }
     /// <summary>
-    /// Enum for TestSaving_Window related manuals
+    /// Enum for TestSave_Window related manuals
     /// </summary>
     public enum TestSavingManuals
     {

@@ -11,10 +11,10 @@ using courseWork_project.GuiManipulation;
 namespace courseWork_project
 {
     /// <summary>
-    /// Interaction logic for TestChange_Window.xaml
+    /// Interaction logic for TestEdit_Window.xaml
     /// </summary>
-    /// <remarks> TestChange_Window.xaml is used for creating/editing test's QuestionMetadatas</remarks>
-    public partial class TestChange_Window : Window
+    /// <remarks> TestEdit_Window.xaml is used for creating/editing test's QuestionMetadatas</remarks>
+    public partial class TestEdit_Window : Window
     {
         private int currentQuestionIndex = 0;
         private int totalQuestionsCount = 1;
@@ -25,7 +25,7 @@ namespace courseWork_project
         private string currentImagePath = ImageManager.DefaultPath;
         bool isWindowClosingConfirmationRequired = true;
 
-        public TestChange_Window()
+        public TestEdit_Window()
         {
             InitializeComponent();
             questionMetadatas = new List<TestStructs.QuestionMetadata>();
@@ -36,7 +36,7 @@ namespace courseWork_project
         /// Editing mode constructor
         /// </summary>
         /// <param name="indexOfElementToEdit">Index of question to edit (0-9)</param>
-        public TestChange_Window(Test testToChange, int indexOfElementToEdit)
+        public TestEdit_Window(Test testToChange, int indexOfElementToEdit)
         {
             isCreatingMode = false;
             questionMetadatas = testToChange.QuestionMetadatas;

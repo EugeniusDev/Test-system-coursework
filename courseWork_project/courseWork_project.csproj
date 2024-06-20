@@ -89,46 +89,47 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GuiManipulation\ColorBrushes.cs" />
-    <Compile Include="DataManipulation\DataDecoder.cs" />
-    <Compile Include="DataManipulation\DataEncoder.cs" />
-    <Compile Include="DataManipulation\Searcher.cs" />
-    <Compile Include="FilesManipulation\DataEraser.cs" />
-    <Compile Include="FilesManipulation\FileReader.cs" />
-    <Compile Include="FilesManipulation\FileWriter.cs" />
-    <Compile Include="DataManipulation\Grouper.cs" />
-    <Compile Include="FilesManipulation\DatabaseManager.cs" />
-    <Compile Include="DTOs\Test.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="GuiManipulation\GuiObjectsFinder.cs" />
-    <Compile Include="GuiManipulation\SampleGuiElementsFactory.cs" />
-    <Compile Include="ImageManipulation\DefaultImage.Designer.cs">
+    <Compile Include="Common\GuiManipulation\ColorBrushes.cs" />
+    <Compile Include="Common\DataManipulation\DataDecoder.cs" />
+    <Compile Include="Common\DataManipulation\DataEncoder.cs" />
+    <Compile Include="Common\DataManipulation\Searcher.cs" />
+    <Compile Include="Common\FilesManipulation\DataEraser.cs" />
+    <Compile Include="Common\FilesManipulation\FileReader.cs" />
+    <Compile Include="Common\FilesManipulation\FileWriter.cs" />
+    <Compile Include="Common\DataManipulation\Grouper.cs" />
+    <Compile Include="Common\FilesManipulation\DatabaseManager.cs" />
+    <Compile Include="Common\UserManualDictionaries.cs" />
+    <Compile Include="Domain\Test.cs" />
+    <Compile Include="Common\Enums.cs" />
+    <Compile Include="Common\GuiManipulation\GuiObjectsFinder.cs" />
+    <Compile Include="Common\GuiManipulation\SampleGuiElementsFactory.cs" />
+    <Compile Include="Common\ImageManipulation\DefaultImage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DefaultImage.resx</DependentUpon>
     </Compile>
-    <Compile Include="ImageManipulation\ImageManager.cs" />
-    <Compile Include="NameEntry_Window.xaml.cs">
+    <Compile Include="Common\ImageManipulation\ImageManager.cs" />
+    <Compile Include="Presentation\NameEntry_Window.xaml.cs">
       <DependentUpon>NameEntry_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataManipulation\Sorter.cs" />
-    <Compile Include="DTOs\TestStructs.cs" />
-    <Compile Include="TestChange_Window.xaml.cs">
-      <DependentUpon>TestChange_Window.xaml</DependentUpon>
+    <Compile Include="Common\DataManipulation\Sorter.cs" />
+    <Compile Include="Domain\TestStructs.cs" />
+    <Compile Include="Presentation\TestEdit_Window.xaml.cs">
+      <DependentUpon>TestEdit_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestSaving_Window.xaml.cs">
-      <DependentUpon>TestSaving_Window.xaml</DependentUpon>
+    <Compile Include="Presentation\TestSave_Window.xaml.cs">
+      <DependentUpon>TestSave_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestTaking_Window.xaml.cs">
-      <DependentUpon>TestTaking_Window.xaml</DependentUpon>
+    <Compile Include="Presentation\TestPass_Window.xaml.cs">
+      <DependentUpon>TestPass_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GuiManipulation\WindowCaller.cs" />
-    <Compile Include="GuiManipulation\WindowExtensionMethods.cs" />
-    <Page Include="HelpCenter_Window.xaml">
+    <Compile Include="Common\GuiManipulation\WindowCaller.cs" />
+    <Compile Include="Common\GuiManipulation\WindowExtensionMethods.cs" />
+    <Page Include="Presentation\UserManuals_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="MainMenu_Window.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -136,26 +137,26 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="HelpCenter_Window.xaml.cs">
-      <DependentUpon>HelpCenter_Window.xaml</DependentUpon>
+    <Compile Include="Presentation\UserManuals_Window.xaml.cs">
+      <DependentUpon>UserManuals_Window.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="MainMenu_Window.xaml.cs">
+      <DependentUpon>MainMenu_Window.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NameEntry_Window.xaml">
+    <Page Include="Presentation\NameEntry_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TestChange_Window.xaml">
+    <Page Include="Presentation\TestEdit_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TestSaving_Window.xaml">
+    <Page Include="Presentation\TestSave_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TestTaking_Window.xaml">
+    <Page Include="Presentation\TestPass_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -174,7 +175,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="ImageManipulation\DefaultImage.resx">
+    <EmbeddedResource Include="Common\ImageManipulation\DefaultImage.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>DefaultImage.Designer.cs</LastGenOutput>
     </EmbeddedResource>

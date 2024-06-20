@@ -1,53 +1,47 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Input;
 
-namespace courseWork_project
+namespace courseWork_project.Common
 {
-    /// <summary>
-    /// Interaction logic for HelpCenter_Window.xaml. This window plays a role of user manual
-    /// </summary>
-    /// <remarks>HelpCenter_Window (user manual) is called from any other window</remarks>
-    public partial class HelpCenter_Window : Window
+    internal static class UserManualDictionaries
     {
-        private static readonly Dictionary<MainWindowManuals, string> mainWindowManualMessages =
+        public static readonly Dictionary<MainWindowManuals, string> mainWindowManualMessages =
             new Dictionary<MainWindowManuals, string>()
-        {
-            { MainWindowManuals.TEST_CREATING, "Щоб створити новий тест, клацніть на кнопку " +
-                    "\"Створити тест\" у верхній частині головної сторінки. Ця дія відкриє " +
-                    "вікно створення тесту." },
-            { MainWindowManuals.QUESTION_SEARCH, "Для пошуку запитання тесту введіть запитання," +
-                    " що хочете знайти в поле з підписом \"Пошук запитання тесту\". " +
-                    "Потім натисніть кнопку \"Знайти\" поруч з цим полем."},
-            { MainWindowManuals.ANSWER_SEARCH, "Для пошуку варіанту відповіді введіть варіант " +
-                    "відповіді, що хочете знайти в поле з підписом \"Пошук відповіді тесту\". " +
-                    "Потім натисніть кнопку \"Знайти\" поруч з цим полем."},
-            { MainWindowManuals.TEST_GROUP, "Для групування тестів клацніть на випадаюче меню, " +
-                    "яке підписане текстом \"Групування тестів\" над ним. " +
-                    "В меню оберіть опцію, за якою бажаєте згрупувати тести."},
-            { MainWindowManuals.QUESTION_GROUP, "Для групування запитань клацніть на випадаюче " +
-                    "меню, яке підписане текстом \"Групування запитань\" над ним. " +
-                    "В меню оберіть опцію, за якою бажаєте згрупувати запитання."},
-            { MainWindowManuals.TEST_SORT, "Для сортування тестів клацніть на випадаюче меню, " +
-                    "яке підписане текстом \"Сортування тестів\" над ним. " +
-                    "В меню оберіть опцію, за якою бажаєте посортувати тести."},
-            { MainWindowManuals.QUESTION_SORT, "Для сортування запитань клацніть на випадаюче меню, " +
-                    "яке підписане текстом \"Сортування запитань\" над ним. " +
-                    "В меню оберіть опцію, за якою бажаєте посортувати запитання."},
-            { MainWindowManuals.TEST_PASSING, "Для проходження обраного тесту клацніть на кнопку " +
-                    "\"Пройти\" в списку тестів навпроти " +
-                    "бажаного до проходження тесту. Ця дія відкриє вікно проходження тесту."},
-            { MainWindowManuals.TEST_EDITING, "Для редагування обраного тесту клацніть на кнопку " +
-                    "\"Редагувати\" в списку тестів навпроти " +
-                    "бажаного до редагування тесту. Ця дія відкриє вікно збереження тесту."},
-            { MainWindowManuals.RESULTS_VIEWING, "Для перегляду результатів проходження обраного " +
-                    "тесту клацніть на кнопку \"Переглянути\" в " +
-                    "списку тестів навпроти бажаного до перегляду результатів проходження тесту." },
-            { MainWindowManuals.TEST_DELETING, "Для видалення обраного тесту клацніть на кнопку " +
-                    "\"Видалити\" в списку тестів навпроти бажаного до видалення тесту. Далі необхідно " +
-                    "підтвердити бажання видалення обраного тесту."}
-        };
-        private static readonly Dictionary<TestPassingManuals, string> testPassingManualMessages =
+            {
+                { MainWindowManuals.TEST_CREATING, "Щоб створити новий тест, клацніть на кнопку " +
+                        "\"Створити тест\" у верхній частині головної сторінки. Ця дія відкриє " +
+                        "вікно створення тесту." },
+                { MainWindowManuals.QUESTION_SEARCH, "Для пошуку запитання тесту введіть запитання," +
+                        " що хочете знайти в поле з підписом \"Пошук запитання тесту\". " +
+                        "Потім натисніть кнопку \"Знайти\" поруч з цим полем."},
+                { MainWindowManuals.ANSWER_SEARCH, "Для пошуку варіанту відповіді введіть варіант " +
+                        "відповіді, що хочете знайти в поле з підписом \"Пошук відповіді тесту\". " +
+                        "Потім натисніть кнопку \"Знайти\" поруч з цим полем."},
+                { MainWindowManuals.TEST_GROUP, "Для групування тестів клацніть на випадаюче меню, " +
+                        "яке підписане текстом \"Групування тестів\" над ним. " +
+                        "В меню оберіть опцію, за якою бажаєте згрупувати тести."},
+                { MainWindowManuals.QUESTION_GROUP, "Для групування запитань клацніть на випадаюче " +
+                        "меню, яке підписане текстом \"Групування запитань\" над ним. " +
+                        "В меню оберіть опцію, за якою бажаєте згрупувати запитання."},
+                { MainWindowManuals.TEST_SORT, "Для сортування тестів клацніть на випадаюче меню, " +
+                        "яке підписане текстом \"Сортування тестів\" над ним. " +
+                        "В меню оберіть опцію, за якою бажаєте посортувати тести."},
+                { MainWindowManuals.QUESTION_SORT, "Для сортування запитань клацніть на випадаюче меню, " +
+                        "яке підписане текстом \"Сортування запитань\" над ним. " +
+                        "В меню оберіть опцію, за якою бажаєте посортувати запитання."},
+                { MainWindowManuals.TEST_PASSING, "Для проходження обраного тесту клацніть на кнопку " +
+                        "\"Пройти\" в списку тестів навпроти " +
+                        "бажаного до проходження тесту. Ця дія відкриє вікно проходження тесту."},
+                { MainWindowManuals.TEST_EDITING, "Для редагування обраного тесту клацніть на кнопку " +
+                        "\"Редагувати\" в списку тестів навпроти " +
+                        "бажаного до редагування тесту. Ця дія відкриє вікно збереження тесту."},
+                { MainWindowManuals.RESULTS_VIEWING, "Для перегляду результатів проходження обраного " +
+                        "тесту клацніть на кнопку \"Переглянути\" в " +
+                        "списку тестів навпроти бажаного до перегляду результатів проходження тесту." },
+                { MainWindowManuals.TEST_DELETING, "Для видалення обраного тесту клацніть на кнопку " +
+                        "\"Видалити\" в списку тестів навпроти бажаного до видалення тесту. Далі необхідно " +
+                        "підтвердити бажання видалення обраного тесту."}
+            };
+        public static readonly Dictionary<TestPassingManuals, string> testPassingManualMessages =
             new Dictionary<TestPassingManuals, string>()
             {
                 { TestPassingManuals.TEST_BEGIN, "Як розпочати тест?\nВведіть Ваше ім'я в поле " +
@@ -71,7 +65,7 @@ namespace courseWork_project
                     "кнопку \"Завершити проходження тесту\", що знаходиться в центрі нижньої частини " +
                     "вікна проходження тесту."}
             };
-        private static readonly Dictionary<TestChangeManuals, string> testChangeManualMessages =
+        public static readonly Dictionary<TestChangeManuals, string> testChangeManualMessages =
             new Dictionary<TestChangeManuals, string>()
             {
                 { TestChangeManuals.QUESTION_ENTRY, "Для задання чи редагування запитання користуйтеся " +
@@ -103,7 +97,7 @@ namespace courseWork_project
                     " вікна проходження тесту і підтвердьте бажання переходу до головної сторінки." +
                     " Зауважте, що ця дія призведе до втрати даних тесту." }
             };
-        private static readonly Dictionary<TestSavingManuals, string> testSavingManualMessages =
+        public static readonly Dictionary<TestSavingManuals, string> testSavingManualMessages =
             new Dictionary<TestSavingManuals, string>()
 
             {
@@ -127,44 +121,5 @@ namespace courseWork_project
                     "сповістить Вас про вдале записання даних тесту та відкриє головну сторінку. " +
                     "За потреби, до редагування тесту можна повернутись з головної сторінки."}
             };
-
-        public HelpCenter_Window()
-        {
-            InitializeComponent();
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            if(e.Key == Key.Escape)
-            {
-                Close();
-            }
-        }
-
-        private void MainWindowCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            UpdateInstructions(mainWindowManualMessages[(MainWindowManuals)
-                MainWindowCombobox.SelectedIndex]);
-        }
-        private void TestPassingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            UpdateInstructions(testPassingManualMessages[(TestPassingManuals)
-                TestPassingCombobox.SelectedIndex]);
-        }
-        private void CreationEditingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            UpdateInstructions(testChangeManualMessages[(TestChangeManuals)
-                CreationEditingCombobox.SelectedIndex]);
-        }
-        private void TestSavingCombobox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            UpdateInstructions(testSavingManualMessages[(TestSavingManuals)
-                TestSavingCombobox.SelectedIndex]);
-        }
-
-        private void UpdateInstructions(string text)
-        {
-            InfoText.Text = text;
-        }
     }
 }

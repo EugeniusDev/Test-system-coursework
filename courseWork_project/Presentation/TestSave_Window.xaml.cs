@@ -16,10 +16,10 @@ namespace courseWork_project
         public string Question { get; set; }
     }
     /// <summary>
-    /// Interaction logic for TestSaving_Window.xaml.
+    /// Interaction logic for TestSave_Window.xaml.
     /// </summary>
-    /// <remarks>TestSaving_Window is used to save created/edited test into database</remarks>
-    public partial class TestSaving_Window : Window
+    /// <remarks>TestSave_Window is used to save created/edited test into database</remarks>
+    public partial class TestSave_Window : Window
     {
         private readonly List<TestStructs.QuestionMetadata> questionMetadatas;
         private TestStructs.TestMetadata testMetadata = TestStructs.EmptyTestMetadata;
@@ -31,11 +31,11 @@ namespace courseWork_project
         bool isWindowClosingConfirmationRequired = true;
 
         /// <summary>
-        /// TestSaving_Window creating mode constructor
+        /// TestSave_Window creating mode constructor
         /// </summary>
         /// <param name="questionsToSave">List of QuestionMetadatas of the test</param>
         /// <param name="imagesToSave">List of data about images</param>
-        public TestSaving_Window(List<TestStructs.QuestionMetadata> questionsToSave)
+        public TestSave_Window(List<TestStructs.QuestionMetadata> questionsToSave)
         {
             isCreatingMode = true;
             this.questionMetadatas = questionsToSave;
@@ -72,9 +72,9 @@ namespace courseWork_project
         }
 
         /// <summary>
-        /// TestSaving_Window editing mode constructor
+        /// TestSave_Window editing mode constructor
         /// </summary>
-        public TestSaving_Window(Test testToSave)
+        public TestSave_Window(Test testToSave)
         {
             isCreatingMode = false;
             questionMetadatas = testToSave.QuestionMetadatas;
